@@ -1,0 +1,173 @@
+{
+  "categories": [
+    "環評",
+    "環差",
+    "監測",
+    "許可申請",
+    "土污",
+    "廢棄物",
+    "溫室氣體",
+    "其他"
+  ],
+  "cases": [
+    {
+      "id": "mp6k616g5813",
+      "name": "佩特拉",
+      "category": "環評",
+      "note": "",
+      "memo": "",
+      "milestones": [],
+      "contacts": [],
+      "createdAt": 1778827839352
+    },
+    {
+      "id": "mp6k5wlj87td",
+      "name": "大坑",
+      "category": "環評",
+      "note": "",
+      "memo": "",
+      "milestones": [],
+      "contacts": [
+        {
+          "id": "mp6kan9dw36k",
+          "logs": [],
+          "name": "葉俊宏",
+          "role": "經理",
+          "contactType": "規劃團隊(水保)",
+          "description": "",
+          "phone": "04-23725906",
+          "email": "jengwen@ms82.hinet.net",
+          "note": "用LINE聯絡",
+          "primary": false
+        },
+        {
+          "id": "mp6kcglins0c",
+          "logs": [],
+          "name": "周思婷",
+          "role": "環保局承辦",
+          "contactType": "台中環保局",
+          "description": "",
+          "phone": "04-22289111#66113",
+          "email": "jst239639@taichung.gov",
+          "note": "",
+          "primary": false
+        }
+      ],
+      "createdAt": 1778827833415
+    },
+    {
+      "id": "mp6k5qzloacq",
+      "name": "後龍",
+      "category": "環評",
+      "note": "",
+      "memo": "",
+      "milestones": [],
+      "contacts": [
+        {
+          "id": "mp6kenavrf0c",
+          "logs": [],
+          "name": "洪小姐",
+          "role": "環保局承辦",
+          "contactType": "苗栗縣環保局",
+          "description": "負責後龍案",
+          "phone": "037-558558#117",
+          "email": "yahung@mail.mlepb.gov.tw",
+          "note": "",
+          "primary": false
+        },
+        {
+          "id": "mp6kfc2bbnl5",
+          "logs": [],
+          "name": "李先生",
+          "role": "環保局",
+          "contactType": "苗栗縣環保局",
+          "description": "與洪小姐同為環評組",
+          "phone": "037-558558#123",
+          "email": "",
+          "note": "",
+          "primary": false
+        }
+      ],
+      "createdAt": 1778827826145
+    },
+    {
+      "id": "mp6k5k8x9u9a",
+      "name": "日月明珠",
+      "category": "監測",
+      "note": "",
+      "memo": "",
+      "milestones": [],
+      "contacts": [],
+      "createdAt": 1778827817409
+    },
+    {
+      "id": "mp6k58jpa1ve",
+      "name": "雍御",
+      "category": "監測",
+      "note": "",
+      "memo": "",
+      "milestones": [],
+      "contacts": [],
+      "createdAt": 1778827802245
+    },
+    {
+      "id": "mp6jy04c0f7k",
+      "name": "豐泰",
+      "category": "監測",
+      "note": "",
+      "memo": "",
+      "milestones": [],
+      "contacts": [
+        {
+          "id": "mp6jz51qzym0",
+          "logs": [],
+          "name": "鄭雅文",
+          "role": "總裁祕書",
+          "contactType": "業主",
+          "description": "",
+          "phone": "05-5379117#800",
+          "email": "sophia.cheng@fengtay.com",
+          "note": "",
+          "primary": false
+        },
+        {
+          "id": "mp6k0mk1ylhh",
+          "logs": [],
+          "name": "邱俊毅",
+          "role": "環保課/協理",
+          "contactType": "業主",
+          "description": "監測報告與請款事宜",
+          "phone": "05-5379100#121",
+          "email": "subie.chiu@fengtay.com",
+          "note": "",
+          "primary": false
+        },
+        {
+          "id": "mp6k1cyezsoc",
+          "logs": [],
+          "name": "陳裕心",
+          "role": "環保課/經理",
+          "contactType": "業主",
+          "description": "監測報告與請款事宜",
+          "phone": "05-5379117#836",
+          "email": "",
+          "note": "",
+          "primary": false
+        },
+        {
+          "id": "mp6k39amsdl2",
+          "logs": [],
+          "name": "林佩芬",
+          "role": "佳美/專案負責人",
+          "contactType": "下包",
+          "description": "物化調查",
+          "phone": "(02)2659-7577#103",
+          "email": "pearl@cmit.com.tw",
+          "note": "",
+          "primary": false
+        }
+      ],
+      "createdAt": 1778827464732
+    }
+  ]
+}
