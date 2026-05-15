@@ -260,6 +260,19 @@ function printView(){let html=`<!DOCTYPE html><html lang="zh-TW"><head><meta cha
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.mo.open').forEach(m=>m.classList.remove('open'));if((e.ctrlKey||e.metaKey)&&e.key==='n'){e.preventDefault();openCaseModal();}});
 loadData();setThemeMode(themeMode);setupSearch();updateStorage();renderCatChips();render();
 setInterval(()=>{if(themeMode==='auto')applyTheme();},60000);
+
+async function loadData() {
+  try {
+    const res = await fetch('contact_control.json');
+    if (res.ok) DB = await res.json();
+  } catch (_) {}
+  try {
+    const saved = localStorage.getItem('eia-db');
+    if (saved) {
+      const p = JSON.parse(saved);
+      if (p?.laws?.length || p?.categories?.length) DB = p;
+    }
+  } catch (_) {}
 </script>
 </body>
 </html>
