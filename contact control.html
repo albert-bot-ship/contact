@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>案件聯絡人管理系統</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0c0f1a;
+  --surface: #131929;
+  --surface2: #1c2236;
+  --surface3: #222b42;
+  --border: #2a344f;
+  --border2: #354060;
+  --accent: #4f9eff;
+  --accent-dim: rgba(79,158,255,0.12);
+  --accent-glow: rgba(79,158,255,0.25);
+  --text: #dce6f5;
+  --text-muted: #7a8aab;
+  --text-faint: #4a5470;
+  --danger: #ef5350;
+  --danger-dim: rgba(239,83,80,0.1);
+  --success: #43c98c;
+  --warn: #f5a623;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+}
+
+[data-theme="light"] {
+  --bg: #edf1f7;
+  --surface: #ffffff;
+  --surface2: #f3f6fb;
+  --surface3: #e8edf6;
+  --border: #d1d9eb;
+  --border2: #b8c4dc;
+  --accent: #1a6fc4;
+  --accent-dim: rgba(26,111,196,0.08);
+  --accent-glow: rgba(26,111,196,0.2);
+  --text: #1a2340;
+  --text-muted: #5a6888;
+  --text-faint: #9aa3be;
+  --danger: #d32f2f;
+  --danger-dim: rgba(211,47,47,0.08);
+  --success: #2e9e6f;
+  --warn: #c97a00;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 13px;
+  line-height: 1.6;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* ── Header ── */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1.25rem;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.logo-icon {
+  width: 28px; height: 28px;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-glow);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.logo-icon svg { color: var(--accent); }
+
+.header-spacer { flex: 1; }
+
+.sunrise-pill {
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3px 10px;
+  white-space: nowrap;
+  display: flex; align-items: center; gap: 5px;
+}
+
+.storage-pill {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: default;
+  white-space: nowrap;
+}
+
+.storage-bar { width: 52px; height: 3px; background: var(--border2); border-radius: 2px; overflow: hidden; }
+.storage-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.4s; }
+
+.theme-toggle { display: flex; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 3px; gap: 2px; }
+.theme-btn { background: none; border: none; border-radius: 14px; padding: 2px 10px; font-size: 11px; color: var(--text-muted); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.theme-btn.active { background: var(--accent); color: #fff; font-weight: 600; }
+
+/* ── Toolbar ── */
+.toolbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 1.25rem;
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+}
+
+.search-group { display: flex; gap: 6px; flex: 1; min-width: 260px; }
+
+.search-wrap { position: relative; flex: 1; }
+.search-icon { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); color: var(--text-faint); pointer-events: none; }
+.search-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 7px 10px 7px 30px;
+  color: var(--text);
+  font-size: 12px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: inherit;
+}
+.search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-dim); }
+.search-input::placeholder { color: var(--text-faint); }
+
+.action-group { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 12px;
+  border-radius: var(--radius);
+  font-size: 12px; font-family: inherit;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.btn-primary:hover { opacity: 0.88; color: #fff; background: var(--accent); }
+.btn-sm { padding: 4px 10px; font-size: 11px; }
+.btn-ghost { border-color: transparent; background: none; }
+.btn-ghost:hover { border-color: var(--border); }
+
+/* ── Main ── */
+main { padding: 1.25rem; max-width: 1080px; margin: 0 auto; }
+
+/* Category filter */
+.cat-bar { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
+.cat-label { font-size: 11px; color: var(--text-faint); margin-right: 2px; }
+.cat-chip {
+  padding: 3px 11px; border-radius: 14px; font-size: 11px;
+  cursor: pointer; border: 1px solid var(--border); background: none;
+  color: var(--text-muted); transition: all 0.15s; font-family: inherit;
+}
+.cat-chip:hover, .cat-chip.active {
+  background: var(--accent-dim); border-color: var(--accent); color: var(--accent); font-weight: 600;
+}
+
+/* Empty state */
+.empty-state { text-align: center; padding: 5rem 1rem; color: var(--text-muted); }
+.empty-icon { font-size: 42px; margin-bottom: 1rem; opacity: 0.2; }
+.empty-state p { font-size: 13px; }
+
+/* ── Case Card ── */
+.case-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-bottom: 8px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.case-card:hover { border-color: var(--border2); }
+.case-card.expanded { border-color: var(--accent-glow); }
+
+.case-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px;
+  cursor: pointer; user-select: none;
+}
+
+.expand-icon {
+  color: var(--text-faint); flex-shrink: 0;
+  transition: transform 0.2s;
+  display: flex; align-items: center;
+}
+.case-card.expanded .expand-icon { transform: rotate(90deg); color: var(--accent); }
+
+.case-name { font-weight: 600; font-size: 13px; flex: 1; }
+
+.cat-badge {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 10px;
+  font-size: 10px; font-weight: 600;
+  flex-shrink: 0;
+}
+
+.primary-contact-preview {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 11px; color: var(--text-muted); flex-shrink: 0;
+}
+
+.count-badge {
+  background: var(--surface3); border: 1px solid var(--border);
+  border-radius: 10px; padding: 1px 7px;
+  font-size: 10px; color: var(--text-muted); flex-shrink: 0;
+}
+
+.case-actions { display: flex; gap: 3px; opacity: 0; transition: opacity 0.15s; }
+.case-header:hover .case-actions { opacity: 1; }
+
+/* ── Contact List ── */
+.contact-list { border-top: 1px solid var(--border); display: none; }
+.case-card.expanded .contact-list { display: block; }
+
+.contact-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px 8px 42px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+  min-height: 52px;
+}
+.contact-item:last-of-type { border-bottom: none; }
+.contact-item:hover { background: var(--surface2); }
+.contact-item.highlight { background: var(--accent-dim); }
+
+.avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--accent-dim); color: var(--accent);
+  border: 1px solid var(--accent-glow);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; flex-shrink: 0; letter-spacing: 0;
+}
+
+.contact-body { flex: 1; min-width: 0; }
+
+.contact-name-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 2px; }
+.contact-name { font-weight: 600; font-size: 12px; }
+
+.badge-primary {
+  font-size: 9px; padding: 1px 5px; border-radius: 6px;
+  background: var(--accent-dim); color: var(--accent);
+  border: 1px solid var(--accent-glow); font-weight: 600;
+}
+
+.contact-role { font-size: 10px; color: var(--text-faint); }
+.contact-details { display: flex; gap: 12px; flex-wrap: wrap; }
+.detail-field {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 11px; color: var(--text-muted);
+}
+.detail-field svg { flex-shrink: 0; color: var(--text-faint); }
+
+.copy-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-faint); padding: 2px;
+  border-radius: 4px; display: flex; align-items: center;
+  transition: all 0.15s; flex-shrink: 0;
+}
+.copy-btn:hover { color: var(--accent); background: var(--accent-dim); }
+
+.contact-note { font-size: 10px; color: var(--text-faint); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 360px; }
+
+.contact-actions { display: flex; gap: 3px; opacity: 0; transition: opacity 0.15s; flex-shrink: 0; }
+.contact-item:hover .contact-actions { opacity: 1; }
+
+.add-contact-row { padding: 7px 12px 7px 42px; background: var(--surface2); }
+
+/* Icon buttons */
+.icon-btn {
+  background: none; border: 1px solid transparent; border-radius: 6px;
+  padding: 4px; cursor: pointer; color: var(--text-faint);
+  display: flex; align-items: center; transition: all 0.15s;
+}
+.icon-btn:hover { color: var(--accent); border-color: var(--border); background: var(--accent-dim); }
+.icon-btn.del:hover { color: var(--danger); border-color: rgba(239,83,80,0.3); background: var(--danger-dim); }
+
+/* ── Modal ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.65); z-index: 200;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-xl);
+  width: 100%; max-width: 460px;
+  margin: 1rem; animation: fadeUp 0.18s ease;
+}
+@keyframes fadeUp { from { transform: translateY(10px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-title { font-weight: 700; font-size: 14px; }
+.modal-close {
+  background: none; border: none; cursor: pointer; color: var(--text-muted);
+  padding: 4px; border-radius: 6px; display: flex; transition: all 0.15s;
+}
+.modal-close:hover { color: var(--text); background: var(--surface2); }
+
+.modal-body { padding: 16px; }
+.modal-footer {
+  padding: 12px 16px; border-top: 1px solid var(--border);
+  display: flex; gap: 6px; justify-content: flex-end;
+}
+
+.form-group { margin-bottom: 12px; }
+.form-label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; letter-spacing: 0.03em; }
+.form-req { color: var(--accent); }
+
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 7px 10px;
+  color: var(--text);
+  font-size: 12px; font-family: inherit;
+  outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-dim);
+}
+.form-input::placeholder, .form-textarea::placeholder { color: var(--text-faint); }
+.form-select { appearance: none; cursor: pointer; }
+.form-textarea { resize: vertical; min-height: 64px; }
+.form-select option { background: var(--surface); }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.form-check { display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 12px; color: var(--text-muted); }
+.form-check input[type="checkbox"] { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 300;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 9px 14px;
+  font-size: 12px;
+  display: flex; align-items: center; gap: 8px;
+  animation: slideIn 0.2s ease;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+  pointer-events: none;
+  max-width: 300px;
+}
+@keyframes slideIn { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* Highlight mark */
+mark { background: rgba(79,158,255,0.22); color: var(--accent); border-radius: 2px; padding: 0 1px; }
+[data-theme="light"] mark { background: rgba(26,111,196,0.15); }
+
+/* Divider */
+.section-divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+</style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+      </svg>
+    </div>
+    案件聯絡人管理系統
+  </div>
+
+  <div class="header-spacer"></div>
+
+  <div class="sunrise-pill" id="sunrisePill" style="display:none">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <span id="sunriseText"></span>
+  </div>
+
+  <div class="storage-pill" title="LocalStorage 使用量">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+    <span id="storageText">—</span>
+    <div class="storage-bar"><div class="storage-fill" id="storageFill" style="width:0%"></div></div>
+  </div>
+
+  <div class="theme-toggle">
+    <button class="theme-btn" id="btnAuto"  onclick="setThemeMode('auto')">自動</button>
+    <button class="theme-btn" id="btnLight" onclick="setThemeMode('light')">淺色</button>
+    <button class="theme-btn" id="btnDark"  onclick="setThemeMode('dark')">深色</button>
+  </div>
+</header>
+
+<!-- ── Toolbar ── -->
+<div class="toolbar">
+  <div class="search-group">
+    <div class="search-wrap">
+      <svg class="search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input class="search-input" id="searchCase" placeholder="搜尋案件名稱… (Enter)" type="search" autocomplete="off">
+    </div>
+    <div class="search-wrap">
+      <svg class="search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <input class="search-input" id="searchContact" placeholder="搜尋聯絡人姓名… (Enter)" type="search" autocomplete="off">
+    </div>
+  </div>
+  <div class="action-group">
+    <button class="btn btn-primary" onclick="openCaseModal()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      新增案件
+    </button>
+    <button class="btn" onclick="exportJSON()" title="匯出 JSON（可存 GitHub 備份）">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      匯出 JSON
+    </button>
+    <button class="btn" onclick="triggerImport()" title="從 JSON 備份還原">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      匯入 JSON
+    </button>
+    <button class="btn" onclick="exportCSV()" title="匯出 CSV（可用 Excel 開啟）">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      匯出 CSV
+    </button>
+    <input type="file" id="importInput" accept=".json" style="display:none" onchange="importJSON(event)">
+  </div>
+</div>
+
+<!-- ── Main ── -->
+<main>
+  <div class="cat-bar">
+    <span class="cat-label">類別：</span>
+    <button class="cat-chip active" data-cat="" onclick="filterCat(this,'')">全部</button>
+    <button class="cat-chip" data-cat="環評" onclick="filterCat(this,'環評')">環評</button>
+    <button class="cat-chip" data-cat="環差" onclick="filterCat(this,'環差')">環差</button>
+    <button class="cat-chip" data-cat="監測" onclick="filterCat(this,'監測')">監測</button>
+    <button class="cat-chip" data-cat="許可申請" onclick="filterCat(this,'許可申請')">許可申請</button>
+    <button class="cat-chip" data-cat="土污" onclick="filterCat(this,'土污')">土污</button>
+    <button class="cat-chip" data-cat="廢棄物" onclick="filterCat(this,'廢棄物')">廢棄物</button>
+    <button class="cat-chip" data-cat="溫室氣體" onclick="filterCat(this,'溫室氣體')">溫室氣體</button>
+    <button class="cat-chip" data-cat="其他" onclick="filterCat(this,'其他')">其他</button>
+  </div>
+
+  <div id="caseList"></div>
+</main>
+
+<!-- ── Case Modal ── -->
+<div class="modal-overlay" id="caseModalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="caseModalTitle">新增案件</span>
+      <button class="modal-close" onclick="closeCaseModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="caseId">
+      <div class="form-group">
+        <label class="form-label">案件名稱 <span class="form-req">*</span></label>
+        <input class="form-input" id="caseName" placeholder="例：○○廠 環境影響評估">
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">案件類別</label>
+          <select class="form-select" id="caseCategory">
+            <option value="">— 請選擇 —</option>
+            <option value="環評">環評</option>
+            <option value="環差">環差</option>
+            <option value="監測">監測</option>
+            <option value="許可申請">許可申請</option>
+            <option value="土污">土污</option>
+            <option value="廢棄物">廢棄物</option>
+            <option value="溫室氣體">溫室氣體</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">備註</label>
+          <input class="form-input" id="caseNote" placeholder="選填">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeCaseModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveCase()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Contact Modal ── -->
+<div class="modal-overlay" id="contactModalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="contactModalTitle">新增聯絡人</span>
+      <button class="modal-close" onclick="closeContactModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="contactId">
+      <input type="hidden" id="contactCaseId">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">姓名 <span class="form-req">*</span></label>
+          <input class="form-input" id="contactName" placeholder="例：王小明">
+        </div>
+        <div class="form-group">
+          <label class="form-label">職位 / 身份</label>
+          <input class="form-input" id="contactRole" placeholder="例：業主、承辦、主管">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">電話</label>
+          <input class="form-input" id="contactPhone" placeholder="0900-000-000" type="tel">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" id="contactEmail" placeholder="example@mail.com" type="email">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">備註</label>
+        <textarea class="form-textarea" id="contactNote" placeholder="其他備注事項..."></textarea>
+      </div>
+      <label class="form-check">
+        <input type="checkbox" id="contactPrimary">
+        設為此案件的主要聯絡人
+      </label>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeContactModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveContact()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast ── -->
+<div id="toast" class="toast" style="display:none"></div>
+
+<script>
+/* ── Data & Storage ── */
+const STORAGE_KEY = 'caseManager_v2';
+let db = { cases: [] };
+
+function loadData() {
+  try { const r = localStorage.getItem(STORAGE_KEY); if (r) db = JSON.parse(r); }
+  catch(e) { db = { cases: [] }; }
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+  updateStorage();
+}
+
+function updateStorage() {
+  const raw = localStorage.getItem(STORAGE_KEY) || '';
+  const bytes = new TextEncoder().encode(raw).length;
+  const kb = (bytes / 1024).toFixed(1);
+  const pct = Math.min(100, (bytes / (5 * 1024 * 1024)) * 100);
+  document.getElementById('storageText').textContent = `${kb} KB / 5 MB`;
+  document.getElementById('storageFill').style.width = pct.toFixed(1) + '%';
+  const fill = document.getElementById('storageFill');
+  fill.style.background = pct > 80 ? 'var(--danger)' : pct > 50 ? 'var(--warn)' : 'var(--accent)';
+}
+
+/* ── Sunrise Calculation (Taichung 24.1477°N, 120.6736°E) ── */
+function getTaichungSunriseSunset() {
+  const lat = 24.1477, lng = 120.6736;
+  const now = new Date();
+  const JD = now.getTime() / 86400000 + 2440587.5;
+  const n = JD - 2451545.0 + 0.0008;
+  const Jstar = n - lng / 360;
+  const M = (357.5291 + 0.98560028 * Jstar) % 360;
+  const C = 1.9148 * Math.sin(M * Math.PI/180) + 0.0200 * Math.sin(2 * M * Math.PI/180) + 0.0003 * Math.sin(3 * M * Math.PI/180);
+  const lambda = (M + C + 180 + 102.9372) % 360;
+  const Jt = 2451545.0 + Jstar + 0.0053 * Math.sin(M * Math.PI/180) - 0.0069 * Math.sin(2 * lambda * Math.PI/180);
+  const sinDec = Math.sin(lambda * Math.PI/180) * Math.sin(23.44 * Math.PI/180);
+  const cosDec = Math.cos(Math.asin(sinDec));
+  const cosH = (Math.sin(-0.83 * Math.PI/180) - Math.sin(lat * Math.PI/180) * sinDec) / (Math.cos(lat * Math.PI/180) * cosDec);
+  const H = Math.acos(Math.max(-1, Math.min(1, cosH))) * 180 / Math.PI;
+  const toDate = jd => new Date((jd - 2440587.5) * 86400000);
+  return { sunrise: toDate(Jt - H/360), sunset: toDate(Jt + H/360) };
+}
+
+function fmtTime(d) {
+  return d.toLocaleTimeString('zh-TW', { hour:'2-digit', minute:'2-digit', hour12:false, timeZone:'Asia/Taipei' });
+}
+
+/* ── Theme ── */
+let themeMode = localStorage.getItem('themeMode') || 'auto';
+
+function setThemeMode(mode) {
+  themeMode = mode;
+  localStorage.setItem('themeMode', mode);
+  applyTheme();
+  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+  const map = { auto:'btnAuto', light:'btnLight', dark:'btnDark' };
+  document.getElementById(map[mode]).classList.add('active');
+}
+
+function applyTheme() {
+  let dark = false;
+  const pill = document.getElementById('sunrisePill');
+  if (themeMode === 'dark') {
+    dark = true; pill.style.display = 'none';
+  } else if (themeMode === 'light') {
+    dark = false; pill.style.display = 'none';
+  } else {
+    const { sunrise, sunset } = getTaichungSunriseSunset();
+    const now = new Date();
+    dark = now < sunrise || now > sunset;
+    document.getElementById('sunriseText').textContent = `台中 日出 ${fmtTime(sunrise)} · 日落 ${fmtTime(sunset)}`;
+    pill.style.display = 'flex';
+  }
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+}
+
+/* ── Utilities ── */
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function hl(text, q) {
+  if (!q) return escHtml(text);
+  const e = escHtml(text);
+  const eq = escHtml(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  return e.replace(new RegExp(eq, 'gi'), m => `<mark>${m}</mark>`);
+}
+
+function initials(name) {
+  if (!name) return '?';
+  const c = [...String(name).trim()];
+  return c.length >= 2 ? c[0] + c[c.length - 1] : c[0];
+}
+
+const CAT_COLORS = {
+  '環評':    { bg:'rgba(79,158,255,0.15)',  fg:'#4f9eff' },
+  '環差':    { bg:'rgba(155,89,182,0.15)',  fg:'#a86fd0' },
+  '監測':    { bg:'rgba(29,158,117,0.15)',  fg:'#1d9e75' },
+  '許可申請':{ bg:'rgba(230,126,34,0.15)', fg:'#e07b1a' },
+  '土污':    { bg:'rgba(192,57,43,0.15)',   fg:'#c0392b' },
+  '廢棄物':  { bg:'rgba(120,130,150,0.15)',fg:'#8090a0' },
+  '溫室氣體':{ bg:'rgba(39,174,96,0.15)',  fg:'#27ae60' },
+  '其他':    { bg:'rgba(120,130,150,0.15)',fg:'#8090a0' },
+};
+
+/* ── State ── */
+let searchCaseQ = '', searchContactQ = '', filterCategory = '';
+
+/* ── Render ── */
+function render() {
+  const list = document.getElementById('caseList');
+  let cases = db.cases;
+
+  if (filterCategory) cases = cases.filter(c => c.category === filterCategory);
+  if (searchCaseQ) cases = cases.filter(c => c.name.toLowerCase().includes(searchCaseQ.toLowerCase()));
+  if (searchContactQ) {
+    const q = searchContactQ.toLowerCase();
+    cases = cases.filter(c => (c.contacts||[]).some(ct => ct.name.toLowerCase().includes(q)));
+  }
+
+  if (cases.length === 0) {
+    list.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">📁</div>
+      <p>${db.cases.length === 0 ? '尚無案件，點選「新增案件」開始建立' : '找不到符合條件的案件'}</p>
+    </div>`;
+    return;
+  }
+
+  list.innerHTML = cases.map(renderCase).join('');
+}
+
+function renderCase(c) {
+  const contacts = c.contacts || [];
+  const primary = contacts.find(ct => ct.primary);
+  const col = c.category ? CAT_COLORS[c.category] : null;
+
+  const contactsHtml = contacts.map(ct => renderContact(c.id, ct)).join('');
+
+  return `<div class="case-card ${c._expanded ? 'expanded' : ''}" id="caseCard-${c.id}">
+    <div class="case-header" onclick="toggleCase('${c.id}')">
+      <div class="expand-icon">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="case-name">${hl(c.name, searchCaseQ)}</div>
+      ${col ? `<span class="cat-badge" style="background:${col.bg};color:${col.fg}">${escHtml(c.category)}</span>` : ''}
+      ${primary ? `<div class="primary-contact-preview">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        ${escHtml(primary.name)}
+      </div>` : ''}
+      <span class="count-badge">${contacts.length} 位</span>
+      <div class="case-actions" onclick="event.stopPropagation()">
+        <button class="icon-btn" onclick="openCaseModal('${c.id}')" title="編輯案件">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="icon-btn del" onclick="deleteCase('${c.id}')" title="刪除案件">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="contact-list">
+      ${contactsHtml}
+      <div class="add-contact-row">
+        <button class="btn btn-sm btn-ghost" onclick="openContactModal('${c.id}')">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          新增聯絡人
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderContact(caseId, ct) {
+  const isMatch = searchContactQ && ct.name.toLowerCase().includes(searchContactQ.toLowerCase());
+  return `<div class="contact-item ${isMatch ? 'highlight' : ''}">
+    <div class="avatar">${initials(ct.name)}</div>
+    <div class="contact-body">
+      <div class="contact-name-row">
+        <span class="contact-name">${hl(ct.name, searchContactQ)}</span>
+        ${ct.primary ? '<span class="badge-primary">主要</span>' : ''}
+        ${ct.role ? `<span class="contact-role">${escHtml(ct.role)}</span>` : ''}
+      </div>
+      <div class="contact-details">
+        ${ct.phone ? `<span class="detail-field">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8 9.91a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          ${escHtml(ct.phone)}
+          <button class="copy-btn" onclick="copyText(${JSON.stringify(ct.phone)},'電話')" title="複製電話">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </span>` : ''}
+        ${ct.email ? `<span class="detail-field">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          ${escHtml(ct.email)}
+          <button class="copy-btn" onclick="copyText(${JSON.stringify(ct.email)},'Email')" title="複製 Email">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </span>` : ''}
+      </div>
+      ${ct.note ? `<div class="contact-note" title="${escHtml(ct.note)}">${escHtml(ct.note)}</div>` : ''}
+    </div>
+    <div class="contact-actions">
+      <button class="icon-btn" onclick="openContactModal('${caseId}','${ct.id}')" title="編輯">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </button>
+      <button class="icon-btn del" onclick="deleteContact('${caseId}','${ct.id}')" title="刪除">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      </button>
+    </div>
+  </div>`;
+}
+
+/* ── Toggle ── */
+function toggleCase(id) {
+  const c = db.cases.find(c => c.id === id);
+  if (c) { c._expanded = !c._expanded; render(); }
+}
+
+/* ── Case Modal ── */
+function openCaseModal(id) {
+  document.getElementById('caseModalTitle').textContent = id ? '編輯案件' : '新增案件';
+  document.getElementById('caseId').value = id || '';
+  if (id) {
+    const c = db.cases.find(c => c.id === id);
+    if (c) {
+      document.getElementById('caseName').value = c.name;
+      document.getElementById('caseCategory').value = c.category || '';
+      document.getElementById('caseNote').value = c.note || '';
+    }
+  } else {
+    document.getElementById('caseName').value = '';
+    document.getElementById('caseCategory').value = '';
+    document.getElementById('caseNote').value = '';
+  }
+  document.getElementById('caseModalOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('caseName').focus(), 80);
+}
+
+function closeCaseModal() { document.getElementById('caseModalOverlay').classList.remove('open'); }
+
+function saveCase() {
+  const name = document.getElementById('caseName').value.trim();
+  if (!name) { showToast('⚠ 請輸入案件名稱', 'warn'); return; }
+  const id = document.getElementById('caseId').value;
+  const category = document.getElementById('caseCategory').value;
+  const note = document.getElementById('caseNote').value.trim();
+  if (id) {
+    const c = db.cases.find(c => c.id === id);
+    if (c) { c.name = name; c.category = category; c.note = note; }
+  } else {
+    db.cases.unshift({ id: uid(), name, category, note, contacts: [], _expanded: true });
+  }
+  saveData(); render(); closeCaseModal();
+  showToast(id ? '✓ 案件已更新' : '✓ 案件已新增');
+}
+
+/* ── Contact Modal ── */
+function openContactModal(caseId, contactId) {
+  document.getElementById('contactModalTitle').textContent = contactId ? '編輯聯絡人' : '新增聯絡人';
+  document.getElementById('contactCaseId').value = caseId;
+  document.getElementById('contactId').value = contactId || '';
+  if (contactId) {
+    const c = db.cases.find(c => c.id === caseId);
+    const ct = c && c.contacts.find(ct => ct.id === contactId);
+    if (ct) {
+      document.getElementById('contactName').value = ct.name;
+      document.getElementById('contactRole').value = ct.role || '';
+      document.getElementById('contactPhone').value = ct.phone || '';
+      document.getElementById('contactEmail').value = ct.email || '';
+      document.getElementById('contactNote').value = ct.note || '';
+      document.getElementById('contactPrimary').checked = !!ct.primary;
+    }
+  } else {
+    ['contactName','contactRole','contactPhone','contactEmail','contactNote'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('contactPrimary').checked = false;
+  }
+  document.getElementById('contactModalOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('contactName').focus(), 80);
+}
+
+function closeContactModal() { document.getElementById('contactModalOverlay').classList.remove('open'); }
+
+function saveContact() {
+  const name = document.getElementById('contactName').value.trim();
+  if (!name) { showToast('⚠ 請輸入姓名', 'warn'); return; }
+  const caseId = document.getElementById('contactCaseId').value;
+  const contactId = document.getElementById('contactId').value;
+  const c = db.cases.find(c => c.id === caseId);
+  if (!c) return;
+  const isPrimary = document.getElementById('contactPrimary').checked;
+  if (isPrimary) c.contacts.forEach(ct => ct.primary = false);
+  const payload = {
+    name,
+    role: document.getElementById('contactRole').value.trim(),
+    phone: document.getElementById('contactPhone').value.trim(),
+    email: document.getElementById('contactEmail').value.trim(),
+    note: document.getElementById('contactNote').value.trim(),
+    primary: isPrimary
+  };
+  if (contactId) {
+    const ct = c.contacts.find(ct => ct.id === contactId);
+    if (ct) Object.assign(ct, payload);
+  } else {
+    c.contacts.push({ id: uid(), ...payload });
+  }
+  c._expanded = true;
+  saveData(); render(); closeContactModal();
+  showToast(contactId ? '✓ 聯絡人已更新' : '✓ 聯絡人已新增');
+}
+
+/* ── Delete ── */
+function deleteCase(id) {
+  const c = db.cases.find(c => c.id === id);
+  if (!c) return;
+  if (!confirm(`確定要刪除案件「${c.name}」及其所有聯絡人（共 ${(c.contacts||[]).length} 位）？`)) return;
+  db.cases = db.cases.filter(c => c.id !== id);
+  saveData(); render(); showToast('案件已刪除', 'warn');
+}
+
+function deleteContact(caseId, contactId) {
+  const c = db.cases.find(c => c.id === caseId);
+  if (!c) return;
+  const ct = c.contacts.find(ct => ct.id === contactId);
+  if (!ct) return;
+  if (!confirm(`確定要刪除聯絡人「${ct.name}」？`)) return;
+  c.contacts = c.contacts.filter(ct => ct.id !== contactId);
+  saveData(); render(); showToast('聯絡人已刪除', 'warn');
+}
+
+/* ── Category filter ── */
+function filterCat(el, cat) {
+  filterCategory = cat;
+  document.querySelectorAll('.cat-chip').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+/* ── Search ── */
+function setupSearch() {
+  const caseEl = document.getElementById('searchCase');
+  const ctEl = document.getElementById('searchContact');
+
+  caseEl.addEventListener('keydown', e => { if (e.key==='Enter') { searchCaseQ = e.target.value.trim(); render(); } });
+  caseEl.addEventListener('input', e => { if (!e.target.value) { searchCaseQ = ''; render(); } });
+
+  ctEl.addEventListener('keydown', e => {
+    if (e.key==='Enter') {
+      searchContactQ = e.target.value.trim();
+      if (searchContactQ) {
+        const q = searchContactQ.toLowerCase();
+        db.cases.forEach(c => { if ((c.contacts||[]).some(ct => ct.name.toLowerCase().includes(q))) c._expanded = true; });
+      }
+      render();
+    }
+  });
+  ctEl.addEventListener('input', e => { if (!e.target.value) { searchContactQ = ''; render(); } });
+}
+
+/* ── Copy ── */
+function copyText(text, label) {
+  navigator.clipboard.writeText(text).then(() => showToast(`✓ ${label} 已複製`)).catch(() => showToast('複製失敗', 'warn'));
+}
+
+/* ── Toast ── */
+let toastTimer;
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  const color = type === 'warn' ? 'var(--warn)' : 'var(--success)';
+  t.style.display = 'flex';
+  t.style.borderColor = type === 'warn' ? 'var(--border2)' : 'var(--border2)';
+  t.innerHTML = `<span style="color:${color};font-size:14px">●</span><span>${escHtml(msg)}</span>`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.style.display = 'none'; }, 2800);
+}
+
+/* ── Export / Import ── */
+function exportJSON() {
+  const clean = { cases: db.cases.map(c => {
+    const { _expanded, ...rest } = c;
+    return rest;
+  })};
+  const blob = new Blob([JSON.stringify(clean, null, 2)], { type: 'application/json' });
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `案件聯絡人_${todayStr()}.json` });
+  a.click();
+  showToast('✓ JSON 已匯出（可上傳 GitHub 備份）');
+}
+
+function triggerImport() { document.getElementById('importInput').click(); }
+
+function importJSON(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const imported = JSON.parse(ev.target.result);
+      if (!Array.isArray(imported.cases)) throw new Error('格式錯誤');
+      if (!confirm(`確定匯入？\n現有 ${db.cases.length} 筆案件將被覆蓋，匯入 ${imported.cases.length} 筆。`)) return;
+      db = imported;
+      db.cases.forEach(c => { if (!c.contacts) c.contacts = []; c._expanded = false; });
+      saveData(); render();
+      showToast(`✓ 已匯入 ${db.cases.length} 筆案件`);
+    } catch { showToast('⚠ 匯入失敗：請確認是有效的 JSON 備份', 'warn'); }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function exportCSV() {
+  const rows = [['案件名稱','案件類別','案件備註','姓名','職位','電話','Email','聯絡人備註','主要聯絡人']];
+  db.cases.forEach(c => {
+    const contacts = c.contacts || [];
+    if (contacts.length === 0) {
+      rows.push([c.name, c.category||'', c.note||'', '','','','','','']);
+    } else {
+      contacts.forEach(ct => {
+        rows.push([c.name, c.category||'', c.note||'', ct.name, ct.role||'', ct.phone||'', ct.email||'', ct.note||'', ct.primary?'是':'']);
+      });
+    }
+  });
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  const blob = new Blob(['\uFEFF' + csv], { type:'text/csv;charset=utf-8' });
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `案件聯絡人_${todayStr()}.csv` });
+  a.click();
+  showToast('✓ CSV 已匯出（含 BOM，可直接用 Excel 開啟）');
+}
+
+function todayStr() { return new Date().toISOString().slice(0,10); }
+
+/* ── Modal backdrop close ── */
+['caseModalOverlay','contactModalOverlay'].forEach(id => {
+  document.getElementById(id).addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
+});
+
+/* ── Keyboard ── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeCaseModal(); closeContactModal(); }
+  if ((e.ctrlKey||e.metaKey) && e.key === 'n') { e.preventDefault(); openCaseModal(); }
+});
+
+/* ── Init ── */
+loadData();
+setThemeMode(themeMode);
+setupSearch();
+updateStorage();
+render();
+setInterval(() => { if (themeMode === 'auto') applyTheme(); }, 60000);
+</script>
+</body>
+</html>
