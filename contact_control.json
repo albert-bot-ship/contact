@@ -16,8 +16,54 @@
       "category": "環評",
       "note": "",
       "memo": "",
-      "milestones": [],
-      "contacts": [],
+      "milestones": [
+        {
+          "id": "mp6krcja73cg",
+          "label": "取得所有資料",
+          "date": "2026-06-30"
+        },
+        {
+          "id": "mp6krvehn66a",
+          "label": "撰寫環說書",
+          "date": "2026-07-01"
+        },
+        {
+          "id": "mp6ksb8cn8mw",
+          "label": "說明會辦理",
+          "date": "2026-08-01"
+        },
+        {
+          "id": "mp6ksk7tt2az",
+          "label": "提交初稿",
+          "date": "2026-09-01"
+        }
+      ],
+      "contacts": [
+        {
+          "id": "mp6kmu49ldil",
+          "logs": [],
+          "name": "李賢佑",
+          "role": "天誠/窗口",
+          "contactType": "業主",
+          "description": "開發資料提供",
+          "phone": "",
+          "email": "",
+          "note": "用Line聯絡",
+          "primary": false
+        },
+        {
+          "id": "mp6ko9wi5xgl",
+          "logs": [],
+          "name": "曾韋菖",
+          "role": "佳美/窗口",
+          "contactType": "下包",
+          "description": "物化調查",
+          "phone": "04-23595762#215",
+          "email": "cliff@cmit.com.tw",
+          "note": "",
+          "primary": false
+        }
+      ],
       "createdAt": 1778827839352
     },
     {
@@ -86,6 +132,18 @@
           "email": "",
           "note": "",
           "primary": false
+        },
+        {
+          "id": "mp6l3nafionz",
+          "logs": [],
+          "name": "侯小姐",
+          "role": "僧醫會",
+          "contactType": "開發單位",
+          "description": "行政事務處理",
+          "phone": "02-26829188#1503",
+          "email": "",
+          "note": "",
+          "primary": false
         }
       ],
       "createdAt": 1778827826145
@@ -97,7 +155,32 @@
       "note": "",
       "memo": "",
       "milestones": [],
-      "contacts": [],
+      "contacts": [
+        {
+          "id": "mp6l0iypm561",
+          "logs": [],
+          "name": "陳小姐",
+          "role": "黑潮",
+          "contactType": "下包",
+          "description": "請款事宜",
+          "phone": "04-23373181#131",
+          "email": "",
+          "note": "",
+          "primary": false
+        },
+        {
+          "id": "mp6l1yeh8ew2",
+          "logs": [],
+          "name": "周芸楨",
+          "role": "黑潮",
+          "contactType": "下包",
+          "description": "生態調查報告提供",
+          "phone": "",
+          "email": "smile874420@ecosystem.com.tw",
+          "note": "",
+          "primary": false
+        }
+      ],
       "createdAt": 1778827817409
     },
     {
@@ -107,7 +190,68 @@
       "note": "",
       "memo": "",
       "milestones": [],
-      "contacts": [],
+      "contacts": [
+        {
+          "id": "mp6l9951g7v6",
+          "logs": [],
+          "name": "盧冠華",
+          "role": "雍御/經理",
+          "contactType": "業主",
+          "description": "監測報告、請款聯絡人",
+          "phone": "06-5953689 # 248",
+          "email": "alex@accessmotor.com.tw",
+          "note": "用Line聯絡",
+          "primary": false
+        },
+        {
+          "id": "mp6laskpaev8",
+          "logs": [],
+          "name": "陳柯州",
+          "role": "忠正營造",
+          "contactType": "營造工程",
+          "description": "營造工程進度",
+          "phone": "",
+          "email": "",
+          "note": "用LINE聯絡",
+          "primary": false
+        },
+        {
+          "id": "mp6lbk3nnf2k",
+          "logs": [],
+          "name": "周峰隆",
+          "role": "富鴻",
+          "contactType": "規劃團隊(水保)",
+          "description": "水保工程進度",
+          "phone": "04-2708-1910",
+          "email": "",
+          "note": "用LINE聯絡",
+          "primary": false
+        },
+        {
+          "id": "mp6lck72rj9q",
+          "logs": [],
+          "name": "蔡明道",
+          "role": "南臺灣/副理",
+          "contactType": "下包",
+          "description": "物化調查",
+          "phone": "06-2010769#341",
+          "email": "tmtao59@gmail.com",
+          "note": "Teams訊息聯絡",
+          "primary": false
+        },
+        {
+          "id": "mp6leyvi80wf",
+          "logs": [],
+          "name": "吳柏霖",
+          "role": "庶古",
+          "contactType": "下包",
+          "description": "文化遺址調查：監看期程詢問、監看計畫書事宜",
+          "phone": "06-5905168#202",
+          "email": "moyastone@gmail.com",
+          "note": "",
+          "primary": false
+        }
+      ],
       "createdAt": 1778827802245
     },
     {
