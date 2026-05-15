@@ -8,6 +8,7 @@
 </head>
 <body>
 
+<div class="m-orb-mid" aria-hidden="true"></div>
 <header>
   <div class="logo">
     <div class="lic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
@@ -219,7 +220,34 @@ function deleteCat(cat){const used=db.cases.filter(c=>c.category===cat).length;i
 const openMo=id=>document.getElementById(id).classList.add('open');
 const closeMo=id=>document.getElementById(id).classList.remove('open');
 document.querySelectorAll('.mo').forEach(el=>el.addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');}));
-function setupSearch(){const cEl=document.getElementById('searchCase'),ctEl=document.getElementById('searchContact');cEl.addEventListener('keydown',e=>{if(e.key==='Enter'){searchCaseQ=e.target.value.trim();renderLeft();}});cEl.addEventListener('input',e=>{if(!e.target.value){searchCaseQ='';renderLeft();}});ctEl.addEventListener('keydown',e=>{if(e.key==='Enter'){searchCtQ=e.target.value.trim();renderLeft();}});ctEl.addEventListener('input',e=>{if(!e.target.value){searchCtQ='';renderLeft();}});}
+function setupSearch(){
+  const cEl=document.getElementById('searchCase'),ctEl=document.getElementById('searchContact');
+  cEl.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){
+      searchCaseQ=e.target.value.trim();
+      const matched=visCases();
+      if(matched.length>0) selId=matched[0].id;
+      render();
+    }
+  });
+  cEl.addEventListener('input',e=>{ if(!e.target.value){searchCaseQ='';render();} });
+  ctEl.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){
+      searchCtQ=e.target.value.trim();
+      if(searchCtQ){
+        const q=searchCtQ.toLowerCase();
+        const matched=visCases();
+        if(matched.length>0){
+          selId=matched[0].id;
+          const c=db.cases.find(c=>c.id===selId);
+          if(c) c.contacts.forEach(ct=>{ if(ct.name.toLowerCase().includes(q)) ct._logsOpen=true; });
+        }
+      }
+      render();
+    }
+  });
+  ctEl.addEventListener('input',e=>{ if(!e.target.value){searchCtQ='';render();} });
+}
 function copyText(text,label){navigator.clipboard.writeText(text).then(()=>showToast(`✓ ${label} 已複製`)).catch(()=>showToast('複製失敗','warn'));}
 let _tt;
 function showToast(msg,type){const t=document.getElementById('toast');t.style.display='flex';t.style.animation='none';t.offsetHeight;t.style.animation='tsi .2s ease';t.innerHTML=`<span style="color:${type==='warn'?'var(--warn)':'var(--ok)'}">●</span><span>${esc(msg)}</span>`;clearTimeout(_tt);_tt=setTimeout(()=>t.style.display='none',2800);}
