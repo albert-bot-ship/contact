@@ -273,6 +273,17 @@
       "email": "pearl@cmit.com.tw",
       "note": "",
       "createdAt": 1779075523237
+    },
+    {
+      "id": "mpdhrotl84xy",
+      "createdAt": 1779247074153,
+      "name": "連夷佐",
+      "role": "豐泰/營建單位/協理",
+      "contactType": "業主",
+      "description": "營建工程相關事務窗口",
+      "phone": "(05)537-9117~9 # 813",
+      "email": "carlos.lien@fengtay.com",
+      "note": ""
     }
   ],
   "cases": [
@@ -556,6 +567,13 @@
           "primary": false,
           "caseNote": "",
           "logs": []
+        },
+        {
+          "id": "mpdhrotldq54",
+          "logs": [],
+          "contactId": "mpdhrotl84xy",
+          "primary": false,
+          "caseNote": ""
         },
         {
           "id": "mpanmradg98m",
