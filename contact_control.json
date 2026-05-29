@@ -1,0 +1,589 @@
+{
+  "categories": [
+    "環評",
+    "環差",
+    "監測",
+    "許可申請",
+    "土污",
+    "廢棄物",
+    "溫室氣體",
+    "其他"
+  ],
+  "contacts": [
+    {
+      "id": "mp6lv92h0463",
+      "name": "詹董",
+      "role": "",
+      "contactType": "業主",
+      "description": "",
+      "phone": "0968-488189",
+      "email": "",
+      "note": "厚哥會聯絡",
+      "createdAt": 1779075523236
+    },
+    {
+      "id": "mp6lx79tplh7",
+      "name": "梁靖渝",
+      "role": "主要窗口",
+      "contactType": "業主",
+      "description": "公文用印、請款窗口",
+      "phone": "",
+      "email": "",
+      "note": "用Line聯繫",
+      "createdAt": 1779075523237
+    },
+    {
+      "id": "mp6lxw92mwiv",
+      "name": "黃小姐",
+      "role": "次要聯絡",
+      "contactType": "業主",
+      "description": "公文用印、請款窗口",
+      "phone": "",
+      "email": "",
+      "note": "用Line聯繫",
+      "createdAt": 1779075523237
+    },
+    {
+      "id": "mp6lyrozvr03",
+      "name": "曾筠涵",
+      "role": "裕昇",
+      "contactType": "規劃團隊",
+      "description": "開計、可規",
+      "phone": "",
+      "email": "",
+      "note": "用Line聯繫",
+      "createdAt": 1779075523237
+    },
+    {
+      "id": "mp6lzm71oftn",
+      "name": "江承翰",
+      "role": "浦騰",
+      "contactType": "規劃團隊",
+      "description": "水保、水計",
+      "phone": "",
+      "email": "",
+      "note": "用Line聯繫",
+      "createdAt": 1779075523237
+    },
+    {
+      "id": "mp6m0k3ueyhn",
+      "name": "何柏鈞",
+      "role": "國益通運",
+      "contactType": "營造工程",
+      "description": "開工、營造",
+      "phone": "",
+      "email": "",
+      "note": "用Line聯繫",
+      "createdAt": 1779075523237
+    },
+    {
+      "id": "mp6kmu49ldil",
+      "name": "李賢佑",
+      "role": "天誠/窗口",
+      "contactType": "業主",
+      "description": "開發資料提供",
+      "phone": "",
+      "email": "",
+      "note": "用Line聯絡",
+      "createdAt": 1779075523237
+    },
+    {
+      "id": "mp6ko9wi5xgl",
+      "name": "曾韋菖",
+      "role": "佳美/窗口",
+      "contactType": "下包",
+      "description": "物化調查",
+      "phone": "04-23595762#215",
+      "email": "cliff@cmit.com.tw",
+      "note": "",
+      "createdAt": 1779075523237
+    },
+    {
+      "id": "mp6kan9dw36k",
+      "name": "葉俊宏",
+      "role": "正文/經理",
+      "contactType": "規劃團隊(水保)",
+      "description": "",
+      "phone": "04-23725906",
+      "email": "jengwen@ms82.hinet.net",
+      "note": "用LINE聯絡",
+      "createdAt": 1779075523237
+    },
+    {
+      "id": "mp6kcglins0c",
+      "name": "周思婷",
+      "role": "環保局承辦",
+      "contactType": "台中環保局",
+      "description": "",
+      "phone": "04-22289111#66113",
+      "email": "jst239639@taichung.gov",
+      "note": "",
+      "createdAt": 1779075523237
+    },
+    {
+      "id": "mp6kenavrf0c",
+      "name": "洪小姐",
+      "role": "環保局承辦",
+      "contactType": "苗栗縣環保局",
+      "description": "負責後龍案\n(環評組)",
+      "phone": "037-558558#117",
+      "email": "yahung@mail.mlepb.gov.tw",
+      "note": "",
+      "createdAt": 1779075523237
+    },
+    {
+      "id": "mp6kfc2bbnl5",
+      "name": "李先生",
+      "role": "環保局",
+      "contactType": "苗栗縣環保局",
+      "description": "與洪小姐同為環評組",
+      "phone": "037-558558#123",
+      "email": "",
+      "note": "",
+      "createdAt": 1779075523237
+    },
+    {
+      "id": "mp6l3nafionz",
+      "name": "侯小姐",
+      "role": "僧醫會",
+      "contactType": "開發單位",
+      "description": "行政事務處理，收取公文",
+      "phone": "02-26829188#1503",
+      "email": "",
+      "note": "",
+      "createdAt": 1779075523237
+    },
+    {
+      "id": "mp6l0iypm561",
+      "name": "陳小姐",
+      "role": "黑潮",
+      "contactType": "下包",
+      "description": "請款事宜",
+      "phone": "04-23373181#131",
+      "email": "",
+      "note": "",
+      "createdAt": 1779075523237
+    },
+    {
+      "id": "mp6l1yeh8ew2",
+      "name": "周芸楨",
+      "role": "黑潮",
+      "contactType": "下包",
+      "description": "生態調查報告提供",
+      "phone": "",
+      "email": "smile874420@ecosystem.com.tw",
+      "note": "",
+      "createdAt": 1779075523237
+    },
+    {
+      "id": "mp6l9951g7v6",
+      "name": "盧冠華",
+      "role": "雍御/經理",
+      "contactType": "業主",
+      "description": "監測報告、請款聯絡人",
+      "phone": "06-5953689 # 248",
+      "email": "alex@accessmotor.com.tw",
+      "note": "用Line聯絡",
+      "createdAt": 1779075523237
+    },
+    {
+      "id": "mp6laskpaev8",
+      "name": "陳柯州",
+      "role": "忠正營造",
+      "contactType": "營造工程",
+      "description": "營造工程進度",
+      "phone": "",
+      "email": "",
+      "note": "用LINE聯絡",
+      "createdAt": 1779075523237
+    },
+    {
+      "id": "mp6lbk3nnf2k",
+      "name": "周峰隆",
+      "role": "富鴻",
+      "contactType": "規劃團隊(水保)",
+      "description": "水保工程進度",
+      "phone": "04-2708-1910",
+      "email": "",
+      "note": "用LINE聯絡",
+      "createdAt": 1779075523237
+    },
+    {
+      "id": "mp6lck72rj9q",
+      "name": "蔡明道",
+      "role": "南臺灣/副理",
+      "contactType": "下包",
+      "description": "物化調查",
+      "phone": "06-2010769#341",
+      "email": "tmtao59@gmail.com",
+      "note": "Teams訊息聯絡",
+      "createdAt": 1779075523237
+    },
+    {
+      "id": "mp6leyvi80wf",
+      "name": "吳柏霖",
+      "role": "庶古",
+      "contactType": "下包",
+      "description": "文化遺址調查：監看期程詢問、監看計畫書事宜",
+      "phone": "06-5905168#202",
+      "email": "moyastone@gmail.com",
+      "note": "",
+      "createdAt": 1779075523237
+    },
+    {
+      "id": "mp6jz51qzym0",
+      "name": "鄭雅文",
+      "role": "豐泰/總裁祕書",
+      "contactType": "業主",
+      "description": "",
+      "phone": "05-5379117#800",
+      "email": "sophia.cheng@fengtay.com",
+      "note": "",
+      "createdAt": 1779075523237
+    },
+    {
+      "id": "mp6k0mk1ylhh",
+      "name": "邱俊毅",
+      "role": "豐泰/環保課/協理",
+      "contactType": "業主",
+      "description": "監測報告與請款事宜",
+      "phone": "05-5379100#121",
+      "email": "subie.chiu@fengtay.com",
+      "note": "",
+      "createdAt": 1779075523237
+    },
+    {
+      "id": "mp6k1cyezsoc",
+      "name": "陳裕心",
+      "role": "豐泰/環保課/經理",
+      "contactType": "業主",
+      "description": "監測報告與請款事宜",
+      "phone": "05-5379117#836",
+      "email": "",
+      "note": "",
+      "createdAt": 1779075523237
+    },
+    {
+      "id": "mp6k39amsdl2",
+      "name": "林佩芬",
+      "role": "佳美/專案負責人",
+      "contactType": "下包",
+      "description": "物化調查",
+      "phone": "(02)2659-7577#103",
+      "email": "pearl@cmit.com.tw",
+      "note": "",
+      "createdAt": 1779075523237
+    },
+    {
+      "id": "mpdhrotl84xy",
+      "createdAt": 1779247074153,
+      "name": "連夷佐",
+      "role": "豐泰/營建單位/協理",
+      "contactType": "業主",
+      "description": "營建工程相關事務窗口",
+      "phone": "(05)537-9117~9 # 813",
+      "email": "carlos.lien@fengtay.com",
+      "note": ""
+    }
+  ],
+  "cases": [
+    {
+      "id": "mp6ltfmnx90v",
+      "name": "鴻大",
+      "category": "監測",
+      "note": "",
+      "memo": "1.下包資料找厚哥(找好了)\n2.空污抵換計畫(腐化菌購買)",
+      "milestones": [],
+      "createdAt": 1778830610783,
+      "status": "待辦",
+      "contactRefs": [
+        {
+          "id": "mpanmracnqte",
+          "contactId": "mp6lv92h0463",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmradnnp0",
+          "contactId": "mp6lx79tplh7",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmradevnf",
+          "contactId": "mp6lxw92mwiv",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmradsmvf",
+          "contactId": "mp6lyrozvr03",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmradl5k1",
+          "contactId": "mp6lzm71oftn",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmrad9jo7",
+          "contactId": "mp6m0k3ueyhn",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        }
+      ]
+    },
+    {
+      "id": "mp6k616g5813",
+      "name": "佩特拉",
+      "category": "環評",
+      "note": "",
+      "memo": "",
+      "milestones": [
+        {
+          "id": "mp6krcja73cg",
+          "label": "取得所有資料",
+          "date": "2026-06-30"
+        },
+        {
+          "id": "mp6krvehn66a",
+          "label": "撰寫環說書",
+          "date": "2026-07-01"
+        },
+        {
+          "id": "mp6ksb8cn8mw",
+          "label": "說明會辦理",
+          "date": "2026-08-01"
+        },
+        {
+          "id": "mp6ksk7tt2az",
+          "label": "提交初稿",
+          "date": "2026-09-01"
+        }
+      ],
+      "createdAt": 1778827839352,
+      "status": "進行中",
+      "contactRefs": [
+        {
+          "id": "mpanmradxhsu",
+          "contactId": "mp6kmu49ldil",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmradp00t",
+          "contactId": "mp6ko9wi5xgl",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        }
+      ]
+    },
+    {
+      "id": "mp6k5wlj87td",
+      "name": "大坑",
+      "category": "環評",
+      "note": "",
+      "memo": "",
+      "milestones": [],
+      "createdAt": 1778827833415,
+      "status": "進行中",
+      "contactRefs": [
+        {
+          "id": "mpanmrad1d4f",
+          "contactId": "mp6kan9dw36k",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmradk4ip",
+          "contactId": "mp6kcglins0c",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        }
+      ]
+    },
+    {
+      "id": "mp6k5qzloacq",
+      "name": "後龍",
+      "category": "環評",
+      "note": "",
+      "memo": "",
+      "milestones": [],
+      "createdAt": 1778827826145,
+      "status": "進行中",
+      "contactRefs": [
+        {
+          "id": "mpanmradpqe6",
+          "contactId": "mp6kenavrf0c",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmrad7pxd",
+          "contactId": "mp6kfc2bbnl5",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmrad02to",
+          "contactId": "mp6l3nafionz",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        }
+      ]
+    },
+    {
+      "id": "mp6k5k8x9u9a",
+      "name": "日月明珠",
+      "category": "監測",
+      "note": "",
+      "memo": "",
+      "milestones": [
+        {
+          "id": "mp6m5hv9b95d",
+          "label": "提送報告、環評申報、環境監測數據",
+          "date": "2026-07-10"
+        }
+      ],
+      "createdAt": 1778827817409,
+      "status": "進行中",
+      "contactRefs": [
+        {
+          "id": "mpanmradnaxw",
+          "contactId": "mp6l0iypm561",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmradhb3f",
+          "contactId": "mp6l1yeh8ew2",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        }
+      ]
+    },
+    {
+      "id": "mp6k58jpa1ve",
+      "name": "雍御",
+      "category": "監測",
+      "note": "",
+      "memo": "",
+      "milestones": [
+        {
+          "id": "mp6m5yibsuzl",
+          "label": "提送監測報告",
+          "date": "2026-06-30"
+        }
+      ],
+      "createdAt": 1778827802245,
+      "status": "進行中",
+      "contactRefs": [
+        {
+          "id": "mpanmraddhlj",
+          "contactId": "mp6l9951g7v6",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmradj2co",
+          "contactId": "mp6laskpaev8",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmradb9xn",
+          "contactId": "mp6lbk3nnf2k",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmrad1jhf",
+          "contactId": "mp6lck72rj9q",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmradfvb0",
+          "contactId": "mp6leyvi80wf",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        }
+      ]
+    },
+    {
+      "id": "mp6jy04c0f7k",
+      "name": "豐泰",
+      "category": "監測",
+      "note": "",
+      "memo": "",
+      "milestones": [
+        {
+          "id": "mp6m678qjv57",
+          "label": "提送監測報告",
+          "date": "2026-06-30"
+        }
+      ],
+      "createdAt": 1778827464732,
+      "status": "進行中",
+      "contactRefs": [
+        {
+          "id": "mpanmradbsq2",
+          "contactId": "mp6jz51qzym0",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmradl10f",
+          "contactId": "mp6k0mk1ylhh",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpdhrotldq54",
+          "logs": [],
+          "contactId": "mpdhrotl84xy",
+          "primary": false,
+          "caseNote": ""
+        },
+        {
+          "id": "mpanmradg98m",
+          "contactId": "mp6k1cyezsoc",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmraduut2",
+          "contactId": "mp6k39amsdl2",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        }
+      ]
+    }
+  ]
+}
