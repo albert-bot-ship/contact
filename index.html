@@ -302,11 +302,17 @@ function getGContact(ref){return db.contacts.find(c=>c.id===ref.contactId)||{nam
 
 /* ── View Navigation ── */
 const VIEW_TAB_IDS={dashboard:'tabDashboard',cases:'tabCases',directory:'tabDir',schedule:'tabSchedule',settings:'tabSettings'};
+function syncLayoutMode(){
+  const ml=document.getElementById('mainLayout');if(!ml)return;
+  ml.classList.toggle('cases-mode',view==='cases');
+  ml.classList.toggle('has-sel',view==='cases'&&!!selId);
+}
 function setView(v){
   view=v;selId=null;selDirId=null;
   Object.values(VIEW_TAB_IDS).forEach(id=>document.getElementById(id)?.classList.remove('active'));
   document.getElementById(VIEW_TAB_IDS[v])?.classList.add('active');
   const rp=document.getElementById('rp');rp.classList.remove('mobile-show');
+  syncLayoutMode();
   renderToolbar();renderLP();renderRP();
 }
 
@@ -421,21 +427,35 @@ function sortArr(a){
   return arr;
 }
 
+function nextMsInfo(c){
+  const mss=(c.milestones||[]).slice().sort((a,b)=>a.date.localeCompare(b.date));
+  if(!mss.length)return null;
+  const t=new Date();t.setHours(0,0,0,0);
+  const upcoming=mss.find(m=>{const x=new Date(m.date);x.setHours(0,0,0,0);return x>=t;});
+  return upcoming||mss[mss.length-1];
+}
+function stageProgressInfo(c){
+  const st=c.stages||[];if(!st.length)return null;
+  return{done:st.filter(s=>s.done).length,total:st.length};
+}
 function renderCasesList(){
   const cs=visCases();const el=document.getElementById('lpList');
   if(!cs.length){el.innerHTML=`<div class="lp-empty">${!db.cases.length?'尚無案件，點右上角「新增案件」':'無符合條件的案件'}</div>`;return;}
-  el.innerHTML=cs.map(c=>{
-    const primary=(c.contactRefs||[]).find(ref=>ref.primary);
+  const rows=cs.map(c=>{
+    const primary=(c.contactRefs||[]).find(ref=>ref.primary)||(c.contactRefs||[])[0];
     const primaryCt=primary?getGContact(primary):null;
     const col=catCol(c.category);const isSel=c.id===selId;
-    const bCol=isSel?(c.category?col[1]:'var(--ac)'):'transparent';
     const sCls=STATUS_CLS[c.status]||'s-active';
-    const dots=(c.milestones||[]).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,5).map(m=>{
-      const urg=urgency(m.date);const dc=urg==='overdue'?'var(--err)':urg!=='normal'?'var(--warn)':'var(--txf)';
-      const ac=urg==='overdue'?' bl-fast':urg==='urgent'?' bl-slow':'';
-      return`<span class="ms-dot${ac}" style="background:${dc}" title="${esc(m.label)} · ${m.date}"></span>`;
-    }).join('');
-    return`<div class="ci ${isSel?'sel':''}" style="border-left-color:${bCol}" id="ci-${c.id}"
+    const nm=nextMsInfo(c);
+    let msHtml='<span class="ctd-muted">—</span>';
+    if(nm){
+      const urg=urgency(nm.date);
+      const uc=urg==='overdue'?'var(--err)':urg==='urgent'?'var(--warn)':urg==='soon'?'var(--am)':'var(--txm)';
+      msHtml=`<span style="color:${uc}">${esc(nm.label)} · ${nm.date}</span>`;
+    }
+    const stg=stageProgressInfo(c);
+    const stgHtml=stg?`<div class="ctd-stage-wrap"><div class="ctd-stage-bar"><div class="ctd-stage-fill" style="width:${Math.round(stg.done/stg.total*100)}%"></div></div><span class="ctd-stage-txt">${stg.done}/${stg.total}</span></div>`:'<span class="ctd-muted">—</span>';
+    return`<tr class="ci ${isSel?'sel':''}" id="ci-${c.id}"
       draggable="true"
       ondragstart="onCaseDragStart(event,'${c.id}')"
       ondragover="onCaseDragOver(event,'${c.id}')"
@@ -443,27 +463,37 @@ function renderCasesList(){
       ondragleave="onCaseDragLeave(event)"
       ondragend="onCaseDragEnd()"
       onclick="selCase('${c.id}')">
-      <div class="drag-handle" title="拖曳排序"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></div>
-      <div class="ci-body">
-        <div class="ci-name">${hl(c.name,searchCaseQ)}</div>
-        <div class="ci-meta">
-          ${c.category?`<span class="cat-badge" style="background:${col[0]};color:${col[1]}">${esc(c.category)}</span>`:''}
-          <span class="status-badge ${sCls}">${esc(c.status||'進行中')}</span>
-          ${primaryCt?`<span class="ci-pc"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${esc(primaryCt.name)}</span>`:''}
-        </div>
-        <div class="ci-bottom"><div class="ms-dots">${dots}</div><span class="ci-cnt">${(c.contactRefs||[]).length} 位</span></div>
-      </div>
-      <div class="ci-acts" onclick="event.stopPropagation()">
-        <button class="ibtn" onclick="openCaseModal('${c.id}')" title="編輯"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-        <button class="ibtn del" onclick="deleteCase('${c.id}')" title="刪除"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
-      </div>
-    </div>`;
+      <td class="ctd-drag" onclick="event.stopPropagation()" title="拖曳排序"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></td>
+      <td class="ctd-name">${hl(c.name,searchCaseQ)}</td>
+      <td>${c.category?`<span class="cat-badge" style="background:${col[0]};color:${col[1]}">${esc(c.category)}</span>`:'<span class="ctd-muted">—</span>'}</td>
+      <td><span class="status-badge ${sCls}">${esc(c.status||'進行中')}</span></td>
+      <td class="ctd-ms">${msHtml}</td>
+      <td class="ctd-contact">${primaryCt?esc(primaryCt.name):'<span class="ctd-muted">—</span>'}</td>
+      <td>${stgHtml}</td>
+      <td class="ctd-acts" onclick="event.stopPropagation()">
+        <button class="ibtn" onclick="openCaseModal('${c.id}')" title="編輯"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button class="ibtn del" onclick="deleteCase('${c.id}')" title="刪除"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+      </td>
+    </tr>`;
   }).join('');
+  el.innerHTML=`<div class="case-table-wrap"><table class="case-table">
+    <thead><tr>
+      <th style="width:20px"></th>
+      <th>案件名稱</th>
+      <th>類別</th>
+      <th>狀態</th>
+      <th>下個期程</th>
+      <th>主要聯絡人</th>
+      <th>審查進度</th>
+      <th style="width:52px"></th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
 }
 
 /* Cases Right Panel */
 function selCase(id){
-  selId=id;renderCasesList();renderCasesRP();
+  selId=id;syncLayoutMode();renderCasesList();renderCasesRP();
   if(window.innerWidth<=768){document.getElementById('rp').classList.add('mobile-show');}
 }
 
@@ -704,6 +734,7 @@ function renderDashboard(){
 }
 
 /* ══ 期程總覽（跨案件月曆） ══ */
+let calSelDay=null;
 function renderSchedule(){
   const rp=document.getElementById('rp');
   const allMs=[];db.cases.forEach(c=>{(c.milestones||[]).forEach(m=>{allMs.push({...m,caseId:c.id,caseName:c.name,caseCategory:c.category});});});
@@ -711,41 +742,59 @@ function renderSchedule(){
   const first=new Date(y,m,1);const startDow=first.getDay();const daysInMonth=new Date(y,m+1,0).getDate();
   const byDate={};allMs.forEach(ms=>{if(!byDate[ms.date])byDate[ms.date]=[];byDate[ms.date].push(ms);});
   const todayStr=today();
+  const urgCol=urg=>urg==='overdue'?'var(--err)':urg==='urgent'?'var(--warn)':urg==='soon'?'var(--am)':'var(--ac)';
   let cells='';
   for(let i=0;i<startDow;i++)cells+=`<div class="cal-cell empty"></div>`;
   for(let d=1;d<=daysInMonth;d++){
     const dateStr=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const items=byDate[dateStr]||[];
-    const dots=items.slice(0,4).map(it=>{const urg=urgency(it.date);const col=urg==='overdue'?'var(--err)':urg==='urgent'?'var(--warn)':urg==='soon'?'var(--am)':'var(--ac)';return`<span class="cal-dot" style="background:${col}"></span>`;}).join('');
-    const more=items.length>4?`<span class="cal-more">+${items.length-4}</span>`:'';
-    cells+=`<div class="cal-cell ${dateStr===todayStr?'today':''}" onclick="showCalDay('${dateStr}')"><span class="cal-daynum">${d}</span><div class="cal-dots">${dots}${more}</div></div>`;
+    const items=(byDate[dateStr]||[]).sort((a,b)=>urgencyRank(a.date)-urgencyRank(b.date));
+    const shown=items.slice(0,2).map(it=>{const urg=urgency(it.date);const col=urgCol(urg);return`<div class="cal-event" style="background:${col}22;color:${col}" title="${esc(it.caseName)} · ${esc(it.label)}" onclick="event.stopPropagation();setView('cases');selCase('${it.caseId}')">${esc(it.label)}</div>`;}).join('');
+    const more=items.length>2?`<span class="cal-more">+${items.length-2} 筆</span>`:'';
+    const cls=['cal-cell'];
+    if(dateStr===todayStr)cls.push('today');
+    if(dateStr===calSelDay)cls.push('sel');
+    cells+=`<div class="${cls.join(' ')}" onclick="showCalDay('${dateStr}',event)"><span class="cal-daynum">${d}</span><div class="cal-events">${shown}${more}</div></div>`;
   }
   const dows=['日','一','二','三','四','五','六'];
+  const years=[];for(let yy=new Date().getFullYear()-2;yy<=new Date().getFullYear()+3;yy++)years.push(yy);
   rp.innerHTML=`<div class="sched-wrap">
     <div class="cal-head">
-      <span class="cal-title">${y} 年 ${m+1} 月</span>
+      <div class="cal-title-group">
+        <select class="cal-jump" onchange="calJumpYear(this.value)">${years.map(yy=>`<option value="${yy}" ${yy===y?'selected':''}>${yy} 年</option>`).join('')}</select>
+        <select class="cal-jump" onchange="calJumpMonth(this.value)">${Array.from({length:12},(_,i)=>i).map(mm=>`<option value="${mm}" ${mm===m?'selected':''}>${mm+1} 月</option>`).join('')}</select>
+      </div>
       <div class="cal-nav">
         <button class="btn btn-xs" onclick="calNav(-1)">‹ 上月</button>
-        <button class="btn btn-xs" onclick="calNav(0)">本月</button>
+        <button class="btn btn-xs" onclick="calNav(0)">今天</button>
         <button class="btn btn-xs" onclick="calNav(1)">下月 ›</button>
       </div>
+    </div>
+    <div class="cal-legend">
+      <span class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--err)"></span>已逾期</span>
+      <span class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--warn)"></span>7天內</span>
+      <span class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--am)"></span>30天內</span>
+      <span class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--ac)"></span>尚早</span>
     </div>
     <div class="cal-grid">${dows.map(d=>`<div class="cal-dow">${d}</div>`).join('')}${cells}</div>
     <div id="calDayDetail"></div>
     <div class="sched-list-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>所有期程（依日期排序）</div>
     <div id="schedFullList"></div>
   </div>`;
+  if(calSelDay)showCalDay(calSelDay);
   if(!allMs.length){document.getElementById('schedFullList').innerHTML=`<div class="dash-empty">尚無期程，請於案件詳情頁新增</div>`;return;}
   renderSchedFullList(allMs);
 }
+function urgencyRank(d){const u=urgency(d);return u==='overdue'?0:u==='urgent'?1:u==='soon'?2:3;}
 function calNav(dir){
   if(dir===0){const d=new Date();calMonth={y:d.getFullYear(),m:d.getMonth()};}
   else{let{y,m}=calMonth;m+=dir;if(m<0){m=11;y--;}if(m>11){m=0;y++;}calMonth={y,m};}
-  renderSchedule();
+  calSelDay=null;renderSchedule();
 }
+function calJumpYear(val){calMonth={...calMonth,y:parseInt(val)};calSelDay=null;renderSchedule();}
+function calJumpMonth(val){calMonth={...calMonth,m:parseInt(val)};calSelDay=null;renderSchedule();}
 function schedItemHtml(m){
   const urg=urgency(m.date);
-  const dotCol=urg==='overdue'?'var(--err)':urg==='urgent'?'var(--warn)':'var(--ac)';
+  const dotCol=urg==='overdue'?'var(--err)':urg==='urgent'?'var(--warn)':urg==='soon'?'var(--am)':'var(--ac)';
   return`<div class="tl-item">
     <div class="tl-dot" style="background:${dotCol};box-shadow:0 0 6px ${dotCol}"></div>
     <div class="tl-date">${m.date}</div>
@@ -758,10 +807,15 @@ function schedItemHtml(m){
     </div>
   </div>`;
 }
-function showCalDay(dateStr){
+function showCalDay(dateStr,ev){
+  calSelDay=dateStr;
+  if(ev){
+    document.querySelectorAll('.cal-cell').forEach(el=>el.classList.remove('sel'));
+    ev.currentTarget?.classList.add('sel');
+  }
   const items=[];db.cases.forEach(c=>{(c.milestones||[]).forEach(m=>{if(m.date===dateStr)items.push({...m,caseId:c.id,caseName:c.name,caseCategory:c.category});});});
   const el=document.getElementById('calDayDetail');if(!el)return;
-  el.innerHTML=items.length?`<div class="sched-list-title">${dateStr}</div>${items.map(schedItemHtml).join('')}`:'';
+  el.innerHTML=items.length?`<div class="sched-list-title">${dateStr}</div>${items.map(schedItemHtml).join('')}`:`<div class="sched-list-title">${dateStr}</div><div class="dash-empty">當天沒有期程</div>`;
 }
 function renderSchedFullList(allMs){
   const sorted=[...allMs].sort((a,b)=>a.date.localeCompare(b.date));
@@ -889,12 +943,12 @@ function saveCase(){
     }
   }
   else{const nc={id:uid(),name,category,status,note,memo:'',milestones:[],stages:[],contactRefs:[],createdAt:Date.now()};applyStageTemplate(nc);db.cases.unshift(nc);selId=nc.id;}
-  saveData();renderCatChips();renderCasesList();if(selId)renderCasesRP();closeMo('caseModal');showToast(id?'✓ 案件已更新':'✓ 案件已新增');
+  saveData();syncLayoutMode();renderCatChips();renderCasesList();if(selId)renderCasesRP();closeMo('caseModal');showToast(id?'✓ 案件已更新':'✓ 案件已新增');
 }
 function deleteCase(id){
   const c=db.cases.find(c=>c.id===id);if(!c||!confirm(`確定刪除案件「${c.name}」？`))return;
   db.cases=db.cases.filter(c=>c.id!==id);if(selId===id)selId=null;
-  saveData();renderCasesList();renderCasesRP();showToast('案件已刪除','warn');
+  syncLayoutMode();saveData();renderCasesList();renderCasesRP();showToast('案件已刪除','warn');
 }
 
 /* ══ 審查階段（依類別範本，可個別調整）══ */
@@ -1115,15 +1169,17 @@ document.querySelectorAll('.mo').forEach(el=>el.addEventListener('click',e=>{if(
 function setupCaseSearch(){
   const cEl=document.getElementById('searchCase'),ctEl=document.getElementById('searchContact');
   if(!cEl)return;
-  cEl.addEventListener('keydown',e=>{if(e.key==='Enter'){searchCaseQ=e.target.value.trim();const m=visCases();if(m.length>0)selId=m[0].id;renderCasesList();if(selId)renderCasesRP();}});
+  cEl.addEventListener('keydown',e=>{if(e.key==='Enter'){searchCaseQ=e.target.value.trim();const m=visCases();if(m.length>0)selId=m[0].id;syncLayoutMode();renderCasesList();if(selId)renderCasesRP();}});
   cEl.addEventListener('input',e=>{if(!e.target.value){searchCaseQ='';renderCasesList();}});
-  ctEl.addEventListener('keydown',e=>{if(e.key==='Enter'){searchCtQ=e.target.value.trim();if(searchCtQ){const q=searchCtQ.toLowerCase();const m=visCases();if(m.length>0){selId=m[0].id;const c=db.cases.find(c=>c.id===selId);if(c)c.contactRefs.forEach(ref=>{if(getGContact(ref).name.toLowerCase().includes(q))ref._logsOpen=true;});}}renderCasesList();if(selId)renderCasesRP();}});
+  ctEl.addEventListener('keydown',e=>{if(e.key==='Enter'){searchCtQ=e.target.value.trim();if(searchCtQ){const q=searchCtQ.toLowerCase();const m=visCases();if(m.length>0){selId=m[0].id;const c=db.cases.find(c=>c.id===selId);if(c)c.contactRefs.forEach(ref=>{if(getGContact(ref).name.toLowerCase().includes(q))ref._logsOpen=true;});}}syncLayoutMode();renderCasesList();if(selId)renderCasesRP();}});
   ctEl.addEventListener('input',e=>{if(!e.target.value){searchCtQ='';renderCasesList();}});
 }
 
 /* ══ Mobile ══ */
 function mobileBack(){
   selId=null;selDirId=null;document.getElementById('rp').classList.remove('mobile-show');
+  syncLayoutMode();
+  if(view==='cases')renderCasesList();else if(view==='directory')renderDirLP();
 }
 
 /* ══ Copy / Toast ══ */
