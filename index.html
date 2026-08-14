@@ -344,7 +344,7 @@ function renderToolbar(){
   } else if(view==='dashboard'){
     tb.innerHTML=`<span style="font-size:14px;color:var(--txm);font-weight:600">儀表板 · 案件現況總覽</span><div class="tbsp"></div>`;
   } else if(view==='schedule'){
-    tb.innerHTML=`<span style="font-size:14px;color:var(--txm);font-weight:600">期程總覽 · 跨案件里程碑月曆</span><div class="tbsp"></div>`;
+    tb.innerHTML=`<span style="font-size:14px;color:var(--txm);font-weight:600">期程總覽 · 跨案件里程碑月曆</span><div class="tbsp"></div><button class="btn btn-p" onclick="openMsModalForDate('')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增期程</button>`;
   } else if(view==='settings'){
     tb.innerHTML=`<span style="font-size:14px;color:var(--txm);font-weight:600">設定 · 類別、審查階段範本與安全性</span><div class="tbsp"></div>`;
   }
@@ -802,7 +802,7 @@ function renderSchedule(){
     </div>
     <div class="cal-grid">${dows.map((d,i)=>`<div class="cal-dow ${i===0||i===6?'weekend':''}">${d}</div>`).join('')}${cells}</div>
     <div id="calDayDetail"></div>
-    <div class="sched-list-title" style="justify-content:space-between"><span style="display:flex;align-items:center;gap:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>所有期程（依日期排序）</span><button class="btn btn-xs" onclick="openMsModalForDate('')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增期程</button></div>
+    <div class="sched-list-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>所有期程（依日期排序）</div>
     <div style="font-size:11px;color:var(--txf);margin:-4px 0 8px">點月曆上任一天，或點下方清單裡的期程，都能直接編輯</div>
     <div id="schedFullList"></div>
   </div>`;
