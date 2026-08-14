@@ -301,10 +301,11 @@ function nearestMs(c){const t=new Date();t.setHours(0,0,0,0);const f=(c.mileston
 function getGContact(ref){return db.contacts.find(c=>c.id===ref.contactId)||{name:'(已刪除)',phone:'',email:'',lineId:'',role:'',contactType:'',description:'',note:''};}
 
 /* ── View Navigation ── */
+const VIEW_TAB_IDS={dashboard:'tabDashboard',cases:'tabCases',directory:'tabDir',schedule:'tabSchedule',settings:'tabSettings'};
 function setView(v){
   view=v;selId=null;selDirId=null;
-  ['dashboard','cases','directory','schedule','settings'].forEach(x=>document.getElementById('tab'+x.charAt(0).toUpperCase()+x.slice(1))?.classList.remove('active'));
-  document.getElementById({dashboard:'tabDashboard',cases:'tabCases',directory:'tabDir',schedule:'tabSchedule',settings:'tabSettings'}[v])?.classList.add('active');
+  Object.values(VIEW_TAB_IDS).forEach(id=>document.getElementById(id)?.classList.remove('active'));
+  document.getElementById(VIEW_TAB_IDS[v])?.classList.add('active');
   const rp=document.getElementById('rp');rp.classList.remove('mobile-show');
   renderToolbar();renderLP();renderRP();
 }
