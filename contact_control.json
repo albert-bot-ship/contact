@@ -284,6 +284,17 @@
       "phone": "(05)537-9117~9 # 813",
       "email": "carlos.lien@fengtay.com",
       "note": ""
+    },
+    {
+      "id": "msskyr5glh7a",
+      "createdAt": 1786689782260,
+      "name": "王小姐",
+      "role": "魚池鄉公所-觀光課",
+      "contactType": "",
+      "description": "租借紅茶產業文化館場地",
+      "phone": "049-2895371#27",
+      "email": "",
+      "note": ""
     }
   ],
   "cases": [
@@ -349,24 +360,9 @@
       "memo": "",
       "milestones": [
         {
-          "id": "mp6krcja73cg",
-          "label": "取得所有資料",
-          "date": "2026-06-30"
-        },
-        {
-          "id": "mp6krvehn66a",
-          "label": "撰寫環說書",
-          "date": "2026-07-01"
-        },
-        {
           "id": "mp6ksb8cn8mw",
           "label": "說明會辦理",
-          "date": "2026-08-01"
-        },
-        {
-          "id": "mp6ksk7tt2az",
-          "label": "提交初稿",
-          "date": "2026-09-01"
+          "date": "2026-09-02"
         }
       ],
       "createdAt": 1778827839352,
@@ -385,6 +381,13 @@
           "primary": false,
           "caseNote": "",
           "logs": []
+        },
+        {
+          "id": "msskyr5gm276",
+          "logs": [],
+          "contactId": "msskyr5glh7a",
+          "primary": false,
+          "caseNote": ""
         }
       ]
     },
@@ -457,7 +460,7 @@
         {
           "id": "mp6m5hv9b95d",
           "label": "提送報告、環評申報、環境監測數據",
-          "date": "2026-07-10"
+          "date": "2026-10-10"
         }
       ],
       "createdAt": 1778827817409,
@@ -489,7 +492,7 @@
         {
           "id": "mp6m5yibsuzl",
           "label": "提送監測報告",
-          "date": "2026-06-30"
+          "date": "2026-09-30"
         }
       ],
       "createdAt": 1778827802245,
@@ -542,7 +545,7 @@
         {
           "id": "mp6m678qjv57",
           "label": "提送監測報告",
-          "date": "2026-06-30"
+          "date": "2026-09-30"
         }
       ],
       "createdAt": 1778827464732,
