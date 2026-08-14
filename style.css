@@ -490,6 +490,7 @@ tr.ci:hover .ctd-acts{opacity:1}
 .cal-more{font-size:10px;color:var(--txf);font-family:var(--font-m);padding-left:2px}
 .sched-list-title{font-size:12px;font-weight:700;color:var(--txf);text-transform:uppercase;letter-spacing:.08em;margin:22px 0 10px;display:flex;align-items:center;gap:6px}
 .sched-list-title:first-child{margin-top:0}
+.company-tag{font-size:14px;font-weight:700;color:var(--am);cursor:default;font-family:var(--font)}
 
 /* ══ Mobile ══ */
 .mobile-back{display:none;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--bd);background:var(--sf);cursor:pointer;font-size:14px;color:var(--txm);flex-shrink:0}
