@@ -119,7 +119,8 @@
       "phone": "04-22289111#66113",
       "email": "jst239639@taichung.gov",
       "note": "",
-      "createdAt": 1779075523237
+      "createdAt": 1779075523237,
+      "lineId": ""
     },
     {
       "id": "mp6kenavrf0c",
@@ -331,33 +332,6 @@
   },
   "cases": [
     {
-      "id": "mp6k5wlj87td",
-      "name": "大坑",
-      "category": "環評",
-      "note": "",
-      "memo": "",
-      "milestones": [],
-      "createdAt": 1778827833415,
-      "status": "進行中",
-      "contactRefs": [
-        {
-          "id": "mpanmrad1d4f",
-          "contactId": "mp6kan9dw36k",
-          "primary": false,
-          "caseNote": "",
-          "logs": []
-        },
-        {
-          "id": "mpanmradk4ip",
-          "contactId": "mp6kcglins0c",
-          "primary": false,
-          "caseNote": "",
-          "logs": []
-        }
-      ],
-      "stages": []
-    },
-    {
       "id": "mp6k616g5813",
       "name": "佩特拉",
       "category": "環評",
@@ -395,57 +369,65 @@
           "caseNote": ""
         }
       ],
-      "stages": []
+      "stages": [
+        {
+          "id": "mssomiyqxvl9",
+          "label": "主要章節公告",
+          "done": true
+        },
+        {
+          "id": "mssomxaziad3",
+          "label": "公開會議",
+          "done": false
+        },
+        {
+          "id": "mssomxaz3040",
+          "label": "程序審查",
+          "done": false
+        },
+        {
+          "id": "mssomxaz1lop",
+          "label": "第一次初審會",
+          "done": false
+        },
+        {
+          "id": "mssomxazib4h",
+          "label": "第二次初審會",
+          "done": false
+        },
+        {
+          "id": "mssomxazve2d",
+          "label": "第三次初審會",
+          "done": false
+        },
+        {
+          "id": "mssomxazbd86",
+          "label": "大會",
+          "done": false
+        }
+      ]
     },
     {
-      "id": "mp6ltfmnx90v",
-      "name": "鴻大",
-      "category": "監測",
+      "id": "mp6k5wlj87td",
+      "name": "大坑",
+      "category": "環評",
       "note": "",
-      "memo": "1.下包資料找厚哥(找好了)\n2.空污抵換計畫(腐化菌購買)",
+      "memo": "",
       "milestones": [],
-      "createdAt": 1778830610783,
-      "status": "待辦",
+      "createdAt": 1778827833415,
+      "status": "進行中",
       "contactRefs": [
         {
-          "id": "mpanmracnqte",
-          "contactId": "mp6lv92h0463",
+          "id": "mpanmrad1d4f",
+          "contactId": "mp6kan9dw36k",
           "primary": false,
           "caseNote": "",
           "logs": []
         },
         {
-          "id": "mpanmradnnp0",
-          "contactId": "mp6lx79tplh7",
+          "id": "mpanmradk4ip",
+          "contactId": "mp6kcglins0c",
           "primary": true,
-          "caseNote": "",
-          "logs": []
-        },
-        {
-          "id": "mpanmradevnf",
-          "contactId": "mp6lxw92mwiv",
-          "primary": false,
-          "caseNote": "",
-          "logs": []
-        },
-        {
-          "id": "mpanmradsmvf",
-          "contactId": "mp6lyrozvr03",
-          "primary": false,
-          "caseNote": "",
-          "logs": []
-        },
-        {
-          "id": "mpanmradl5k1",
-          "contactId": "mp6lzm71oftn",
-          "primary": false,
-          "caseNote": "",
-          "logs": []
-        },
-        {
-          "id": "mpanmrad9jo7",
-          "contactId": "mp6m0k3ueyhn",
-          "primary": false,
           "caseNote": "",
           "logs": []
         }
@@ -479,100 +461,6 @@
         {
           "id": "mpanmrad02to",
           "contactId": "mp6l3nafionz",
-          "primary": false,
-          "caseNote": "",
-          "logs": []
-        }
-      ],
-      "stages": []
-    },
-    {
-      "id": "mp6k5k8x9u9a",
-      "name": "日月明珠",
-      "category": "監測",
-      "note": "",
-      "memo": "",
-      "milestones": [
-        {
-          "id": "mp6m5hv9b95d",
-          "label": "提送報告、環評申報、環境監測數據",
-          "date": "2026-10-10"
-        }
-      ],
-      "createdAt": 1778827817409,
-      "status": "進行中",
-      "contactRefs": [
-        {
-          "id": "mssoadwola9v",
-          "logs": [],
-          "contactId": "mssoadwoz399",
-          "primary": true,
-          "caseNote": ""
-        },
-        {
-          "id": "mpanmradnaxw",
-          "contactId": "mp6l0iypm561",
-          "primary": false,
-          "caseNote": "",
-          "logs": []
-        },
-        {
-          "id": "mpanmradhb3f",
-          "contactId": "mp6l1yeh8ew2",
-          "primary": false,
-          "caseNote": "",
-          "logs": []
-        }
-      ],
-      "stages": []
-    },
-    {
-      "id": "mp6k58jpa1ve",
-      "name": "雍御",
-      "category": "監測",
-      "note": "",
-      "memo": "",
-      "milestones": [
-        {
-          "id": "mp6m5yibsuzl",
-          "label": "提送監測報告",
-          "date": "2026-09-30"
-        }
-      ],
-      "createdAt": 1778827802245,
-      "status": "進行中",
-      "contactRefs": [
-        {
-          "id": "mpanmraddhlj",
-          "contactId": "mp6l9951g7v6",
-          "primary": true,
-          "caseNote": "",
-          "logs": []
-        },
-        {
-          "id": "mpanmradj2co",
-          "contactId": "mp6laskpaev8",
-          "primary": false,
-          "caseNote": "",
-          "logs": []
-        },
-        {
-          "id": "mpanmradb9xn",
-          "contactId": "mp6lbk3nnf2k",
-          "primary": false,
-          "caseNote": "",
-          "logs": []
-        },
-        {
-          "id": "mpanmrad1jhf",
-          "contactId": "mp6lck72rj9q",
-          "primary": false,
-          "caseNote": "",
-          "logs": []
-        },
-        {
-          "id": "mpanmradfvb0",
-          "contactId": "mp6leyvi80wf",
           "primary": false,
           "caseNote": "",
           "logs": []
@@ -627,6 +515,173 @@
         {
           "id": "mpanmraduut2",
           "contactId": "mp6k39amsdl2",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        }
+      ],
+      "stages": [
+        {
+          "id": "mssomai8i9f0",
+          "label": "施工期間",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": "mp6k58jpa1ve",
+      "name": "雍御",
+      "category": "監測",
+      "note": "",
+      "memo": "",
+      "milestones": [
+        {
+          "id": "mp6m5yibsuzl",
+          "label": "提送監測報告",
+          "date": "2026-09-30"
+        }
+      ],
+      "createdAt": 1778827802245,
+      "status": "進行中",
+      "contactRefs": [
+        {
+          "id": "mpanmraddhlj",
+          "contactId": "mp6l9951g7v6",
+          "primary": true,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmradj2co",
+          "contactId": "mp6laskpaev8",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmradb9xn",
+          "contactId": "mp6lbk3nnf2k",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmrad1jhf",
+          "contactId": "mp6lck72rj9q",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmradfvb0",
+          "contactId": "mp6leyvi80wf",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        }
+      ],
+      "stages": [
+        {
+          "id": "mssolysegqx5",
+          "label": "施工暨營運期間",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": "mp6k5k8x9u9a",
+      "name": "日月明珠",
+      "category": "監測",
+      "note": "",
+      "memo": "",
+      "milestones": [
+        {
+          "id": "mp6m5hv9b95d",
+          "label": "提送報告、環評申報、環境監測數據",
+          "date": "2026-10-10"
+        }
+      ],
+      "createdAt": 1778827817409,
+      "status": "進行中",
+      "contactRefs": [
+        {
+          "id": "mssoadwola9v",
+          "logs": [],
+          "contactId": "mssoadwoz399",
+          "primary": true,
+          "caseNote": ""
+        },
+        {
+          "id": "mpanmradnaxw",
+          "contactId": "mp6l0iypm561",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmradhb3f",
+          "contactId": "mp6l1yeh8ew2",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        }
+      ],
+      "stages": [
+        {
+          "id": "mssomcswh3bf",
+          "label": "施工期間",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": "mp6ltfmnx90v",
+      "name": "鴻大",
+      "category": "監測",
+      "note": "",
+      "memo": "1.下包資料找厚哥(找好了)\n2.空污抵換計畫(腐化菌購買)",
+      "milestones": [],
+      "createdAt": 1778830610783,
+      "status": "待辦",
+      "contactRefs": [
+        {
+          "id": "mpanmracnqte",
+          "contactId": "mp6lv92h0463",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmradnnp0",
+          "contactId": "mp6lx79tplh7",
+          "primary": true,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmradevnf",
+          "contactId": "mp6lxw92mwiv",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmradsmvf",
+          "contactId": "mp6lyrozvr03",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmradl5k1",
+          "contactId": "mp6lzm71oftn",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmrad9jo7",
+          "contactId": "mp6m0k3ueyhn",
           "primary": false,
           "caseNote": "",
           "logs": []
