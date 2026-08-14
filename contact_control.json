@@ -29,7 +29,8 @@
       "phone": "",
       "email": "",
       "note": "用Line聯繫",
-      "createdAt": 1779075523237
+      "createdAt": 1779075523237,
+      "lineId": ""
     },
     {
       "id": "mp6lxw92mwiv",
@@ -84,7 +85,8 @@
       "phone": "",
       "email": "",
       "note": "用Line聯絡",
-      "createdAt": 1779075523237
+      "createdAt": 1779075523237,
+      "lineId": ""
     },
     {
       "id": "mp6ko9wi5xgl",
@@ -183,7 +185,8 @@
       "phone": "06-5953689 # 248",
       "email": "alex@accessmotor.com.tw",
       "note": "用Line聯絡",
-      "createdAt": 1779075523237
+      "createdAt": 1779075523237,
+      "lineId": ""
     },
     {
       "id": "mp6laskpaev8",
@@ -249,7 +252,8 @@
       "phone": "05-5379100#121",
       "email": "subie.chiu@fengtay.com",
       "note": "",
-      "createdAt": 1779075523237
+      "createdAt": 1779075523237,
+      "lineId": ""
     },
     {
       "id": "mp6k1cyezsoc",
@@ -294,6 +298,18 @@
       "phone": "049-2895371#27",
       "email": "",
       "note": ""
+    },
+    {
+      "id": "mssoadwoz399",
+      "createdAt": 1786695363816,
+      "name": "陳滄仁",
+      "role": "業主/經理",
+      "contactType": "業主",
+      "description": "",
+      "phone": "",
+      "email": "",
+      "lineId": "",
+      "note": ""
     }
   ],
   "categoryStageTemplates": {
@@ -315,6 +331,73 @@
   },
   "cases": [
     {
+      "id": "mp6k5wlj87td",
+      "name": "大坑",
+      "category": "環評",
+      "note": "",
+      "memo": "",
+      "milestones": [],
+      "createdAt": 1778827833415,
+      "status": "進行中",
+      "contactRefs": [
+        {
+          "id": "mpanmrad1d4f",
+          "contactId": "mp6kan9dw36k",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmradk4ip",
+          "contactId": "mp6kcglins0c",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        }
+      ],
+      "stages": []
+    },
+    {
+      "id": "mp6k616g5813",
+      "name": "佩特拉",
+      "category": "環評",
+      "note": "",
+      "memo": "",
+      "milestones": [
+        {
+          "id": "mp6ksb8cn8mw",
+          "label": "說明會辦理",
+          "date": "2026-09-02"
+        }
+      ],
+      "createdAt": 1778827839352,
+      "status": "進行中",
+      "contactRefs": [
+        {
+          "id": "mpanmradxhsu",
+          "contactId": "mp6kmu49ldil",
+          "primary": true,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmradp00t",
+          "contactId": "mp6ko9wi5xgl",
+          "primary": false,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "msskyr5gm276",
+          "logs": [],
+          "contactId": "msskyr5glh7a",
+          "primary": false,
+          "caseNote": ""
+        }
+      ],
+      "stages": []
+    },
+    {
       "id": "mp6ltfmnx90v",
       "name": "鴻大",
       "category": "監測",
@@ -334,7 +417,7 @@
         {
           "id": "mpanmradnnp0",
           "contactId": "mp6lx79tplh7",
-          "primary": false,
+          "primary": true,
           "caseNote": "",
           "logs": []
         },
@@ -362,73 +445,6 @@
         {
           "id": "mpanmrad9jo7",
           "contactId": "mp6m0k3ueyhn",
-          "primary": false,
-          "caseNote": "",
-          "logs": []
-        }
-      ],
-      "stages": []
-    },
-    {
-      "id": "mp6k616g5813",
-      "name": "佩特拉",
-      "category": "環評",
-      "note": "",
-      "memo": "",
-      "milestones": [
-        {
-          "id": "mp6ksb8cn8mw",
-          "label": "說明會辦理",
-          "date": "2026-09-02"
-        }
-      ],
-      "createdAt": 1778827839352,
-      "status": "進行中",
-      "contactRefs": [
-        {
-          "id": "mpanmradxhsu",
-          "contactId": "mp6kmu49ldil",
-          "primary": false,
-          "caseNote": "",
-          "logs": []
-        },
-        {
-          "id": "mpanmradp00t",
-          "contactId": "mp6ko9wi5xgl",
-          "primary": false,
-          "caseNote": "",
-          "logs": []
-        },
-        {
-          "id": "msskyr5gm276",
-          "logs": [],
-          "contactId": "msskyr5glh7a",
-          "primary": false,
-          "caseNote": ""
-        }
-      ],
-      "stages": []
-    },
-    {
-      "id": "mp6k5wlj87td",
-      "name": "大坑",
-      "category": "環評",
-      "note": "",
-      "memo": "",
-      "milestones": [],
-      "createdAt": 1778827833415,
-      "status": "進行中",
-      "contactRefs": [
-        {
-          "id": "mpanmrad1d4f",
-          "contactId": "mp6kan9dw36k",
-          "primary": false,
-          "caseNote": "",
-          "logs": []
-        },
-        {
-          "id": "mpanmradk4ip",
-          "contactId": "mp6kcglins0c",
           "primary": false,
           "caseNote": "",
           "logs": []
@@ -487,6 +503,13 @@
       "status": "進行中",
       "contactRefs": [
         {
+          "id": "mssoadwola9v",
+          "logs": [],
+          "contactId": "mssoadwoz399",
+          "primary": true,
+          "caseNote": ""
+        },
+        {
           "id": "mpanmradnaxw",
           "contactId": "mp6l0iypm561",
           "primary": false,
@@ -522,7 +545,7 @@
         {
           "id": "mpanmraddhlj",
           "contactId": "mp6l9951g7v6",
-          "primary": false,
+          "primary": true,
           "caseNote": "",
           "logs": []
         },
@@ -574,15 +597,15 @@
       "status": "進行中",
       "contactRefs": [
         {
-          "id": "mpanmradbsq2",
-          "contactId": "mp6jz51qzym0",
-          "primary": false,
+          "id": "mpanmradl10f",
+          "contactId": "mp6k0mk1ylhh",
+          "primary": true,
           "caseNote": "",
           "logs": []
         },
         {
-          "id": "mpanmradl10f",
-          "contactId": "mp6k0mk1ylhh",
+          "id": "mpanmradbsq2",
+          "contactId": "mp6jz51qzym0",
           "primary": false,
           "caseNote": "",
           "logs": []
