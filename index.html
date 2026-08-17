@@ -315,7 +315,7 @@ const today=()=>new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'});
 function urgency(d){const t=new Date();t.setHours(0,0,0,0);const x=new Date(d);x.setHours(0,0,0,0);const diff=(x-t)/86400000;return diff<0?'overdue':diff<=7?'urgent':diff<=30?'soon':'normal';}
 function msEnd(m){return m.endDate||m.date;}
 function msDateStr(m){return m.endDate&&m.endDate!==m.date?`${m.date} ～ ${m.endDate}`:m.date;}
-function dateRangeArr(start,end){const out=[];let d=new Date(start+'T00:00:00');const e=new Date((end||start)+'T00:00:00');let guard=0;while(d<=e&&guard<730){out.push(d.toISOString().slice(0,10));d.setDate(d.getDate()+1);guard++;}return out;}
+function dateRangeArr(start,end){const out=[];let d=new Date(start+'T00:00:00');const e=new Date((end||start)+'T00:00:00');let guard=0;while(d<=e&&guard<730){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');out.push(`${y}-${m}-${dd}`);d.setDate(d.getDate()+1);guard++;}return out;}
 function nearestMs(c){const t=new Date();t.setHours(0,0,0,0);const f=(c.milestones||[]).filter(m=>{const e=new Date(msEnd(m));e.setHours(0,0,0,0);return e>=t;}).map(m=>new Date(m.date).getTime());return f.length?Math.min(...f):Infinity;}
 function getGContact(ref){return db.contacts.find(c=>c.id===ref.contactId)||{name:'(已刪除)',phone:'',email:'',lineId:'',role:'',contactType:'',description:'',note:''};}
 
