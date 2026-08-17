@@ -311,6 +311,18 @@
       "email": "",
       "lineId": "",
       "note": ""
+    },
+    {
+      "id": "mswrxt92390m",
+      "createdAt": 1786943360342,
+      "name": "葉先生",
+      "role": "環保局承辦",
+      "contactType": "",
+      "description": "環評審查案件處理",
+      "phone": "049-2237530#1311",
+      "email": "henry8319941117@mail.nteph.gov.tw",
+      "lineId": "",
+      "note": ""
     }
   ],
   "categoryStageTemplates": {
@@ -330,6 +342,7 @@
       "營運期間"
     ]
   },
+  "companyMilestones": [],
   "cases": [
     {
       "id": "mp6k616g5813",
@@ -365,6 +378,13 @@
           "id": "msskyr5gm276",
           "logs": [],
           "contactId": "msskyr5glh7a",
+          "primary": false,
+          "caseNote": ""
+        },
+        {
+          "id": "mswrxt924cyu",
+          "logs": [],
+          "contactId": "mswrxt92390m",
           "primary": false,
           "caseNote": ""
         }
