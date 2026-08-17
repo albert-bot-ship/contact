@@ -342,7 +342,14 @@
       "營運期間"
     ]
   },
-  "companyMilestones": [],
+  "companyMilestones": [
+    {
+      "id": "mswwb6x5oh4r",
+      "label": "公司旅遊",
+      "date": "2026-11-18",
+      "endDate": "2026-11-22"
+    }
+  ],
   "cases": [
     {
       "id": "mp6k616g5813",
@@ -355,6 +362,12 @@
           "id": "mp6ksb8cn8mw",
           "label": "說明會辦理",
           "date": "2026-09-02"
+        },
+        {
+          "id": "mswwaouzwet6",
+          "label": "說明會現勘",
+          "date": "2026-08-28",
+          "endDate": "2026-08-28"
         }
       ],
       "createdAt": 1778827839352,
