@@ -788,7 +788,7 @@ function renderSchedule(){
     cells+=`<div class="${cls.join(' ')}" onclick="${dayClick}"><span class="cal-daynum">${d}</span><div class="cal-events">${shown}${more}</div></div>`;
   }
   const dows=['日','一','二','三','四','五','六'];
-  const years=[];for(let yy=new Date().getFullYear()-2;yy<=new Date().getFullYear()+3;yy++)years.push(yy);
+  const years=[];for(let yy=new Date().getFullYear()-20;yy<=new Date().getFullYear()+20;yy++)years.push(yy);
   rp.innerHTML=`<div class="sched-wrap">
     <div class="cal-head">
       <div class="cal-title-group">
