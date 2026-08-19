@@ -2,18 +2,22 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 /* ══ Tokens ══
-   設計方向：深色工程／測繪儀器感。主色由藍紫紅漸層改為「測量儀藍綠 → 工程安全帽黃」，
-   呼應環境監測（水質／空氣感測器讀值多為青綠）與工程現場（警示黃）。
+   設計方向：深色 = JARVIS 科技儀表感（降飽和青藍 + 琥珀，角括號/發光邊框局部裝飾）。
+   淺色 = 香檳金 × 檸檬光點綴（呼應 Kamen Rider Zero-One，主體低調金屬感，霓虹黃只做 glow／點綴，不鋪大面積）。
    立體感靠陰影堆疊 + 內光；辨識度靠字體分工（顯示體/內文/數據等寬體三種角色）。
+   --on-accent：疊在主色實心底（漸層按鈕/active 狀態）上的文字色，兩個模式都用深色字確保對比。
+   --neon / --neon-rgb：點綴用螢光色（發光、hover 光暈），不當大面積底色使用。
 */
 :root{
-  --bg:#050810;--sf:#0a1120;--sf2:#0f1a2c;--sf3:#122236;--bd:#1c3a56;--bd2:#2c5478;
-  --mb:#3df0ff;--mp:#ffc247;--mr:#ff4d4d;
-  --m-grad:linear-gradient(90deg,#3df0ff 0%,#ffc247 50%,#ff4d4d 100%);
-  --m-grad-r:linear-gradient(90deg,#ff4d4d 0%,#ffc247 50%,#3df0ff 100%);
-  --ac:#3df0ff;--ac-rgb:61,240,255;--acd:rgba(61,240,255,.18);--acg:rgba(61,240,255,.42);
+  --bg:#04060d;--sf:#0a1120;--sf2:#0f1a2c;--sf3:#122236;--bd:#1c3a56;--bd2:#2c5478;
+  --mb:#2dd4ff;--mp:#ffc247;--mr:#ff4d4d;
+  --m-grad:linear-gradient(90deg,#2dd4ff 0%,#ffc247 50%,#ff4d4d 100%);
+  --m-grad-r:linear-gradient(90deg,#ff4d4d 0%,#ffc247 50%,#2dd4ff 100%);
+  --ac:#2dd4ff;--ac-rgb:45,212,255;--acd:rgba(45,212,255,.18);--acg:rgba(45,212,255,.42);
   --am:#e8b565;--amd:rgba(232,181,101,.18);--amg:rgba(232,181,101,.4);
   --tx:#ffffff;--txm:#a9bdd1;--txf:#6a8098;
+  --on-accent:#04141c;
+  --neon:#e6ff29;--neon-rgb:230,255,41;
   --err:#ff4d4d;--err-rgb:255,77,77;--errd:rgba(255,77,77,.16);--ok:#34e28a;--warn:#ffc247;--warnd:rgba(255,194,71,.16);
   --shadow-sm:0 2px 10px rgba(0,0,0,.5),0 1px 2px rgba(0,0,0,.45);
   --shadow-md:0 12px 32px rgba(0,0,0,.55),0 3px 10px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.03);
@@ -22,23 +26,25 @@
   --font:'Inter',-apple-system,BlinkMacSystemFont,'PingFang TC','Microsoft JhengHei',sans-serif;
   --font-d:'Space Grotesk','Inter',-apple-system,'PingFang TC','Microsoft JhengHei',sans-serif;
   --font-m:'JetBrains Mono','SF Mono',ui-monospace,Consolas,monospace;
-  --mpw-b:#3df0ff;--mpw-p:#ffc247;--mpw-r:#ff4d4d;
-  --mpw-bd:rgba(61,240,255,.16);--mpw-pd:rgba(255,194,71,.16);--mpw-rd:rgba(255,77,77,.16)
+  --mpw-b:#2dd4ff;--mpw-p:#ffc247;--mpw-r:#ff4d4d;
+  --mpw-bd:rgba(45,212,255,.16);--mpw-pd:rgba(255,194,71,.16);--mpw-rd:rgba(255,77,77,.16)
 }
 [data-theme=light]{
   --bg:#f7f8f4;--sf:#ffffff;--sf2:#f2f4ee;--sf3:#e9ece1;--bd:#d7dbc7;--bd2:#b9c0a0;
-  --mb:#6f8f00;--mp:#d98f1f;--mr:#d7263d;
-  --m-grad:linear-gradient(90deg,#6f8f00 0%,#d98f1f 50%,#d7263d 100%);
-  --m-grad-r:linear-gradient(90deg,#d7263d 0%,#d98f1f 50%,#6f8f00 100%);
-  --ac:#6f8f00;--ac-rgb:111,143,0;--acd:rgba(111,143,0,.1);--acg:rgba(111,143,0,.28);
+  --mb:#c9a227;--mp:#d98f1f;--mr:#d7263d;
+  --m-grad:linear-gradient(90deg,#c9a227 0%,#d98f1f 50%,#d7263d 100%);
+  --m-grad-r:linear-gradient(90deg,#d7263d 0%,#d98f1f 50%,#c9a227 100%);
+  --ac:#c9a227;--ac-rgb:201,162,39;--acd:rgba(201,162,39,.12);--acg:rgba(201,162,39,.32);
   --am:#d9a441;--amd:rgba(217,164,65,.12);--amg:rgba(217,164,65,.28);
   --tx:#10141f;--txm:#4b5468;--txf:#838da0;
+  --on-accent:#1a1400;
+  --neon:#d4e600;--neon-rgb:212,230,0;
   --err:#d7263d;--err-rgb:215,38,61;--errd:rgba(215,38,61,.08);--ok:#178a52;--warn:#c9791a;--warnd:rgba(201,121,26,.1);
   --shadow-sm:0 2px 8px rgba(15,20,35,.07);
   --shadow-md:0 10px 26px rgba(15,20,35,.08),0 2px 6px rgba(15,20,35,.05);
   --shadow-lg:0 22px 56px rgba(15,20,35,.12),0 8px 18px rgba(15,20,35,.06);
-  --mpw-b:#6f8f00;--mpw-p:#d98f1f;--mpw-r:#d7263d;
-  --mpw-bd:rgba(111,143,0,.12);--mpw-pd:rgba(217,164,65,.12);--mpw-rd:rgba(215,38,61,.1)
+  --mpw-b:#c9a227;--mpw-p:#d98f1f;--mpw-r:#d7263d;
+  --mpw-bd:rgba(201,162,39,.12);--mpw-pd:rgba(217,164,65,.12);--mpw-rd:rgba(215,38,61,.1)
 }
 
 /* ══ Animations ══
@@ -67,9 +73,37 @@ body::after{content:'';position:fixed;width:550px;height:550px;border-radius:50%
 .topo{position:absolute;inset:0;pointer-events:none;opacity:.5;background-image:repeating-radial-gradient(circle at 8% 175%,transparent 0,transparent 26px,rgba(var(--ac-rgb),.05) 26px,rgba(var(--ac-rgb),.05) 27px,transparent 27px,transparent 58px)}
 [data-theme=light] .topo{opacity:.35;background-image:repeating-radial-gradient(circle at 8% 175%,transparent 0,transparent 26px,rgba(var(--ac-rgb),.06) 26px,rgba(var(--ac-rgb),.06) 27px,transparent 27px,transparent 58px)}
 
+/* ══ 局部裝飾（新增，不動原有陰影堆疊／間距邏輯）══
+   暗色＝JARVIS 角括號＋能量描邊；只加在關鍵容器（登入卡、視窗、案件詳情頭、儀表板卡）。
+   淺色＝香檳金為主體、檸檬螢光只在 hover/focus 時輕輕浮現一圈光暈，不鋪色塊，維持精品質感。
+*/
+.login-card::after{content:'';position:absolute;bottom:9px;right:9px;width:15px;height:15px;pointer-events:none;z-index:2;border-bottom:1.5px solid var(--ac);border-right:1.5px solid var(--ac);opacity:.55;transition:opacity .2s}
+.login-card:hover::after{opacity:1;filter:drop-shadow(0 0 4px rgba(var(--ac-rgb),.6))}
+.md::after{content:'';position:absolute;bottom:8px;right:8px;width:13px;height:13px;pointer-events:none;border-bottom:1.5px solid var(--ac);border-right:1.5px solid var(--ac);opacity:.4}
+.cd-head::before{content:'';position:absolute;top:12px;right:14px;width:14px;height:14px;pointer-events:none;border-top:1.5px solid var(--ac);border-right:1.5px solid var(--ac);opacity:.35;z-index:1}
+[data-theme=light] .cd-head::before{opacity:.28}
+
+/* 儀表板卡：四角括號，hover 才點亮，呼應 JARVIS 面板通電感 */
+.dash-card{position:relative}
+.dash-card::before,.dash-card::after{content:'';position:absolute;width:14px;height:14px;pointer-events:none;opacity:.3;transition:opacity .2s}
+.dash-card::before{top:10px;left:10px;border-top:1.5px solid var(--ac);border-left:1.5px solid var(--ac)}
+.dash-card::after{bottom:10px;right:10px;border-bottom:1.5px solid var(--ac);border-right:1.5px solid var(--ac)}
+.dash-card:hover::before,.dash-card:hover::after{opacity:.85}
+[data-theme=light] .dash-card:hover::before,[data-theme=light] .dash-card:hover::after{filter:drop-shadow(0 0 3px rgba(var(--neon-rgb),.7))}
+.dash-card:hover{box-shadow:0 12px 32px rgba(var(--ac-rgb),.1),var(--shadow-sm)}
+
+/* 登入頁：極淡電路網格，取代空白背景，暗色才顯示（呼應 JARVIS 開機畫面） */
+#loginOverlay::before{content:'';position:fixed;inset:0;pointer-events:none;opacity:.4;background-image:linear-gradient(rgba(var(--ac-rgb),.05) 1px,transparent 1px),linear-gradient(90deg,rgba(var(--ac-rgb),.05) 1px,transparent 1px);background-size:34px 34px}
+[data-theme=light] #loginOverlay::before{display:none}
+
+/* 淺色模式：主要按鈕與 active 狀態 hover 時加一圈極細檸檬光暈，取代暗色的角括號語彙 */
+[data-theme=light] .btn-p:hover{box-shadow:0 5px 20px rgba(var(--ac-rgb),.4),0 0 0 1px rgba(var(--neon-rgb),.5),inset 0 1px 0 rgba(255,255,255,.5)}
+[data-theme=light] .nav-tab.active,[data-theme=light] .tb.active,[data-theme=light] .chip.active{box-shadow:0 2px 10px rgba(var(--ac-rgb),.3),0 0 0 1px rgba(var(--neon-rgb),.45)}
+
 /* ══ Header ══ */
 header{height:54px;background:var(--sf);display:flex;align-items:center;gap:10px;padding:0 20px;flex-shrink:0;position:relative;overflow:hidden;z-index:50;isolation:isolate;box-shadow:0 1px 0 rgba(255,255,255,.02) inset}
-header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--m-grad)}
+header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--m-grad);box-shadow:0 0 8px rgba(var(--ac-rgb),.5)}
+[data-theme=light] header::after{box-shadow:none}
 header .topo{opacity:.4}
 .logo{font-family:var(--font-d);font-size:16px;font-weight:700;letter-spacing:-.01em;color:transparent;background:var(--m-grad);background-clip:text;-webkit-background-clip:text;display:flex;align-items:center;gap:9px;white-space:nowrap;flex-shrink:0;position:relative;z-index:1}
 .lic{width:30px;height:30px;background:var(--acd);border:1px solid var(--acg);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 4px rgba(0,0,0,.3)}
@@ -79,7 +113,7 @@ header .topo{opacity:.4}
 /* ── Nav tabs ── */
 .nav-tabs{display:flex;gap:2px;background:var(--sf2);border:1px solid var(--bd);border-radius:20px;padding:3px;position:relative;z-index:1;flex-shrink:0;box-shadow:inset 0 1px 3px rgba(0,0,0,.3)}
 .nav-tab{background:none;border:none;border-radius:14px;padding:5px 15px;font-size:13px;font-family:var(--font);font-weight:600;color:var(--txm);cursor:pointer;transition:all .18s;white-space:nowrap}
-.nav-tab.active{background:linear-gradient(135deg,var(--ac),var(--mb));color:#fff;font-weight:700;box-shadow:0 2px 10px rgba(var(--ac-rgb),.35),inset 0 1px 0 rgba(255,255,255,.2)}
+.nav-tab.active{background:linear-gradient(135deg,var(--ac),var(--mb));color:var(--on-accent);font-weight:700;box-shadow:0 2px 10px rgba(var(--ac-rgb),.35),inset 0 1px 0 rgba(255,255,255,.2)}
 .nav-tab:not(.active):hover{color:var(--tx);background:rgba(255,255,255,.03)}
 
 .pill{display:flex;align-items:center;gap:6px;background:var(--sf2);border:1px solid var(--bd);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--txm);white-space:nowrap;flex-shrink:0;position:relative;z-index:1;font-family:var(--font-m)}
@@ -87,7 +121,7 @@ header .topo{opacity:.4}
 .sfill{height:100%;border-radius:2px;transition:width .4s;background:var(--ac)}
 .tg{display:flex;background:var(--sf2);border:1px solid var(--bd);border-radius:20px;padding:3px;gap:2px;position:relative;z-index:1;box-shadow:inset 0 1px 3px rgba(0,0,0,.3)}
 .tb{background:none;border:none;border-radius:14px;padding:4px 12px;font-size:12px;font-family:var(--font);font-weight:600;color:var(--txm);cursor:pointer;transition:all .18s;white-space:nowrap}
-.tb.active{background:linear-gradient(135deg,var(--ac),var(--mb));color:#fff;font-weight:700;box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+.tb.active{background:linear-gradient(135deg,var(--ac),var(--mb));color:var(--on-accent);font-weight:700;box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
 .tb:not(.active):hover{color:var(--tx)}
 .hbtn{background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:6px 12px;color:var(--txm);cursor:pointer;display:flex;align-items:center;gap:5px;font-size:13px;font-weight:600;font-family:var(--font);transition:all .15s;flex-shrink:0;white-space:nowrap;position:relative;z-index:1}
 .hbtn:hover{border-color:var(--ac);color:var(--ac);background:var(--acd);transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.25)}
@@ -108,8 +142,8 @@ header .topo{opacity:.4}
 .btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:var(--r);font-size:14px;font-family:var(--font);font-weight:600;cursor:pointer;border:1px solid var(--bd);background:var(--sf2);color:var(--tx);transition:all .15s;white-space:nowrap;position:relative}
 .btn:hover{border-color:var(--ac);color:var(--ac);background:var(--acd);transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.25)}
 .btn:active{transform:translateY(0)}
-.btn-p{background:linear-gradient(135deg,var(--ac),var(--mb));border:none;color:#fff;font-weight:700;box-shadow:0 3px 14px rgba(var(--ac-rgb),.35),inset 0 1px 0 rgba(255,255,255,.22)}
-.btn-p:hover{color:#fff;box-shadow:0 5px 20px rgba(var(--ac-rgb),.48),inset 0 1px 0 rgba(255,255,255,.28);transform:translateY(-1px)}
+.btn-p{background:linear-gradient(135deg,var(--ac),var(--mb));border:none;color:var(--on-accent);font-weight:700;box-shadow:0 3px 14px rgba(var(--ac-rgb),.35),inset 0 1px 0 rgba(255,255,255,.22)}
+.btn-p:hover{color:var(--on-accent);box-shadow:0 5px 20px rgba(var(--ac-rgb),.48),inset 0 1px 0 rgba(255,255,255,.28);transform:translateY(-1px)}
 .btn-p:active{transform:translateY(0);box-shadow:0 2px 8px rgba(var(--ac-rgb),.35),inset 0 1px 0 rgba(255,255,255,.2)}
 .btn-sm{padding:6px 11px;font-size:13px}
 .btn-xs{padding:3px 9px;font-size:12px}
@@ -151,7 +185,7 @@ header .topo{opacity:.4}
 .cat-chips{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
 .chip{padding:3px 10px;border-radius:14px;font-size:12px;cursor:pointer;border:1px solid var(--bd);background:var(--sf2);color:var(--txm);transition:all .15s;font-family:var(--font);font-weight:600;white-space:nowrap}
 .chip:hover{background:var(--acd);border-color:var(--acg);color:var(--ac)}
-.chip.active{background:linear-gradient(135deg,var(--ac),var(--mb));border-color:var(--ac);color:#fff;font-weight:700;box-shadow:0 0 0 3px var(--acd)}
+.chip.active{background:linear-gradient(135deg,var(--ac),var(--mb));border-color:var(--ac);color:var(--on-accent);font-weight:700;box-shadow:0 0 0 3px var(--acd)}
 .sort-row{display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-top:8px}
 .slabel{font-size:11px;color:var(--txf);flex-shrink:0;margin-right:2px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
 .sbtn{padding:2px 9px;border-radius:12px;font-size:12px;cursor:pointer;border:1px solid var(--bd);background:none;color:var(--txm);transition:all .15s;font-family:var(--font);font-weight:600}
@@ -239,7 +273,7 @@ tr.ci:hover .ctd-acts{opacity:1}
 .ct-info{flex:1;min-width:0}
 .ct-nr{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px}
 .ct-name{font-family:var(--font-d);font-size:16px;font-weight:700;letter-spacing:-.01em}
-.bp{font-size:11px;padding:1px 7px;border-radius:6px;background:var(--am);color:#fff;border:1px solid var(--am);font-weight:700}
+.bp{font-size:11px;padding:1px 7px;border-radius:6px;background:var(--am);color:var(--on-accent);border:1px solid var(--am);font-weight:700}
 .ct-role{font-size:12px;padding:2px 8px;border-radius:8px;background:var(--sf3);color:var(--txm);border:1px solid var(--bd2);font-weight:600;letter-spacing:.01em;flex-shrink:0}
 .ct-type-tag{font-size:12px;padding:2px 8px;border-radius:8px;font-weight:700;flex-shrink:0;background:var(--acd);color:var(--ac);border:1px solid var(--acg)}
 .ct-dets{display:flex;flex-wrap:wrap;gap:12px;margin-top:4px}
@@ -442,7 +476,7 @@ tr.ci:hover .ctd-acts{opacity:1}
 .stage-item{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:8px;background:var(--sf2);border:1px solid var(--bd);transition:opacity .15s}
 .stage-item.done{opacity:.55}
 .stage-check{width:18px;height:18px;border-radius:5px;border:2px solid var(--bd2);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;background:var(--sf)}
-.stage-item.done .stage-check{background:var(--ok);border-color:var(--ok);color:#fff}
+.stage-item.done .stage-check{background:var(--ok);border-color:var(--ok);color:var(--on-accent)}
 .stage-label{flex:1;font-size:14px;cursor:pointer}
 .stage-item.done .stage-label{text-decoration:line-through;color:var(--txm)}
 .stage-del{background:none;border:none;color:var(--txf);cursor:pointer;opacity:0;transition:opacity .15s;padding:2px;display:flex;flex-shrink:0}
