@@ -520,6 +520,9 @@ tr.ci:hover .ctd-acts{opacity:1}
 .cal-legend-item{display:flex;align-items:center;gap:5px}
 .cal-legend-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:24px}
+.cal-grid.fit{margin-bottom:12px;overflow:hidden}
+.cal-grid.fit .cal-cell{min-height:0}
+.cal-grid.fit .cal-events{overflow:hidden}
 .cal-dow{font-size:11px;color:var(--txf);text-align:center;font-weight:700;padding:2px 0 6px;text-transform:uppercase}
 .cal-dow.weekend{color:var(--mpw-r);opacity:.75}
 .cal-cell{min-height:72px;border-radius:9px;border:1px solid var(--bd);background:var(--sf2);padding:6px 5px 4px;display:flex;flex-direction:column;gap:2px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
