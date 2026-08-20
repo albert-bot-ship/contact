@@ -1,0 +1,1877 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>contact control</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="m-orb-mid" aria-hidden="true"></div>
+
+<header>
+  <div class="topo" aria-hidden="true"></div>
+  <div class="logo">
+    <div class="lic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+    <span>contact control</span>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab" id="tabDashboard" onclick="setView('dashboard')">儀表板</button>
+    <button class="nav-tab active" id="tabCases" onclick="setView('cases')">案件</button>
+    <button class="nav-tab" id="tabDir" onclick="setView('directory')">名冊</button>
+    <button class="nav-tab" id="tabSchedule" onclick="setView('schedule')">期程總覽</button>
+    <button class="nav-tab" id="tabSettings" onclick="setView('settings')">設定</button>
+  </div>
+  <div class="hsp"></div>
+  <button class="hbtn hbtn-icon" onclick="exportJSON()" title="匯出 JSON 備份">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+  </button>
+  <button class="hbtn hbtn-icon" onclick="document.getElementById('importInput').click()" title="匯入 JSON 備份">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+  </button>
+  <div class="ds-pill ds-loading" id="dsPill">
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    <span id="dsPillText">讀取中…</span>
+  </div>
+  <div class="pill" id="sunrisePill" style="display:none">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg>
+    <span id="sunriseText"></span>
+  </div>
+  <div class="pill" id="storagePill">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+    <span id="storageText">—</span>
+    <div class="sbar"><div class="sfill" id="storageFill"></div></div>
+  </div>
+  <div class="tg">
+    <button class="tb" id="btnAuto"  onclick="setThemeMode('auto')">自動</button>
+    <button class="tb" id="btnLight" onclick="setThemeMode('light')">淺色</button>
+    <button class="tb" id="btnDark"  onclick="setThemeMode('dark')">深色</button>
+  </div>
+</header>
+
+<!-- Toolbar (changes by view) -->
+<div class="toolbar" id="toolbar"></div>
+
+<!-- Main layout -->
+<div class="layout" id="mainLayout">
+  <div class="lp" id="lp">
+    <div class="lp-top" id="lpTop"></div>
+    <div class="lp-list" id="lpList"></div>
+    <div class="lp-bottom" id="lpBottom"></div>
+  </div>
+  <div class="rp" id="rp">
+    <div class="rp-empty"><div class="rp-empty-icon">📋</div><p class="rp-empty-txt">點選左側查看詳情</p></div>
+  </div>
+</div>
+
+<!-- Case Modal -->
+<div class="mo" id="caseModal">
+  <div class="md">
+    <div class="mh"><span class="mt" id="caseMT">新增案件</span><button class="mcl" onclick="closeMo('caseModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mb">
+      <input type="hidden" id="caseId">
+      <div class="fg"><label class="fl">案件名稱 <span class="fr">*</span></label><input class="fi" id="caseName" placeholder="例：○○廠 環境影響評估"></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">案件類別</label><select class="fs" id="caseCat"></select></div>
+        <div class="fg"><label class="fl">案件狀態</label>
+          <select class="fs" id="caseStatus">
+            <option value="進行中">進行中</option>
+            <option value="待辦">待辦</option>
+            <option value="暫停">暫停</option>
+            <option value="結案">結案</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label class="fl">備註</label><input class="fi" id="caseNote" placeholder="選填"></div>
+    </div>
+    <div class="mf"><button class="btn" onclick="closeMo('caseModal')">取消</button><button class="btn btn-p" onclick="saveCase()">儲存</button></div>
+  </div>
+</div>
+
+<!-- Global Contact Modal (Directory) -->
+<div class="mo" id="gContactModal">
+  <div class="md">
+    <div class="mh"><span class="mt" id="gContactMT">新增聯絡人</span><button class="mcl" onclick="closeMo('gContactModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mb">
+      <input type="hidden" id="gCtId">
+      <div class="frow">
+        <div class="fg"><label class="fl">姓名 <span class="fr">*</span></label><input class="fi" id="gCtName" placeholder="王小明"></div>
+        <div class="fg"><label class="fl">身份 / 職位</label><input class="fi" id="gCtRole" placeholder="業主、承辦…"></div>
+      </div>
+      <div class="fg"><label class="fl">角色類別</label><input class="fi" id="gCtType" placeholder="業主、下包（空品監測）、規劃團隊…"></div>
+      <div class="fg"><label class="fl">說明</label><textarea class="fta" id="gCtDesc" placeholder="負責範疇、對接事項…"></textarea></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">電話</label><input class="fi" id="gCtPhone" type="tel" placeholder="0900-000-000"></div>
+        <div class="fg"><label class="fl">Email</label><input class="fi" id="gCtEmail" type="email" placeholder="example@mail.com"></div>
+      </div>
+      <div class="fg"><label class="fl">LINE ID</label><input class="fi" id="gCtLine" placeholder="選填"></div>
+      <div class="fg"><label class="fl">備註</label><textarea class="fta" id="gCtNote" placeholder="其他補充…" style="min-height:52px"></textarea></div>
+    </div>
+    <div class="mf"><button class="btn" onclick="closeMo('gContactModal')">取消</button><button class="btn btn-p" onclick="saveGContact()">儲存</button></div>
+  </div>
+</div>
+
+<!-- Case Contact Ref Modal (with autocomplete picker) -->
+<div class="mo" id="refModal">
+  <div class="md">
+    <div class="mh"><span class="mt" id="refMT">新增聯絡人</span><button class="mcl" onclick="closeMo('refModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mb">
+      <input type="hidden" id="refId">
+      <input type="hidden" id="refCaseId">
+      <input type="hidden" id="refPickedGId">
+      <div class="fsection-label">── 基本資料（來自名冊或新建）</div>
+      <div class="frow">
+        <div class="fg">
+          <label class="fl">姓名 <span class="fr">*</span></label>
+          <div class="ac-wrap">
+            <input class="fi" id="refName" placeholder="輸入姓名搜尋名冊…" autocomplete="off" oninput="onRefNameInput(this.value)" onblur="hideAcDelay()">
+            <div class="ac-dropdown" id="refAcDrop"></div>
+          </div>
+          <div class="linked-indicator" id="refLinked">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            已連結名冊 · 修改將同步更新
+          </div>
+        </div>
+        <div class="fg"><label class="fl">身份 / 職位</label><input class="fi" id="refRole" placeholder="業主、承辦…"></div>
+      </div>
+      <div class="fg"><label class="fl">角色類別</label><input class="fi" id="refType" placeholder="業主、下包（空品監測）、規劃團隊…"></div>
+      <div class="fg"><label class="fl">說明</label><textarea class="fta" id="refDesc" placeholder="負責範疇、對接事項…"></textarea></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">電話</label><input class="fi" id="refPhone" type="tel"></div>
+        <div class="fg"><label class="fl">Email</label><input class="fi" id="refEmail" type="email"></div>
+      </div>
+      <div class="fg"><label class="fl">LINE ID</label><input class="fi" id="refLine" placeholder="選填"></div>
+      <div class="fg"><label class="fl">備註（全域）</label><textarea class="fta" id="refGNote" placeholder="此人的一般備注…" style="min-height:52px"></textarea></div>
+      <hr class="fdivider">
+      <div class="fsection-label">── 此案件專屬</div>
+      <div class="fg"><label class="fl">案件備注</label><input class="fi" id="refCaseNote" placeholder="此人在此案件的特別說明…"></div>
+      <label class="fck"><input type="checkbox" id="refPrimary"> 設為此案件的主要聯絡人</label>
+    </div>
+    <div class="mf"><button class="btn" onclick="closeMo('refModal')">取消</button><button class="btn btn-p" onclick="saveRef()">儲存</button></div>
+  </div>
+</div>
+
+<!-- Milestone Modal -->
+<div class="mo" id="msModal">
+  <div class="md">
+    <div class="mh"><span class="mt" id="msMT">新增期程</span><button class="mcl" onclick="closeMo('msModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mb">
+      <input type="hidden" id="msId"><input type="hidden" id="msCaseId">
+      <div class="fg" id="msCaseField" style="display:none">
+        <label class="fl">歸屬 <span class="fr">*</span></label>
+        <select class="fs" id="msCasePick"></select>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">名稱 <span class="fr">*</span></label><input class="fi" id="msLabel" placeholder="送件期限、審查會議…"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">開始日 <span class="fr">*</span></label><input class="fi" id="msDate" type="date" onchange="if(document.getElementById('msEndDate').value<this.value)document.getElementById('msEndDate').value=this.value"></div>
+        <div class="fg"><label class="fl">結束日 <span class="fr">*</span></label><input class="fi" id="msEndDate" type="date"></div>
+      </div>
+    </div>
+    <div class="mf"><button class="btn" onclick="closeMo('msModal')">取消</button><button class="btn btn-p" onclick="saveMilestone()">儲存</button></div>
+  </div>
+</div>
+
+<!-- Log Modal -->
+<div class="mo" id="logModal">
+  <div class="md">
+    <div class="mh"><span class="mt" id="logMT">新增聯絡記錄</span><button class="mcl" onclick="closeMo('logModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mb">
+      <input type="hidden" id="logId"><input type="hidden" id="logCaseId"><input type="hidden" id="logRefId">
+      <div class="fg"><label class="fl">日期 <span class="fr">*</span></label><input class="fi" id="logDate" type="date"></div>
+      <div class="fg"><label class="fl">記錄內容 <span class="fr">*</span></label><textarea class="fta" id="logContent" placeholder="電話確認、信件往來、會議內容…" style="min-height:100px"></textarea></div>
+    </div>
+    <div class="mf"><button class="btn" onclick="closeMo('logModal')">取消</button><button class="btn btn-p" onclick="saveLog()">儲存</button></div>
+  </div>
+</div>
+
+<!-- Login Overlay -->
+<div id="loginOverlay" style="display:none">
+  <div class="lo-orb1"></div>
+  <div class="lo-orb2"></div>
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="lic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color:var(--ac)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+      contact control
+    </div>
+    <div class="login-title" id="loginTitle">輸入密碼</div>
+    <div class="login-subtitle" id="loginSubtitle"></div>
+    <div class="pwd-wrap">
+      <input type="password" class="fi" id="pwdInput" placeholder="密碼" onkeydown="if(event.key==='Enter')doLogin()" autocomplete="current-password">
+      <button class="pwd-toggle" onclick="togglePwdView('pwdInput',this)" tabindex="-1">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
+    <button class="btn btn-p" style="width:100%;justify-content:center;font-size:15px;padding:10px" onclick="doLogin()">登入</button>
+    <div class="login-err" id="loginErr"></div>
+    <div class="login-footer">
+      <button class="login-link" onclick="forgotPwd()">忘記密碼？（清除所有資料重置）</button>
+    </div>
+  </div>
+</div>
+
+<!-- Set Password Modal -->
+<div class="mo" id="setPwdModal">
+  <div class="md" style="max-width:400px">
+    <div class="mh"><span class="mt" id="setPwdMT">設定密碼</span><button class="mcl" onclick="closeMo('setPwdModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mb">
+      <div class="fg">
+        <label class="fl">新密碼</label>
+        <div class="pwd-wrap" style="margin-bottom:0">
+          <input type="password" class="fi" id="newPwd1" placeholder="請輸入新密碼（至少 4 字元）" autocomplete="new-password">
+          <button class="pwd-toggle" onclick="togglePwdView('newPwd1',this)" tabindex="-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">確認密碼</label>
+        <div class="pwd-wrap" style="margin-bottom:0">
+          <input type="password" class="fi" id="newPwd2" placeholder="再次輸入密碼" autocomplete="new-password" onkeydown="if(event.key==='Enter')doSetPwd()">
+          <button class="pwd-toggle" onclick="togglePwdView('newPwd2',this)" tabindex="-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <div class="login-err" id="setPwdErr"></div>
+    </div>
+    <div class="mf"><button class="btn" onclick="closeMo('setPwdModal')">取消</button><button class="btn btn-p" onclick="doSetPwd()">儲存密碼</button></div>
+  </div>
+</div>
+
+<input type="file" id="importInput" accept=".json" style="display:none" onchange="importJSON(event)">
+<div id="toast"></div>
+<div id="calTip" class="cal-tip"></div>
+
+<script>
+/* ── Constants ── */
+const SK='ccv6';
+const DEF_CATS=['環評','環差','監測','許可申請','土污','廢棄物','溫室氣體','其他'];
+const BASE_COL={'環評':[99,140,255],'環差':[167,110,210],'監測':[34,197,155],'許可申請':[250,168,36],'土污':[240,80,80],'廢棄物':[128,140,164],'溫室氣體':[52,207,142],'其他':[128,140,164]};
+const STATUS_CLS={進行中:'s-active',待辦:'s-pending',暫停:'s-paused',結案:'s-closed'};
+const COMPANY_ID='__company__';
+function companyMsItems(){return(db.companyMilestones||[]).map(m=>({...m,caseId:COMPANY_ID,caseName:'公司期程',caseCategory:null,isCompany:true}));}
+function catCol(cat){if(!cat)return['var(--acd)','var(--ac)'];if(BASE_COL[cat]){const[r,g,b]=BASE_COL[cat];return[`rgba(${r},${g},${b},.22)`,`rgb(${r},${g},${b})`];}let h=0;for(let i=0;i<cat.length;i++)h=(h*37+cat.charCodeAt(i))%360;return[`hsla(${h},60%,64%,.22)`,`hsl(${h},60%,64%)`];}
+
+/* ── State ── */
+let db={categories:[...DEF_CATS],contacts:[],cases:[],categoryStageTemplates:{},companyMilestones:[]};
+let view='cases',selId=null,selDirId=null;
+let sortKey='newest',filterCat='',filterStatus='',searchCaseQ='',searchCtQ='';
+const stageOpenIds=new Set();
+function toggleStageOpen(caseId){
+  if(stageOpenIds.has(caseId))stageOpenIds.delete(caseId);else stageOpenIds.add(caseId);
+  renderCasesRP();
+}
+let themeMode=localStorage.getItem('themeMode')||'auto';
+let acHideTimer=null;
+let calMonth=(()=>{const d=new Date();return{y:d.getFullYear(),m:d.getMonth()};})();
+
+/* ── Storage ── */
+function loadData(){
+  try{
+    const r=localStorage.getItem(SK);if(r)db=JSON.parse(r);
+    if(!db.categories)db.categories=[...DEF_CATS];
+    if(!db.contacts)db.contacts=[];
+    if(!db.categoryStageTemplates)db.categoryStageTemplates={};
+    if(!db.companyMilestones)db.companyMilestones=[];
+    db.cases.forEach(c=>{
+      if(!c.status)c.status='進行中';
+      if(!c.milestones)c.milestones=[];
+      if(!c.stages)c.stages=[];
+      if(c.memo==null)c.memo='';
+      if(!c.createdAt)c.createdAt=Date.now();
+      // Migrate old contacts[] → contactRefs[]
+      if(c.contacts&&!c.contactRefs){
+        c.contactRefs=c.contacts.map(ct=>{
+          let gct=db.contacts.find(g=>g.name===ct.name&&(g.phone===ct.phone||(!g.phone&&!ct.phone)));
+          if(!gct){gct={id:ct.id||uid(),name:ct.name||'',role:ct.role||'',contactType:ct.contactType||'',description:ct.description||'',phone:ct.phone||'',email:ct.email||'',note:ct.note||'',createdAt:Date.now()};db.contacts.push(gct);}
+          return{id:uid(),contactId:gct.id,primary:!!ct.primary,caseNote:'',logs:ct.logs||[]};
+        });
+        delete c.contacts;
+      }
+      if(!c.contactRefs)c.contactRefs=[];
+    });
+  }catch{db={categories:[...DEF_CATS],contacts:[],cases:[],categoryStageTemplates:{},companyMilestones:[]};}
+}
+function cleanDb(){
+  return{categories:db.categories,contacts:db.contacts,categoryStageTemplates:db.categoryStageTemplates||{},companyMilestones:db.companyMilestones||[],cases:db.cases.map(c=>{
+    const{_x,...r}=c;
+    return{...r,contactRefs:(r.contactRefs||[]).map(ref=>{const{_logsOpen,...rr}=ref;return rr;})};
+  })};
+}
+function saveData(){localStorage.setItem(SK,JSON.stringify(cleanDb()));updateStorage();}
+function updateStorage(){
+  const bytes=new TextEncoder().encode(localStorage.getItem(SK)||'').length;
+  const kb=(bytes/1024).toFixed(1);const pct=Math.min(100,(bytes/(5*1024*1024))*100);
+  document.getElementById('storageText').textContent=`${kb} KB / 5 MB`;
+  const f=document.getElementById('storageFill');f.style.width=pct.toFixed(1)+'%';
+  f.style.background=pct>80?'var(--err)':pct>50?'var(--warn)':'var(--ac)';
+  if(pct>70)showToast(`⚠ LocalStorage 已使用 ${pct.toFixed(0)}%，建議匯出備份`,'warn');
+}
+
+/* ── Theme ── */
+function getSunTimes(){const s=new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'});const[yr,mo,dy]=s.split('-').map(Number);const day=Math.round((new Date(yr,mo-1,dy)-new Date(yr,0,0))/86400000);const lat=24.1477*Math.PI/180;const decl=-23.45*Math.cos(2*Math.PI/365*(day+10))*Math.PI/180;const cosH=-Math.tan(lat)*Math.tan(decl);const H=Math.acos(Math.max(-1,Math.min(1,cosH)))*180/Math.PI;const noon=12-(120.6736-120)/15;return{rH:noon-H/15,sH:noon+H/15};}
+function hhmm(h){const hh=Math.floor(h),mm=Math.round((h-hh)*60)%60;return`${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;}
+function applyTheme(){let dark=false;const pill=document.getElementById('sunrisePill');if(themeMode==='dark'){dark=true;pill.style.display='none';}else if(themeMode==='light'){dark=false;pill.style.display='none';}else{const{rH,sH}=getSunTimes();const tw=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Taipei'}));const cur=tw.getHours()+tw.getMinutes()/60;dark=cur<rH||cur>=sH;document.getElementById('sunriseText').textContent=`台中 日出 ${hhmm(rH)} · 日落 ${hhmm(sH)}`;pill.style.display='flex';}document.documentElement.setAttribute('data-theme',dark?'dark':'light');}
+function setThemeMode(mode){themeMode=mode;localStorage.setItem('themeMode',mode);applyTheme();document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));document.getElementById({auto:'btnAuto',light:'btnLight',dark:'btnDark'}[mode]).classList.add('active');}
+
+/* ── Utils ── */
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function hl(t,q){if(!q)return esc(t);const e=esc(t),eq=esc(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return e.replace(new RegExp(eq,'gi'),m=>`<mark>${m}</mark>`);}
+function ini(n){const c=[...(n||'').trim()];return c.length>=2?c[0]+c[c.length-1]:c[0]||'?';}
+const today=()=>new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'});
+function urgency(d){const t=new Date();t.setHours(0,0,0,0);const x=new Date(d);x.setHours(0,0,0,0);const diff=(x-t)/86400000;return diff<0?'overdue':diff<=7?'urgent':diff<=30?'soon':'normal';}
+function msEnd(m){return m.endDate||m.date;}
+function msDateStr(m){return m.endDate&&m.endDate!==m.date?`${m.date} ～ ${m.endDate}`:m.date;}
+function dateRangeArr(start,end){const out=[];let d=new Date(start+'T00:00:00');const e=new Date((end||start)+'T00:00:00');let guard=0;while(d<=e&&guard<730){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');out.push(`${y}-${m}-${dd}`);d.setDate(d.getDate()+1);guard++;}return out;}
+function nearestMs(c){const t=new Date();t.setHours(0,0,0,0);const f=(c.milestones||[]).filter(m=>{const e=new Date(msEnd(m));e.setHours(0,0,0,0);return e>=t;}).map(m=>new Date(m.date).getTime());return f.length?Math.min(...f):Infinity;}
+function getGContact(ref){return db.contacts.find(c=>c.id===ref.contactId)||{name:'(已刪除)',phone:'',email:'',lineId:'',role:'',contactType:'',description:'',note:''};}
+
+/* ── View Navigation ── */
+const VIEW_TAB_IDS={dashboard:'tabDashboard',cases:'tabCases',directory:'tabDir',schedule:'tabSchedule',settings:'tabSettings'};
+function syncLayoutMode(){
+  const ml=document.getElementById('mainLayout');if(!ml)return;
+  ml.classList.toggle('cases-mode',view==='cases');
+  ml.classList.toggle('has-sel',view==='cases'&&!!selId);
+}
+function setView(v){
+  view=v;selId=null;selDirId=null;
+  Object.values(VIEW_TAB_IDS).forEach(id=>document.getElementById(id)?.classList.remove('active'));
+  document.getElementById(VIEW_TAB_IDS[v])?.classList.add('active');
+  const rp=document.getElementById('rp');
+  // 案件/名冊在手機版是「先看清單、點了才看內容」，所以切頁籤時要先隱藏 rp、顯示清單。
+  // 儀表板/期程總覽/設定沒有清單、本身就是內容，手機版切過去要直接顯示，不能被藏起來。
+  if(v==='cases'||v==='directory')rp.classList.remove('mobile-show');
+  else rp.classList.add('mobile-show');
+  syncLayoutMode();
+  renderToolbar();renderLP();renderRP();
+}
+
+/* ── Toolbar ── */
+function renderToolbar(){
+  const tb=document.getElementById('toolbar');
+  if(view==='cases'){
+    tb.innerHTML=`
+      <div class="sw swa"><span class="si"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span><input class="sinput" id="searchCase" placeholder="搜尋案件/備忘/記錄… (Enter)" type="search" autocomplete="off"></div>
+      <div class="sw swb"><span class="si"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><input class="sinput" id="searchContact" placeholder="搜尋聯絡人… (Enter)" type="search" autocomplete="off"></div>
+      <div class="tsep"></div>
+      <button class="btn btn-sm" onclick="exportCSV()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>CSV</button>
+      <button class="btn btn-sm" onclick="exportWordAll()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="9.01" y2="15"/><line x1="12" y1="15" x2="12.01" y2="15"/></svg>Word 彙整</button>
+      <button class="btn btn-sm" onclick="printView()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>列印</button>
+      <div class="tbsp"></div>
+      <button class="btn btn-p" onclick="openCaseModal()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增案件</button>`;
+    setupCaseSearch();
+  } else if(view==='directory'){
+    tb.innerHTML=`
+      <div class="sw" style="width:260px"><span class="si"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span><input class="sinput" id="searchDir" placeholder="搜尋名冊(含說明/備註)… (Enter)" type="search" autocomplete="off" onkeydown="if(event.key==='Enter')renderLP()" oninput="if(!this.value)renderLP()"></div>
+      <div class="tbsp"></div>
+      <button class="btn btn-p" onclick="openGContactModal()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增聯絡人</button>`;
+  } else if(view==='dashboard'){
+    tb.innerHTML=`<span style="font-size:14px;color:var(--txm);font-weight:600">儀表板 · 案件現況總覽</span><div class="tbsp"></div>`;
+  } else if(view==='schedule'){
+    tb.innerHTML=`<span style="font-size:14px;color:var(--txm);font-weight:600">期程總覽 · 跨案件里程碑月曆</span><div class="tbsp"></div>`;
+  } else if(view==='settings'){
+    tb.innerHTML=`<span style="font-size:14px;color:var(--txm);font-weight:600">設定 · 類別、審查階段範本與安全性</span><div class="tbsp"></div>`;
+  }
+}
+
+/* ── LP Rendering ── */
+function renderLP(){
+  if(view==='cases') renderCasesLP();
+  else if(view==='directory') renderDirLP();
+  else { document.getElementById('lp').style.display='none'; document.getElementById('rp').style.width='100%'; renderRP(); return; }
+  document.getElementById('lp').style.display='flex';
+  document.getElementById('rp').style.width='';
+}
+
+function renderRP(){
+  if(view==='cases') renderCasesRP();
+  else if(view==='directory') renderDirRP();
+  else if(view==='dashboard') renderDashboard();
+  else if(view==='schedule') renderSchedule();
+  else if(view==='settings') renderSettingsPage();
+}
+
+/* ══ CASES VIEW ══ */
+function renderCasesLP(){
+  const lpTop=document.getElementById('lpTop');
+  lpTop.innerHTML=`
+    <div class="fl-label">類別篩選</div>
+    <div class="cat-chips" id="catChips"></div>
+    <div class="fl-label" style="margin-top:8px">狀態</div>
+    <div class="cat-chips" id="statusChips"></div>
+    <div class="sort-row">
+      <span class="slabel">排序</span>
+      <button class="sbtn ${sortKey==='custom'?'active':''}" data-key="custom" onclick="setSort(this,'custom')" title="拖曳調整後會自動切到這裡">自訂</button>
+      <button class="sbtn ${sortKey==='newest'?'active':''}" data-key="newest" onclick="setSort(this,'newest')">最新</button>
+      <button class="sbtn ${sortKey==='oldest'?'active':''}" data-key="oldest" onclick="setSort(this,'oldest')">時間</button>
+      <button class="sbtn ${sortKey==='name'?'active':''}" data-key="name" onclick="setSort(this,'name')">A-Z</button>
+      <button class="sbtn ${sortKey==='cat'?'active':''}" data-key="cat" onclick="setSort(this,'cat')">類別</button>
+      <button class="sbtn ${sortKey==='ms'?'active':''}" data-key="ms" onclick="setSort(this,'ms')">期程</button>
+      <button class="sbtn ${sortKey==='status'?'active':''}" data-key="status" onclick="setSort(this,'status')">狀態</button>
+    </div>`;
+  renderCatChips();renderStatusChips();
+  document.getElementById('lpBottom').innerHTML=`<button class="btn btn-gh" style="width:100%;justify-content:center;font-size:14px" onclick="openCaseModal()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增案件</button>`;
+  renderCasesList();
+}
+
+function renderCatChips(){
+  const el=document.getElementById('catChips');if(!el)return;
+  el.innerHTML=`<button class="chip ${filterCat===''?'active':''}" onclick="doFC(this,'')">全部</button>`+db.categories.map(c=>`<button class="chip ${filterCat===c?'active':''}" onclick="doFC(this,'${esc(c)}')">${esc(c)}</button>`).join('');
+}
+function renderStatusChips(){
+  const el=document.getElementById('statusChips');if(!el)return;
+  const statuses=['全部','進行中','待辦','暫停','結案'];
+  el.innerHTML=statuses.map(s=>{
+    const isActive=s==='全部'?filterStatus==='':filterStatus===s;
+    return`<button class="chip ${isActive?'active':''}" onclick="doFS(this,'${s==='全部'?'':s}')">${s}</button>`;
+  }).join('');
+}
+function doFC(el,cat){filterCat=cat;document.querySelectorAll('#catChips .chip').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderCasesList();}
+function doFS(el,st){filterStatus=st;document.querySelectorAll('#statusChips .chip').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderCasesList();}
+function buildSel(el,cur){el.innerHTML='<option value="">— 請選擇 —</option>'+db.categories.map(c=>`<option value="${esc(c)}" ${c===cur?'selected':''}>${esc(c)}</option>`).join('');}
+function setSort(el,key){sortKey=key;document.querySelectorAll('.sbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderCasesList();}
+
+function visCases(){
+  let cs=db.cases;
+  if(filterCat)cs=cs.filter(c=>c.category===filterCat);
+  if(filterStatus)cs=cs.filter(c=>c.status===filterStatus);
+  if(searchCaseQ){
+    const q=searchCaseQ.toLowerCase();
+    cs=cs.filter(c=>
+      c.name.toLowerCase().includes(q)||
+      (c.note||'').toLowerCase().includes(q)||
+      (c.memo||'').toLowerCase().includes(q)||
+      (c.contactRefs||[]).some(ref=>(ref.caseNote||'').toLowerCase().includes(q)||(ref.logs||[]).some(l=>l.content.toLowerCase().includes(q)))
+    );
+  }
+  if(searchCtQ){const q=searchCtQ.toLowerCase();cs=cs.filter(c=>(c.contactRefs||[]).some(ref=>getGContact(ref).name.toLowerCase().includes(q)));}
+  return sortArr(cs);
+}
+function sortArr(a){
+  const arr=[...a];
+  if(sortKey==='newest')return arr.sort((x,y)=>(y.createdAt||0)-(x.createdAt||0));
+  if(sortKey==='oldest')return arr.sort((x,y)=>(x.createdAt||0)-(y.createdAt||0));
+  if(sortKey==='name')return arr.sort((x,y)=>x.name.localeCompare(y.name,'zh-TW'));
+  if(sortKey==='cat')return arr.sort((x,y)=>(x.category||'').localeCompare(y.category||'','zh-TW'));
+  if(sortKey==='ms')return arr.sort((x,y)=>nearestMs(x)-nearestMs(y));
+  if(sortKey==='status'){
+    const order={進行中:0,待辦:1,暫停:2,結案:3};
+    return arr.sort((x,y)=>(order[x.status||'進行中']??9)-(order[y.status||'進行中']??9)||x.name.localeCompare(y.name,'zh-TW'));
+  }
+  return arr;
+}
+
+function nextMsInfo(c){
+  const mss=(c.milestones||[]).slice().sort((a,b)=>a.date.localeCompare(b.date));
+  if(!mss.length)return null;
+  const t=new Date();t.setHours(0,0,0,0);
+  const upcoming=mss.find(m=>{const x=new Date(msEnd(m));x.setHours(0,0,0,0);return x>=t;});
+  return upcoming||mss[mss.length-1];
+}
+function stageProgressInfo(c){
+  const st=c.stages||[];if(!st.length)return null;
+  return{done:st.filter(s=>s.done).length,total:st.length};
+}
+function renderCasesList(){
+  const cs=visCases();const el=document.getElementById('lpList');
+  if(!cs.length){el.innerHTML=`<div class="lp-empty">${!db.cases.length?'尚無案件，點右上角「新增案件」':'無符合條件的案件'}</div>`;return;}
+  const rows=cs.map(c=>{
+    const primary=(c.contactRefs||[]).find(ref=>ref.primary)||(c.contactRefs||[])[0];
+    const primaryCt=primary?getGContact(primary):null;
+    const col=catCol(c.category);const isSel=c.id===selId;
+    const sCls=STATUS_CLS[c.status]||'s-active';
+    const nm=nextMsInfo(c);
+    let msHtml='<span class="ctd-muted">—</span>';
+    if(nm){
+      const urg=urgency(msEnd(nm));
+      const uc=urg==='overdue'?'var(--err)':urg==='urgent'?'var(--warn)':urg==='soon'?'var(--am)':'var(--txm)';
+      msHtml=`<span style="color:${uc}">${esc(nm.label)} · ${msDateStr(nm)}</span>`;
+    }
+    const stg=stageProgressInfo(c);
+    const stgHtml=stg?`<div class="ctd-stage-wrap"><div class="ctd-stage-bar"><div class="ctd-stage-fill" style="width:${Math.round(stg.done/stg.total*100)}%"></div></div><span class="ctd-stage-txt">${stg.done}/${stg.total}</span></div>`:'<span class="ctd-muted">—</span>';
+    return`<tr class="ci ${isSel?'sel':''}" id="ci-${c.id}"
+      onclick="selCase('${c.id}')">
+      <td class="ctd-drag" onclick="event.stopPropagation()" onpointerdown="ptrDragBegin(event,'.ci','${c.id}',commitCaseReorder)" title="拖曳排序"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></td>
+      <td class="ctd-name">${hl(c.name,searchCaseQ)}</td>
+      <td>${c.category?`<span class="cat-badge" style="background:${col[0]};color:${col[1]}">${esc(c.category)}</span>`:'<span class="ctd-muted">—</span>'}</td>
+      <td><span class="status-badge ${sCls}">${esc(c.status||'進行中')}</span></td>
+      <td class="ctd-ms">${msHtml}</td>
+      <td class="ctd-contact">${primaryCt?esc(primaryCt.name):'<span class="ctd-muted">—</span>'}</td>
+      <td>${stgHtml}</td>
+      <td class="ctd-acts" onclick="event.stopPropagation()">
+        <button class="ibtn" onclick="openCaseModal('${c.id}')" title="編輯"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button class="ibtn del" onclick="deleteCase('${c.id}')" title="刪除"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+      </td>
+    </tr>`;
+  }).join('');
+  el.innerHTML=`<div class="case-table-wrap"><table class="case-table">
+    <thead><tr>
+      <th style="width:20px"></th>
+      <th>案件名稱</th>
+      <th>類別</th>
+      <th>狀態</th>
+      <th>下個期程</th>
+      <th>主要聯絡人</th>
+      <th>案件進度</th>
+      <th style="width:52px"></th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+/* Cases Right Panel */
+function selCase(id){
+  selId=id;syncLayoutMode();renderCasesList();renderCasesRP();
+  if(window.innerWidth<=768){document.getElementById('rp').classList.add('mobile-show');}
+}
+function deselectCase(){
+  selId=null;syncLayoutMode();renderCasesList();renderCasesRP();
+  document.getElementById('rp').classList.remove('mobile-show');
+}
+
+function renderCasesRP(){
+  const rp=document.getElementById('rp');const c=db.cases.find(c=>c.id===selId);
+  if(!c){rp.innerHTML=`<div class="rp-empty"><div class="rp-empty-icon">📋</div><p class="rp-empty-txt">點選左側案件查看詳情</p></div>`;return;}
+  const sy=rp.scrollTop;const col=catCol(c.category);const acCol=c.category?col[1]:'var(--ac)';
+  const sCls=STATUS_CLS[c.status]||'s-active';
+  const mss=(c.milestones||[]).sort((a,b)=>a.date.localeCompare(b.date));
+  const msHtml=mss.map(m=>{const urg=urgency(msEnd(m));const an=urg==='overdue'?' bl-fast':urg==='urgent'?' bl-slow':'';return`<button class="ms-card ${urg}${an}" onclick="openMsModal('${c.id}','${m.id}')"><span class="ms-lbl">${esc(m.label)}</span><span class="ms-dt">${msDateStr(m)}</span><span class="ms-del-btn" onclick="event.stopPropagation();deleteMilestone('${c.id}','${m.id}')">×</span></button>`;}).join('');
+  const ctHtml=(c.contactRefs||[]).map(ref=>renderRefCard(c.id,ref)).join('');
+  const remainingTmplSteps=templateStepsRemaining(c);
+  rp.innerHTML=`<div>
+    ${window.innerWidth<=768?`<div class="mobile-back" onclick="mobileBack()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg> 返回列表</div>`:''}
+    <div class="cd-head">
+      <div class="topo" aria-hidden="true"></div>
+      <div class="cd-accent" style="background:${acCol}"></div>
+      <button class="cd-close" onclick="deselectCase()" title="收合詳情，返回完整列表"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <div class="cd-top">
+        <div class="cd-title">
+          <div class="cd-badges">
+            ${c.category?`<span class="cat-badge" style="background:${col[0]};color:${col[1]}">${esc(c.category)}</span>`:''}
+            <span class="status-badge ${sCls}">${esc(c.status||'進行中')}</span>
+          </div>
+          <div class="cd-name">${esc(c.name)}</div>
+          ${c.note?`<div class="cd-note-txt">${esc(c.note)}</div>`:''}
+        </div>
+        <div class="cd-hacts">
+          <button class="btn btn-sm" onclick="exportWordCase('${c.id}')" title="匯出此案件 Word 報告"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Word</button>
+          <button class="btn btn-sm" onclick="openCaseModal('${c.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>編輯</button>
+          <button class="btn btn-sm" style="color:var(--err);border-color:rgba(240,69,69,.3)" onclick="deleteCase('${c.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>刪除</button>
+        </div>
+      </div>
+    </div>
+    <div class="cd-sec">
+      <div class="cd-sec-hd cs-tog" onclick="toggleStageOpen('${c.id}')" style="cursor:pointer">
+        <span class="sec-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>案件進度${(c.stages||[]).length?` <span style="color:var(--txf);font-weight:500">(${(c.stages||[]).filter(s=>s.done).length}/${(c.stages||[]).length})</span>`:''}</span>
+        <span class="cs-tog-icon ${stageOpenIds.has(c.id)?'open':''}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
+      </div>
+      ${(c.stages||[]).length?`<div class="stage-progress-track"><div class="stage-progress-fill" style="width:${Math.round((c.stages.filter(s=>s.done).length/c.stages.length)*100)}%"></div></div>`:''}
+      <div class="stage-body ${stageOpenIds.has(c.id)?'open':''}">
+        <div class="stage-list">
+          ${(c.stages||[]).map(s=>`<div class="stage-item ${s.done?'done':''}">
+            <div class="stage-check" onclick="toggleStage('${c.id}','${s.id}')">${s.done?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':''}</div>
+            <span class="stage-label" onclick="toggleStage('${c.id}','${s.id}')">${esc(s.label)}</span>
+            <button class="stage-del" onclick="deleteStageStep('${c.id}','${s.id}')" title="刪除"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+          </div>`).join('')||`<span class="stage-empty">${c.category?'尚無階段，可套用範本或於下方新增':'尚無階段，可於下方新增'}</span>`}
+        </div>
+        ${remainingTmplSteps.length?`<div class="stage-add-row">
+          <select class="fs" id="tmplPick-${c.id}" style="flex:1" onchange="if(this.value){addStageFromTemplate('${c.id}',this.value);}">
+            <option value="">從範本選擇（還有 ${remainingTmplSteps.length} 項未加入）…</option>
+            ${remainingTmplSteps.map(label=>`<option value="${esc(label)}">${esc(label)}</option>`).join('')}
+          </select>
+          <button class="btn btn-sm" onclick="applyRemainingTemplateSteps('${c.id}')" title="一次套用全部剩餘範本步驟">套用全部</button>
+        </div>`:(c.category&&!(db.categoryStageTemplates[c.category]||[]).length?`<div class="settings-hint" style="margin-top:6px">此類別「${esc(c.category)}」尚未建立範本，可到「設定」建立後在這裡一鍵套用</div>`:'')}
+        <div class="stage-add-row">
+          <input class="fi" id="newStageInput-${c.id}" placeholder="自訂新增階段…" style="flex:1" onkeydown="if(event.key==='Enter')addStageStep('${c.id}')">
+          <button class="btn btn-sm" onclick="addStageStep('${c.id}')">新增</button>
+        </div>
+      </div>
+    </div>
+    <div class="cd-sec">
+      <div class="cd-sec-hd"><span class="sec-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>期程</span>
+      <button class="btn btn-xs" onclick="openMsModal('${c.id}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增期程</button></div>
+      <div class="ms-grid">${msHtml||`<span style="font-size:14px;color:var(--txf)">尚無期程</span>`}</div>
+    </div>
+    <div class="cd-sec">
+      <div class="cd-sec-hd"><span class="sec-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>聯絡人</span>
+      <button class="btn btn-xs" onclick="openRefModal('${c.id}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增聯絡人</button></div>
+      <div class="ct-list" id="ctList-${c.id}">${ctHtml||`<span style="font-size:14px;color:var(--txf)">尚無聯絡人</span>`}</div>
+    </div>
+    <div class="memo-sec"><div class="memo-title">備忘欄</div><textarea class="memo-ta" placeholder="公文字號、注意事項、其他備忘…" onblur="saveMemo('${c.id}',this.value)">${esc(c.memo||'')}</textarea></div>
+  </div>`;
+  rp.scrollTop=sy;
+}
+
+function renderRefCard(caseId,ref){
+  const ct=getGContact(ref);
+  const logs=(ref.logs||[]).sort((a,b)=>b.date.localeCompare(a.date));
+  const logsHtml=logs.map(l=>`<div class="log-item"><div class="log-date">${esc(l.date)}</div><div class="log-content">${esc(l.content)}</div><button class="log-del-btn" onclick="deleteLog('${caseId}','${ref.id}','${l.id}')" title="刪除"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`).join('');
+  return`<div class="ct-card" id="ct-${ref.id}">
+    <div class="ct-head">
+      <div class="ct-drag-handle" onpointerdown="ptrDragBegin(event,'.ct-card',{caseId:'${caseId}',refId:'${ref.id}'},commitRefReorder)" title="拖曳排序"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></div>
+      <div class="av">${ini(ct.name)}</div>
+      <div class="ct-info">
+        <div class="ct-nr">
+          <span class="ct-name">${hl(ct.name,searchCtQ)}</span>
+          ${ref.primary?'<span class="bp">主要</span>':''}
+          ${ct.contactType?`<span class="ct-type-tag">${esc(ct.contactType)}</span>`:''}
+          ${ct.role?`<span class="ct-role">${esc(ct.role)}</span>`:''}
+        </div>
+        <div class="ct-dets">
+          ${ct.phone?`<span class="df"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8 9.91a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span class="selectable">${esc(ct.phone)}</span><button class="cpbtn" data-copy="${esc(ct.phone)}" data-label="電話" title="複製電話"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></span>`:''}
+          ${ct.email?`<span class="df"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span class="selectable">${esc(ct.email)}</span><button class="cpbtn" data-copy="${esc(ct.email)}" data-label="Email" title="複製 Email"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></span>`:''}
+          ${ct.lineId?`<span class="df"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><span class="selectable">${esc(ct.lineId)}</span><button class="cpbtn" data-copy="${esc(ct.lineId)}" data-label="LINE ID" title="複製 LINE ID"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></span>`:''}
+        </div>
+      </div>
+      <div class="ct-hacts">
+        <button class="ibtn" onclick="openRefModal('${caseId}','${ref.id}')" title="編輯"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button class="ibtn" onclick="setView('directory');selDirId='${ref.contactId}';renderLP();renderRP();" title="在名冊中查看"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
+        <button class="ibtn del" onclick="deleteRef('${caseId}','${ref.id}')" title="移除"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+      </div>
+    </div>
+    ${ct.description?`<div class="ct-desc"><div class="ct-desc-label">說明</div>${esc(ct.description)}</div>`:''}
+    ${ref.caseNote?`<div class="ct-case-note">📌 ${esc(ref.caseNote)}</div>`:''}
+    <div class="log-sec ${ref._logsOpen?'log-open':''}">
+      <button class="log-tog" onclick="toggleLogs('${caseId}','${ref.id}')">
+        <span class="log-tic"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
+        聯絡記錄（${logs.length} 筆）
+      </button>
+      <div class="log-body">
+        ${logs.length?logsHtml:'<div style="font-size:14px;color:var(--txf);padding:4px 0">尚無記錄</div>'}
+        <div class="log-add"><button class="btn btn-xs btn-gh" onclick="openLogModal('${caseId}','${ref.id}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增記錄</button></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ══ DIRECTORY VIEW ══ */
+function renderDirLP(){
+  document.getElementById('lpTop').innerHTML=`<div class="fl-label">全域聯絡人名冊</div>`;
+  document.getElementById('lpBottom').innerHTML=`<button class="btn btn-gh" style="width:100%;justify-content:center;font-size:14px" onclick="openGContactModal()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增聯絡人</button>`;
+  const q=(document.getElementById('searchDir')?.value||'').toLowerCase();
+  let cts=[...db.contacts];
+  if(q)cts=cts.filter(c=>c.name.toLowerCase().includes(q)||(c.phone||'').includes(q)||(c.email||'').toLowerCase().includes(q)||(c.lineId||'').toLowerCase().includes(q)||(c.description||'').toLowerCase().includes(q)||(c.note||'').toLowerCase().includes(q)||(c.role||'').toLowerCase().includes(q)||(c.contactType||'').toLowerCase().includes(q));
+  const el=document.getElementById('lpList');
+  if(!cts.length){el.innerHTML=`<div class="lp-empty">${!db.contacts.length?'尚無聯絡人':'無符合結果'}</div>`;return;}
+  el.innerHTML=cts.map(ct=>{
+    const caseCount=db.cases.filter(c=>(c.contactRefs||[]).some(r=>r.contactId===ct.id)).length;
+    const isSel=ct.id===selDirId;
+    return`<div class="dir-card ${isSel?'sel-dir':''}" id="dct-${ct.id}"
+      onclick="selDir('${ct.id}')">
+      <div class="dir-card-inner">
+        <div class="dir-drag-handle" onclick="event.stopPropagation()" onpointerdown="ptrDragBegin(event,'.dir-card','${ct.id}',commitDirReorder)" title="拖曳排序"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></div>
+        <div class="av" style="width:34px;height:34px;font-size:13px">${ini(ct.name)}</div>
+        <div class="dir-info">
+          <div class="dir-name">${hl(ct.name,q)}</div>
+          <div class="dir-meta">
+            ${ct.phone?`<span class="dir-meta-item"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8 9.91a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>${esc(ct.phone)}</span>`:''}
+            <span class="dir-meta-item">${caseCount} 個案件</span>
+          </div>
+        </div>
+        <div class="dir-acts" onclick="event.stopPropagation()">
+          <button class="ibtn" onclick="openGContactModal('${ct.id}')" title="編輯"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="ibtn del" onclick="deleteGContact('${ct.id}')" title="刪除"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selDir(id){
+  selDirId=id;renderDirLP();renderDirRP();
+  if(window.innerWidth<=768)document.getElementById('rp').classList.add('mobile-show');
+}
+
+function renderDirRP(){
+  const rp=document.getElementById('rp');const ct=db.contacts.find(c=>c.id===selDirId);
+  if(!ct){rp.innerHTML=`<div class="rp-empty"><div class="rp-empty-icon">👤</div><p class="rp-empty-txt">點選左側聯絡人查看詳情</p></div>`;return;}
+  const cases=db.cases.filter(c=>(c.contactRefs||[]).some(r=>r.contactId===ct.id));
+  const caseHtml=cases.map(c=>{
+    const ref=(c.contactRefs||[]).find(r=>r.contactId===ct.id);
+    const col=catCol(c.category);const sCls=STATUS_CLS[c.status]||'s-active';
+    const logCnt=(ref?.logs||[]).length;
+    return`<div class="dir-case-item" onclick="setView('cases');selCase('${c.id}')">
+      <div class="dir-case-name">${esc(c.name)}</div>
+      <div class="dir-case-meta">
+        ${c.category?`<span class="cat-badge" style="background:${col[0]};color:${col[1]}">${esc(c.category)}</span>`:''}
+        <span class="status-badge ${sCls}">${esc(c.status||'進行中')}</span>
+        ${ref?.primary?'<span class="bp">主要</span>':''}
+        ${logCnt?`<span class="dir-case-log-count">${logCnt} 筆記錄</span>`:''}
+      </div>
+      ${ref?.caseNote?`<div style="font-size:13px;color:var(--txf);margin-top:4px;font-style:italic">📌 ${esc(ref.caseNote)}</div>`:''}
+    </div>`;
+  }).join('');
+  rp.innerHTML=`<div>
+    ${window.innerWidth<=768?`<div class="mobile-back" onclick="mobileBack()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg> 返回名冊</div>`:''}
+    <div class="dir-detail-head">
+      <div class="topo" aria-hidden="true"></div>
+      <div style="display:flex;align-items:center;gap:14px;padding-left:0;position:relative;z-index:1">
+        <div class="dir-av">${ini(ct.name)}</div>
+        <div style="flex:1;min-width:0">
+          <div class="dir-name-big">${esc(ct.name)}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+            ${ct.contactType?`<span class="ct-type-tag">${esc(ct.contactType)}</span>`:''}
+            ${ct.role?`<span style="font-size:13px;color:var(--txm)">${esc(ct.role)}</span>`:''}
+          </div>
+          <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:6px">
+            ${ct.phone?`<span class="df" style="font-size:14px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8 9.91a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span class="selectable">${esc(ct.phone)}</span><button class="cpbtn" data-copy="${esc(ct.phone)}" data-label="電話" title="複製電話"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></span>`:''}
+            ${ct.email?`<span class="df" style="font-size:14px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span class="selectable">${esc(ct.email)}</span><button class="cpbtn" data-copy="${esc(ct.email)}" data-label="Email" title="複製 Email"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></span>`:''}
+            ${ct.lineId?`<span class="df" style="font-size:14px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><span class="selectable">${esc(ct.lineId)}</span><button class="cpbtn" data-copy="${esc(ct.lineId)}" data-label="LINE ID" title="複製 LINE ID"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></span>`:''}
+          </div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm" onclick="openGContactModal('${ct.id}')">編輯</button>
+          <button class="btn btn-sm" style="color:var(--err);border-color:rgba(240,69,69,.3)" onclick="deleteGContact('${ct.id}')">刪除</button>
+        </div>
+      </div>
+      ${ct.description?`<div style="margin-top:12px;padding-left:0;font-size:14px;color:var(--txm);position:relative;z-index:1">${esc(ct.description)}</div>`:''}
+    </div>
+    <div class="dir-case-section">
+      <div class="sec-title" style="margin-bottom:14px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>參與案件（${cases.length} 件）</div>
+      ${caseHtml||`<div style="font-size:14px;color:var(--txf)">尚未加入任何案件</div>`}
+    </div>
+  </div>`;
+}
+
+/* ══ DASHBOARD ══ */
+function renderDashboard(){
+  const rp=document.getElementById('rp');
+  const t=new Date();t.setHours(0,0,0,0);
+  const allMs=[];db.cases.forEach(c=>{(c.milestones||[]).forEach(m=>{allMs.push({...m,caseId:c.id,caseName:c.name});});});allMs.push(...companyMsItems());
+  const upcoming=allMs.filter(m=>{const x=new Date(msEnd(m));x.setHours(0,0,0,0);return(x-t)/86400000<=7;}).sort((a,b)=>a.date.localeCompare(b.date));
+  const statusCounts={};['進行中','待辦','暫停','結案'].forEach(s=>statusCounts[s]=0);
+  db.cases.forEach(c=>{const s=c.status||'進行中';statusCounts[s]=(statusCounts[s]||0)+1;});
+  const catCounts={};db.cases.forEach(c=>{const cat=c.category||'未分類';catCounts[cat]=(catCounts[cat]||0)+1;});
+  const maxStatus=Math.max(1,...Object.values(statusCounts));
+  const maxCat=Math.max(1,...Object.values(catCounts),1);
+  const statusColMap={進行中:'var(--ok)',待辦:'var(--warn)',暫停:'var(--err)',結案:'var(--txf)'};
+  rp.innerHTML=`<div class="dash-wrap">
+    <div class="dash-hd">案件現況總覽</div>
+    <div class="dash-grid">
+      <div class="dash-card" style="grid-column:1/-1">
+        <div class="dash-card-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>7 天內到期期程（含逾期）</div>
+        <div class="dash-list">
+          ${upcoming.length?upcoming.map(m=>{const urg=urgency(msEnd(m));const goto=m.isCompany?`setView('schedule')`:`setView('cases');selCase('${m.caseId}')`;return`<div class="dash-due-item ${urg==='overdue'?'overdue':urg==='urgent'?'urgent':''}" onclick="${goto}">
+            <div class="dash-due-info"><div class="dash-due-label">${esc(m.label)}</div><div class="dash-due-case">${m.isCompany?'🏢 公司期程':esc(m.caseName)}</div></div>
+            <span class="dash-due-date" style="color:${urg==='overdue'?'var(--err)':urg==='urgent'?'var(--warn)':'var(--txm)'}">${msDateStr(m)}</span>
+          </div>`;}).join(''):`<div class="dash-empty">近期沒有到期期程</div>`}
+        </div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>案件狀態分布</div>
+        ${Object.entries(statusCounts).map(([s,n])=>`<div class="dash-bar-row"><span class="dash-bar-label">${s}</span><div class="dash-bar-track"><div class="dash-bar-fill" style="width:${(n/maxStatus)*100}%;background:${statusColMap[s]||'var(--ac)'}"></div></div><span class="dash-bar-count">${n}</span></div>`).join('')}
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>案件類別分布</div>
+        ${Object.keys(catCounts).length?Object.entries(catCounts).sort((a,b)=>b[1]-a[1]).map(([cat,n])=>{const col=cat==='未分類'?['var(--sf3)','var(--txf)']:catCol(cat);return`<div class="dash-bar-row"><span class="dash-bar-label">${esc(cat)}</span><div class="dash-bar-track"><div class="dash-bar-fill" style="width:${(n/maxCat)*100}%;background:${col[1]}"></div></div><span class="dash-bar-count">${n}</span></div>`;}).join(''):`<div class="dash-empty">尚無案件</div>`}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ══ 期程總覽（跨案件月曆） ══ */
+let calSelDay=null;
+function mUrgCol(date){
+  const urg=urgency(date);
+  if(urg==='overdue')return'var(--mpw-r)';
+  if(urg==='urgent'||urg==='soon')return'var(--mpw-p)';
+  return'var(--mpw-b)';
+}
+let calTipHideT=null;
+function showCalTip(el){
+  clearTimeout(calTipHideT);
+  const tip=document.getElementById('calTip');
+  if(!tip)return;
+  tip.textContent=el.getAttribute('data-full')||'';
+  tip.style.display='block';
+  const r=el.getBoundingClientRect();
+  const tw=tip.offsetWidth,th=tip.offsetHeight;
+  let left=r.left;
+  let top=r.bottom+6;
+  if(left+tw>window.innerWidth-8)left=window.innerWidth-tw-8;
+  if(left<8)left=8;
+  if(top+th>window.innerHeight-8)top=r.top-th-6;
+  tip.style.left=left+'px';
+  tip.style.top=top+'px';
+}
+function hideCalTip(){
+  const tip=document.getElementById('calTip');
+  if(!tip)return;
+  calTipHideT=setTimeout(()=>{tip.style.display='none';},60);
+}
+function renderSchedule(){
+  const rp=document.getElementById('rp');
+  const allMs=[];db.cases.forEach(c=>{(c.milestones||[]).forEach(m=>{allMs.push({...m,caseId:c.id,caseName:c.name,caseCategory:c.category});});});allMs.push(...companyMsItems());
+  const{y,m}=calMonth;
+  const first=new Date(y,m,1);const startDow=first.getDay();const daysInMonth=new Date(y,m+1,0).getDate();
+  const byDate={};allMs.forEach(ms=>{dateRangeArr(ms.date,msEnd(ms)).forEach(ds=>{if(!byDate[ds])byDate[ds]=[];byDate[ds].push(ms);});});
+  const todayStr=today();
+  let cells='';
+  for(let i=0;i<startDow;i++)cells+=`<div class="cal-cell empty"></div>`;
+  for(let d=1;d<=daysInMonth;d++){
+    const dateStr=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dow=(startDow+d-1)%7;
+    const items=(byDate[dateStr]||[]).sort((a,b)=>urgencyRank(msEnd(a))-urgencyRank(msEnd(b)));
+    const shown=items.slice(0,4).map(it=>{const col=mUrgCol(msEnd(it));const full=`${esc(it.caseName)} · ${esc(it.label)} · ${msDateStr(it)}`;return`<div class="cal-event" style="background:${col}22;color:${col}" data-full="${full}" onmouseenter="showCalTip(this)" onmouseleave="hideCalTip()" onclick="event.stopPropagation();openMsModal('${it.caseId}','${it.id}')"><span style="font-weight:800">${esc(it.caseName)}</span>：${esc(it.label)}</div>`;}).join('');
+    const more=items.length>4?`<span class="cal-more">+${items.length-4} 筆</span>`:'';
+    const cls=['cal-cell'];
+    if(dow===0||dow===6)cls.push('weekend');
+    if(dateStr===todayStr)cls.push('today');
+    if(dateStr===calSelDay)cls.push('sel');
+    const dayClick=items.length?`showCalDay('${dateStr}',event)`:`openMsModalForDate('${dateStr}')`;
+    cells+=`<div class="${cls.join(' ')}" onclick="${dayClick}"><span class="cal-daynum">${d}</span><div class="cal-events">${shown}${more}</div></div>`;
+  }
+  const dows=['日','一','二','三','四','五','六'];
+  const years=[];for(let yy=new Date().getFullYear()-20;yy<=new Date().getFullYear()+20;yy++)years.push(yy);
+  rp.innerHTML=`<div class="sched-wrap">
+    <div class="cal-head">
+      <div class="cal-title-group">
+        <select class="cal-jump" onchange="calJumpYear(this.value)">${years.map(yy=>`<option value="${yy}" ${yy===y?'selected':''}>${yy} 年</option>`).join('')}</select>
+        <select class="cal-jump" onchange="calJumpMonth(this.value)">${Array.from({length:12},(_,i)=>i).map(mm=>`<option value="${mm}" ${mm===m?'selected':''}>${mm+1} 月</option>`).join('')}</select>
+      </div>
+      <div class="cal-nav">
+        <button class="btn btn-xs" onclick="calNav(-1)">‹ 上月</button>
+        <button class="btn btn-xs" onclick="calNav(0)">今天</button>
+        <button class="btn btn-xs" onclick="calNav(1)">下月 ›</button>
+      </div>
+    </div>
+    <div class="cal-mstripe"></div>
+    <div class="cal-legend" style="justify-content:space-between">
+      <div style="display:flex;gap:14px;flex-wrap:wrap">
+        <span class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--mpw-r)"></span>已逾期</span>
+        <span class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--mpw-p)"></span>30天內</span>
+        <span class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--mpw-b)"></span>尚早</span>
+      </div>
+      <button class="btn btn-xs" onclick="openMsModalForDate('')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增期程</button>
+    </div>
+    <div class="cal-grid">${dows.map((d,i)=>`<div class="cal-dow ${i===0||i===6?'weekend':''}">${d}</div>`).join('')}${cells}</div>
+    <div id="calDayDetail"></div>
+    <div class="sched-list-title" style="justify-content:space-between"><span style="display:flex;align-items:center;gap:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>所有期程（依日期排序）</span><button class="btn btn-xs" onclick="openMsModalForDate('')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增期程</button></div>
+    <div style="font-size:11px;color:var(--txf);margin:-4px 0 8px">點月曆上任一天，或點下方清單裡的期程，都能直接編輯</div>
+    <div id="schedFullList"></div>
+  </div>`;
+  if(calSelDay)showCalDay(calSelDay);
+  if(!allMs.length){document.getElementById('schedFullList').innerHTML=`<div class="dash-empty">尚無期程，點上方「新增期程」即可新增</div>`;return;}
+  renderSchedFullList(allMs);
+}
+function urgencyRank(d){const u=urgency(d);return u==='overdue'?0:u==='urgent'?1:u==='soon'?2:3;}
+function calNav(dir){
+  if(dir===0){const d=new Date();calMonth={y:d.getFullYear(),m:d.getMonth()};}
+  else{let{y,m}=calMonth;m+=dir;if(m<0){m=11;y--;}if(m>11){m=0;y++;}calMonth={y,m};}
+  calSelDay=null;renderSchedule();
+}
+function calJumpYear(val){calMonth={...calMonth,y:parseInt(val)};calSelDay=null;renderSchedule();}
+function calJumpMonth(val){calMonth={...calMonth,m:parseInt(val)};calSelDay=null;renderSchedule();}
+function schedItemHtml(m){
+  const dotCol=mUrgCol(msEnd(m));
+  const headerHtml=m.isCompany
+    ?`<span class="sched-item-case company-tag">🏢 公司期程</span>`
+    :`<span class="sched-item-case" onclick="event.stopPropagation();setView('cases');selCase('${m.caseId}')">${esc(m.caseName)}</span>${m.caseCategory?`<span class="cat-badge" style="background:${catCol(m.caseCategory)[0]};color:${catCol(m.caseCategory)[1]}">${esc(m.caseCategory)}</span>`:''}`;
+  return`<div class="sched-item" onclick="openMsModal('${m.caseId}','${m.id}')" title="點擊編輯此期程">
+    <div class="sched-item-dot" style="background:${dotCol};box-shadow:0 0 7px ${dotCol}"></div>
+    <div class="sched-item-date">${msDateStr(m)}</div>
+    <div class="sched-item-body">
+      <div class="sched-item-header">${headerHtml}</div>
+      <div class="sched-item-label">${esc(m.label)}</div>
+    </div>
+    <div class="sched-item-acts">
+      <button class="ibtn" onclick="event.stopPropagation();openMsModal('${m.caseId}','${m.id}')" title="編輯"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+      <button class="ibtn del" onclick="event.stopPropagation();deleteMilestone('${m.caseId}','${m.id}')" title="刪除"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+  </div>`;
+}
+function showCalDay(dateStr,ev){
+  calSelDay=dateStr;
+  if(ev){
+    document.querySelectorAll('.cal-cell').forEach(el=>el.classList.remove('sel'));
+    ev.currentTarget?.classList.add('sel');
+  }
+  const inRange=m=>dateStr>=m.date&&dateStr<=msEnd(m);
+  const items=[];db.cases.forEach(c=>{(c.milestones||[]).forEach(m=>{if(inRange(m))items.push({...m,caseId:c.id,caseName:c.name,caseCategory:c.category});});});
+  items.push(...companyMsItems().filter(inRange));
+  const el=document.getElementById('calDayDetail');if(!el)return;
+  const titleRow=`<div class="sched-list-title" style="justify-content:space-between"><span>${dateStr}</span><button class="btn btn-xs" onclick="openMsModalForDate('${dateStr}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增期程</button></div>`;
+  el.innerHTML=items.length?`${titleRow}${items.map(schedItemHtml).join('')}`:`${titleRow}<div class="dash-empty">當天沒有期程</div>`;
+}
+function renderSchedFullList(allMs){
+  const sorted=[...allMs].sort((a,b)=>a.date.localeCompare(b.date));
+  const grouped={};sorted.forEach(m=>{const mo=m.date.substring(0,7);if(!grouped[mo])grouped[mo]=[];grouped[mo].push(m);});
+  const html=Object.entries(grouped).map(([month,items])=>{
+    const[y,mm]=month.split('-');
+    return`<div class="timeline-month"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${y} 年 ${parseInt(mm)} 月</div>${items.map(schedItemHtml).join('')}`;
+  }).join('');
+  const el=document.getElementById('schedFullList');if(el)el.innerHTML=html;
+}
+
+/* ══ 設定頁籤 ══ */
+let settingsTab=localStorage.getItem('settingsTab')||'cat';
+function renderSettingsPage(){
+  const rp=document.getElementById('rp');
+  rp.innerHTML=`<div class="settings-wrap">
+    <div class="settings-tabs">
+      <button class="settings-tab ${settingsTab==='cat'?'active':''}" onclick="setSettingsTab('cat')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 0-14.14 0M4.93 19.07a10 10 0 0 0 14.14 0M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>類別管理
+      </button>
+      <button class="settings-tab ${settingsTab==='tmpl'?'active':''}" onclick="setSettingsTab('tmpl')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>審查階段範本
+      </button>
+      <button class="settings-tab ${settingsTab==='pwd'?'active':''}" onclick="setSettingsTab('pwd')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>登入密碼保護
+      </button>
+    </div>
+    <div id="settingsTabBody"></div>
+  </div>`;
+  renderSettingsTabBody();
+}
+function setSettingsTab(t){
+  settingsTab=t;localStorage.setItem('settingsTab',t);renderSettingsPage();
+}
+function renderSettingsTabBody(){
+  const el=document.getElementById('settingsTabBody');if(!el)return;
+  if(settingsTab==='cat'){
+    el.innerHTML=`<div class="settings-sec">
+      <div class="settings-hint">可拖曳調整順序。類別隨 JSON 備份儲存。</div>
+      <div id="catList"></div>
+      <div class="scat-add">
+        <input class="fi" id="newCatInput" placeholder="輸入新類別名稱" style="flex:1" onkeydown="if(event.key==='Enter')addCategory()">
+        <button class="btn btn-p" onclick="addCategory()">新增</button>
+      </div>
+    </div>`;
+    renderCatList();
+  }else if(settingsTab==='tmpl'){
+    el.innerHTML=`<div class="settings-sec">
+      <div class="settings-hint">依案件類別設定審查流程範本，新增案件或切換類別時自動帶入；個別案件仍可自由增減階段，不影響範本本身。</div>
+      <div id="tmplList"></div>
+    </div>`;
+    renderStageTemplateList();
+  }else{
+    el.innerHTML=`<div class="settings-sec">
+      <div class="pwd-status" id="pwdStatus"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-sm" onclick="openSetPwd()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <span id="pwdBtnLabel">設定密碼</span>
+        </button>
+        <button class="btn btn-sm" id="removePwdBtn" style="display:none;color:var(--err);border-color:rgba(232,85,92,.3)" onclick="removePwd()">移除密碼</button>
+      </div>
+    </div>`;
+    updatePwdStatus();
+  }
+}
+let _tmplFocusKey=null;
+function renderStageTemplateList(){
+  const el=document.getElementById('tmplList');if(!el)return;
+  if(!db.categories.length){el.innerHTML='<div class="dash-empty">請先新增案件類別</div>';return;}
+  el.innerHTML=db.categories.map(cat=>{
+    const steps=db.categoryStageTemplates[cat]||[];
+    const[,fg]=catCol(cat);
+    return`<div class="tmpl-cat-block">
+      <div class="tmpl-cat-name"><span class="scat-dot" style="background:${fg}"></span>${esc(cat)}</div>
+      ${steps.map((s,i)=>`<div class="tmpl-step-row" data-cat="${esc(cat)}" data-idx="${i}">
+        <span class="tmpl-drag" onpointerdown="ptrDragBegin(event,'.tmpl-step-row',{cat:'${esc(cat)}',idx:${i}},commitTmplReorder)" title="拖曳排序"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></span>
+        <span class="tmpl-step-num">${i+1}.</span>
+        <input class="fi" id="tmplStep-${esc(cat)}-${i}" style="flex:1" value="${esc(s)}" onchange="updateTmplStep('${esc(cat)}',${i},this.value)">
+        <button class="ibtn" onclick="insertTmplStep('${esc(cat)}',${i})" title="在此步驟後插入新步驟"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+        <button class="ibtn del" onclick="removeTmplStep('${esc(cat)}',${i})" title="刪除"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>`).join('')||'<div style="font-size:13px;color:var(--txf);margin-bottom:6px">尚無範本步驟</div>'}
+      <div class="tmpl-add-row"><input class="fi" id="tmplNew-${esc(cat)}" placeholder="新增階段（會加到最後）…" style="flex:1" onkeydown="if(event.key==='Enter')addTmplStep('${esc(cat)}')"><button class="btn btn-xs" onclick="addTmplStep('${esc(cat)}')">新增</button></div>
+    </div>`;
+  }).join('');
+  if(_tmplFocusKey){
+    const inp=document.getElementById(_tmplFocusKey);
+    if(inp){inp.focus();}
+    _tmplFocusKey=null;
+  }
+}
+function addTmplStep(cat){
+  const input=document.getElementById('tmplNew-'+cat);if(!input)return;const v=input.value.trim();if(!v)return;
+  if(!db.categoryStageTemplates[cat])db.categoryStageTemplates[cat]=[];
+  db.categoryStageTemplates[cat].push(v);input.value='';saveData();renderStageTemplateList();
+}
+function insertTmplStep(cat,idx){
+  if(!db.categoryStageTemplates[cat])db.categoryStageTemplates[cat]=[];
+  db.categoryStageTemplates[cat].splice(idx+1,0,'');
+  saveData();_tmplFocusKey=`tmplStep-${cat}-${idx+1}`;renderStageTemplateList();
+}
+function updateTmplStep(cat,idx,val){
+  if(!db.categoryStageTemplates[cat])return;db.categoryStageTemplates[cat][idx]=val.trim();saveData();
+}
+function removeTmplStep(cat,idx){
+  if(!db.categoryStageTemplates[cat])return;db.categoryStageTemplates[cat].splice(idx,1);saveData();renderStageTemplateList();
+}
+/* ══ 拖曳排序引擎（滑鼠 + 觸控通用，Pointer Events）══
+   邏輯：抓住把手(pointerdown) → 移動時判斷懸停在哪一列的上/下半部(pointermove) → 放開時提交排序(pointerup)
+   取代舊版 HTML5 draggable（iPhone Safari 不支援觸控觸發 dragstart，這是排序功能在 iPhone 上完全沒反應的原因） */
+let ptrDrag=null;
+function ptrDragBegin(e,rowSelector,payload,onCommit){
+  if(e.pointerType==='mouse'&&e.button!==0)return;
+  const row=e.currentTarget.closest(rowSelector);
+  if(!row)return;
+  e.preventDefault();
+  row.classList.add('dragging');
+  ptrDrag={rowSelector,payload,row,onCommit,overRow:null};
+  document.addEventListener('pointermove',ptrDragMove,{passive:false});
+  document.addEventListener('pointerup',ptrDragFinish);
+  document.addEventListener('pointercancel',ptrDragFinish);
+}
+function ptrDragMove(e){
+  if(!ptrDrag)return;
+  e.preventDefault();
+  const{rowSelector,row}=ptrDrag;
+  const pt=e.touches?.[0]||e;
+  const under=document.elementFromPoint(pt.clientX,pt.clientY);
+  const hover=under?.closest(rowSelector);
+  document.querySelectorAll('.drag-over-top,.drag-over-bot').forEach(x=>{if(x!==hover)x.classList.remove('drag-over-top','drag-over-bot');});
+  if(!hover||hover===row){ptrDrag.overRow=null;return;}
+  const r=hover.getBoundingClientRect();
+  hover.classList.remove('drag-over-top','drag-over-bot');
+  hover.classList.add(pt.clientY<r.top+r.height/2?'drag-over-top':'drag-over-bot');
+  ptrDrag.overRow=hover;
+}
+function ptrDragFinish(){
+  if(!ptrDrag)return;
+  document.removeEventListener('pointermove',ptrDragMove);
+  document.removeEventListener('pointerup',ptrDragFinish);
+  document.removeEventListener('pointercancel',ptrDragFinish);
+  const{row,overRow,payload,onCommit}=ptrDrag;
+  row.classList.remove('dragging');
+  document.querySelectorAll('.drag-over-top,.drag-over-bot').forEach(x=>x.classList.remove('drag-over-top','drag-over-bot'));
+  ptrDrag=null;
+  if(overRow)onCommit(payload,overRow);
+}
+
+/* ── 排序提交：審查階段範本 ── */
+function commitTmplReorder(payload,overRow){
+  const{cat,idx:fromIdx}=payload;
+  if(overRow.dataset.cat!==cat)return;
+  const targetIdx=parseInt(overRow.dataset.idx);
+  if(targetIdx===fromIdx)return;
+  const isTop=overRow.classList.contains('drag-over-top');
+  const arr=db.categoryStageTemplates[cat];if(!arr)return;
+  const[item]=arr.splice(fromIdx,1);
+  const insertAt=isTop?(fromIdx<targetIdx?targetIdx-1:targetIdx):(fromIdx>targetIdx?targetIdx+1:targetIdx);
+  arr.splice(insertAt,0,item);
+  saveData();renderStageTemplateList();
+}
+
+/* ── 排序提交：案件 ── */
+function commitCaseReorder(dragId,overRow){
+  const targetId=overRow.id.replace('ci-','');
+  if(dragId===targetId)return;
+  const isTop=overRow.classList.contains('drag-over-top');
+  const fromIdx=db.cases.findIndex(c=>c.id===dragId);
+  const toIdx=db.cases.findIndex(c=>c.id===targetId);
+  if(fromIdx<0||toIdx<0)return;
+  const[item]=db.cases.splice(fromIdx,1);
+  const insertAt=isTop?(fromIdx<toIdx?toIdx-1:toIdx):(fromIdx>toIdx?toIdx+1:toIdx);
+  db.cases.splice(insertAt,0,item);
+  sortKey='custom';
+  document.querySelectorAll('.sbtn').forEach(b=>b.classList.toggle('active',b.getAttribute('data-key')==='custom'));
+  saveData();renderCasesList();
+}
+
+/* ── 排序提交：案件內聯絡人 ── */
+function commitRefReorder(payload,overRow){
+  const{caseId,refId:dragRefId}=payload;
+  const targetRefId=overRow.id.replace('ct-','');
+  if(dragRefId===targetRefId)return;
+  const c=db.cases.find(c=>c.id===caseId);if(!c)return;
+  const isTop=overRow.classList.contains('drag-over-top');
+  const refs=c.contactRefs;
+  const fromIdx=refs.findIndex(r=>r.id===dragRefId);
+  const toIdx=refs.findIndex(r=>r.id===targetRefId);
+  if(fromIdx<0||toIdx<0)return;
+  const[item]=refs.splice(fromIdx,1);
+  refs.splice(isTop?(fromIdx<toIdx?toIdx-1:toIdx):(fromIdx>toIdx?toIdx+1:toIdx),0,item);
+  saveData();renderCasesRP();
+}
+
+/* ── 排序提交：名冊 ── */
+function commitDirReorder(dragId,overRow){
+  const targetId=overRow.id.replace('dct-','');
+  if(dragId===targetId)return;
+  const isTop=overRow.classList.contains('drag-over-top');
+  const fromIdx=db.contacts.findIndex(c=>c.id===dragId);
+  const toIdx=db.contacts.findIndex(c=>c.id===targetId);
+  if(fromIdx<0||toIdx<0)return;
+  const[item]=db.contacts.splice(fromIdx,1);
+  db.contacts.splice(isTop?(fromIdx<toIdx?toIdx-1:toIdx):(fromIdx>toIdx?toIdx+1:toIdx),0,item);
+  saveData();renderDirLP();
+}
+
+/* ── 排序提交：類別 ── */
+function commitCatReorder(dragCat,overRow){
+  const targetCat=overRow.dataset.cat;
+  if(dragCat===targetCat)return;
+  const isTop=overRow.classList.contains('drag-over-top');
+  const cats=db.categories;
+  const fromIdx=cats.indexOf(dragCat);
+  const toIdx=cats.indexOf(targetCat);
+  if(fromIdx<0||toIdx<0)return;
+  cats.splice(fromIdx,1);
+  cats.splice(isTop?(fromIdx<toIdx?toIdx-1:toIdx):(fromIdx>toIdx?toIdx+1:toIdx),0,dragCat);
+  saveData();renderCatList();
+}
+
+
+/* ══ CRUD : Case ══ */
+function openCaseModal(id){
+  document.getElementById('caseMT').textContent=id?'編輯案件':'新增案件';
+  document.getElementById('caseId').value=id||'';
+  const c=id?db.cases.find(c=>c.id===id):null;
+  document.getElementById('caseName').value=c?c.name:'';
+  document.getElementById('caseStatus').value=c?(c.status||'進行中'):'進行中';
+  document.getElementById('caseNote').value=c?(c.note||''):'';
+  buildSel(document.getElementById('caseCat'),c?c.category:'');
+  openMo('caseModal');setTimeout(()=>document.getElementById('caseName').focus(),80);
+}
+function saveCase(){
+  const name=document.getElementById('caseName').value.trim();
+  if(!name){showToast('⚠ 請輸入案件名稱','warn');return;}
+  const id=document.getElementById('caseId').value;
+  const category=document.getElementById('caseCat').value;
+  const status=document.getElementById('caseStatus').value;
+  const note=document.getElementById('caseNote').value.trim();
+  if(id){
+    const c=db.cases.find(c=>c.id===id);
+    if(c){
+      const catChanged=c.category!==category;
+      c.name=name;c.category=category;c.status=status;c.note=note;
+      if(catChanged&&(!c.stages||!c.stages.length))applyStageTemplate(c);
+    }
+  }
+  else{const nc={id:uid(),name,category,status,note,memo:'',milestones:[],stages:[],contactRefs:[],createdAt:Date.now()};applyStageTemplate(nc);db.cases.unshift(nc);selId=nc.id;}
+  saveData();syncLayoutMode();renderCatChips();renderCasesList();if(selId)renderCasesRP();closeMo('caseModal');showToast(id?'✓ 案件已更新':'✓ 案件已新增');
+}
+function deleteCase(id){
+  const c=db.cases.find(c=>c.id===id);if(!c||!confirm(`確定刪除案件「${c.name}」？`))return;
+  db.cases=db.cases.filter(c=>c.id!==id);if(selId===id)selId=null;
+  syncLayoutMode();saveData();renderCasesList();renderCasesRP();showToast('案件已刪除','warn');
+}
+
+/* ══ 案件進度（依類別範本，可個別調整）══ */
+function applyStageTemplate(c){
+  const tmpl=(c.category&&db.categoryStageTemplates[c.category])||[];
+  c.stages=tmpl.map(label=>({id:uid(),label,done:false}));
+}
+function templateStepsRemaining(c){
+  if(!c.category)return[];
+  const tmpl=db.categoryStageTemplates[c.category]||[];
+  const existing=new Set((c.stages||[]).map(s=>s.label));
+  return tmpl.filter(label=>!existing.has(label));
+}
+function addStageFromTemplate(caseId,label){
+  const c=db.cases.find(c=>c.id===caseId);if(!c||!label)return;
+  if(!c.stages)c.stages=[];
+  c.stages.push({id:uid(),label,done:false});
+  saveData();renderCasesRP();
+}
+function applyRemainingTemplateSteps(caseId){
+  const c=db.cases.find(c=>c.id===caseId);if(!c)return;
+  const remaining=templateStepsRemaining(c);
+  if(!remaining.length)return;
+  if(!c.stages)c.stages=[];
+  remaining.forEach(label=>c.stages.push({id:uid(),label,done:false}));
+  saveData();renderCasesRP();showToast(`✓ 已套用範本 ${remaining.length} 個步驟`);
+}
+function toggleStage(caseId,stageId){
+  const c=db.cases.find(c=>c.id===caseId);if(!c)return;const s=(c.stages||[]).find(s=>s.id===stageId);if(!s)return;
+  s.done=!s.done;saveData();renderCasesRP();
+}
+function addStageStep(caseId){
+  const input=document.getElementById('newStageInput-'+caseId);if(!input)return;
+  const label=input.value.trim();if(!label)return;
+  const c=db.cases.find(c=>c.id===caseId);if(!c)return;
+  if(!c.stages)c.stages=[];c.stages.push({id:uid(),label,done:false});
+  input.value='';
+  saveData();renderCasesRP();
+}
+function deleteStageStep(caseId,stageId){
+  const c=db.cases.find(c=>c.id===caseId);if(!c)return;
+  c.stages=(c.stages||[]).filter(s=>s.id!==stageId);saveData();renderCasesRP();
+}
+
+/* ══ CRUD : Global Contact ══ */
+function openGContactModal(id){
+  document.getElementById('gContactMT').textContent=id?'編輯聯絡人':'新增聯絡人';
+  document.getElementById('gCtId').value=id||'';
+  const ct=id?db.contacts.find(c=>c.id===id):null;
+  document.getElementById('gCtName').value=ct?ct.name:'';
+  document.getElementById('gCtRole').value=ct?(ct.role||''):'';
+  document.getElementById('gCtType').value=ct?(ct.contactType||''):'';
+  document.getElementById('gCtDesc').value=ct?(ct.description||''):'';
+  document.getElementById('gCtPhone').value=ct?(ct.phone||''):'';
+  document.getElementById('gCtEmail').value=ct?(ct.email||''):'';
+  document.getElementById('gCtLine').value=ct?(ct.lineId||''):'';
+  document.getElementById('gCtNote').value=ct?(ct.note||''):'';
+  openMo('gContactModal');setTimeout(()=>document.getElementById('gCtName').focus(),80);
+}
+function saveGContact(){
+  const name=document.getElementById('gCtName').value.trim();
+  if(!name){showToast('⚠ 請輸入姓名','warn');return;}
+  const id=document.getElementById('gCtId').value;
+  const p={name,role:document.getElementById('gCtRole').value.trim(),contactType:document.getElementById('gCtType').value.trim(),description:document.getElementById('gCtDesc').value.trim(),phone:document.getElementById('gCtPhone').value.trim(),email:document.getElementById('gCtEmail').value.trim(),lineId:document.getElementById('gCtLine').value.trim(),note:document.getElementById('gCtNote').value.trim()};
+  if(id){const ct=db.contacts.find(c=>c.id===id);if(ct)Object.assign(ct,p);}
+  else{db.contacts.push({id:uid(),createdAt:Date.now(),...p});selDirId=db.contacts[db.contacts.length-1].id;}
+  saveData();renderLP();renderRP();closeMo('gContactModal');showToast(id?'✓ 聯絡人已更新':'✓ 聯絡人已新增至名冊');
+}
+function deleteGContact(id){
+  const ct=db.contacts.find(c=>c.id===id);if(!ct)return;
+  const usedIn=db.cases.filter(c=>(c.contactRefs||[]).some(r=>r.contactId===id)).map(c=>c.name);
+  const msg=usedIn.length?`「${ct.name}」目前在 ${usedIn.length} 個案件中使用：\n${usedIn.join('、')}\n\n刪除後這些案件中的引用將標示為「已刪除」。確定繼續？`:`確定刪除聯絡人「${ct.name}」？`;
+  if(!confirm(msg))return;
+  db.contacts=db.contacts.filter(c=>c.id!==id);
+  if(selDirId===id)selDirId=null;
+  saveData();renderLP();renderRP();showToast('聯絡人已刪除','warn');
+}
+
+/* ══ CRUD : Ref (Case Contact Reference) ══ */
+function openRefModal(caseId,refId){
+  document.getElementById('refMT').textContent=refId?'編輯聯絡人':'新增聯絡人至案件';
+  document.getElementById('refCaseId').value=caseId;
+  document.getElementById('refId').value=refId||'';
+  document.getElementById('refPickedGId').value='';
+  document.getElementById('refLinked').style.display='none';
+  const c=db.cases.find(c=>c.id===caseId);
+  const ref=refId&&c?c.contactRefs.find(r=>r.id===refId):null;
+  const ct=ref?getGContact(ref):null;
+  document.getElementById('refName').value=ct?ct.name:'';
+  document.getElementById('refRole').value=ct?(ct.role||''):'';
+  document.getElementById('refType').value=ct?(ct.contactType||''):'';
+  document.getElementById('refDesc').value=ct?(ct.description||''):'';
+  document.getElementById('refPhone').value=ct?(ct.phone||''):'';
+  document.getElementById('refEmail').value=ct?(ct.email||''):'';
+  document.getElementById('refLine').value=ct?(ct.lineId||''):'';
+  document.getElementById('refGNote').value=ct?(ct.note||''):'';
+  document.getElementById('refCaseNote').value=ref?(ref.caseNote||''):'';
+  document.getElementById('refPrimary').checked=ref?!!ref.primary:false;
+  if(ref){document.getElementById('refPickedGId').value=ref.contactId;document.getElementById('refLinked').style.display='flex';}
+  openMo('refModal');setTimeout(()=>document.getElementById('refName').focus(),80);
+}
+function saveRef(){
+  const name=document.getElementById('refName').value.trim();
+  if(!name){showToast('⚠ 請輸入姓名','warn');return;}
+  const caseId=document.getElementById('refCaseId').value;
+  const refId=document.getElementById('refId').value;
+  const pickedGId=document.getElementById('refPickedGId').value;
+  const c=db.cases.find(c=>c.id===caseId);if(!c)return;
+  const isPrimary=document.getElementById('refPrimary').checked;
+  if(isPrimary)c.contactRefs.forEach(r=>r.primary=false);
+  const gPayload={name,role:document.getElementById('refRole').value.trim(),contactType:document.getElementById('refType').value.trim(),description:document.getElementById('refDesc').value.trim(),phone:document.getElementById('refPhone').value.trim(),email:document.getElementById('refEmail').value.trim(),lineId:document.getElementById('refLine').value.trim(),note:document.getElementById('refGNote').value.trim()};
+  let gId=pickedGId;
+  if(gId){const gct=db.contacts.find(c=>c.id===gId);if(gct)Object.assign(gct,gPayload);}
+  else{const newGct={id:uid(),createdAt:Date.now(),...gPayload};db.contacts.push(newGct);gId=newGct.id;}
+  const refPayload={contactId:gId,primary:isPrimary,caseNote:document.getElementById('refCaseNote').value.trim()};
+  if(refId){const ref=c.contactRefs.find(r=>r.id===refId);if(ref)Object.assign(ref,refPayload);}
+  else{c.contactRefs.push({id:uid(),logs:[],...refPayload});}
+  saveData();renderCasesList();renderCasesRP();closeMo('refModal');showToast(refId?'✓ 已更新':'✓ 聯絡人已加入案件');
+}
+function deleteRef(caseId,refId){
+  const c=db.cases.find(c=>c.id===caseId);if(!c)return;
+  if(!confirm('確定移除此聯絡人？（名冊資料不受影響）'))return;
+  c.contactRefs=c.contactRefs.filter(r=>r.id!==refId);
+  saveData();renderCasesList();renderCasesRP();showToast('已從案件移除','warn');
+}
+
+/* Autocomplete */
+function onRefNameInput(val){
+  const dd=document.getElementById('refAcDrop');
+  if(!val.trim()){dd.style.display='none';return;}
+  const matches=db.contacts.filter(c=>c.name.toLowerCase().includes(val.toLowerCase())).slice(0,8);
+  if(!matches.length){dd.style.display='none';return;}
+  dd.innerHTML=matches.map(c=>`<div class="ac-item" onmousedown="pickRefContact('${c.id}')"><div class="ac-item-name">${esc(c.name)}</div><div class="ac-item-meta">${[c.role,c.contactType,c.phone].filter(Boolean).join(' · ')}</div></div>`).join('');
+  dd.style.display='block';
+}
+function pickRefContact(id){
+  const ct=db.contacts.find(c=>c.id===id);if(!ct)return;
+  document.getElementById('refPickedGId').value=id;
+  document.getElementById('refName').value=ct.name;
+  document.getElementById('refRole').value=ct.role||'';
+  document.getElementById('refType').value=ct.contactType||'';
+  document.getElementById('refDesc').value=ct.description||'';
+  document.getElementById('refPhone').value=ct.phone||'';
+  document.getElementById('refEmail').value=ct.email||'';
+  document.getElementById('refLine').value=ct.lineId||'';
+  document.getElementById('refGNote').value=ct.note||'';
+  document.getElementById('refAcDrop').style.display='none';
+  document.getElementById('refLinked').style.display='flex';
+}
+function hideAcDelay(){acHideTimer=setTimeout(()=>{const dd=document.getElementById('refAcDrop');if(dd)dd.style.display='none';},200);}
+
+/* ══ Milestone CRUD ══ */
+function refreshCurrentView(){
+  if(view==='cases'){renderCasesList();if(selId)renderCasesRP();}
+  else if(view==='directory'){renderDirLP();if(selDirId)renderDirRP();}
+  else if(view==='dashboard')renderDashboard();
+  else if(view==='schedule')renderSchedule();
+}
+function openMsModal(caseId,msId){
+  document.getElementById('msMT').textContent=msId?'編輯期程':'新增期程';
+  document.getElementById('msCaseId').value=caseId;document.getElementById('msId').value=msId||'';
+  let m=null;
+  if(caseId===COMPANY_ID){
+    m=msId?(db.companyMilestones||[]).find(m=>m.id===msId):null;
+  }else{
+    const c=db.cases.find(c=>c.id===caseId);m=msId&&c?c.milestones.find(m=>m.id===msId):null;
+  }
+  document.getElementById('msLabel').value=m?m.label:'';document.getElementById('msDate').value=m?m.date:today();document.getElementById('msEndDate').value=m?msEnd(m):today();
+  const field=document.getElementById('msCaseField');if(field)field.style.display='none';
+  openMo('msModal');setTimeout(()=>document.getElementById('msLabel').focus(),80);
+}
+function openMsModalForDate(dateStr){
+  document.getElementById('msMT').textContent='新增期程';
+  document.getElementById('msCaseId').value='';
+  document.getElementById('msId').value='';
+  document.getElementById('msLabel').value='';
+  document.getElementById('msDate').value=dateStr||today();document.getElementById('msEndDate').value=dateStr||today();
+  const pick=document.getElementById('msCasePick');
+  const sorted=[...db.cases].sort((a,b)=>a.name.localeCompare(b.name,'zh-TW'));
+  pick.innerHTML='<option value="">— 請選擇 —</option>'
+    +`<option value="${COMPANY_ID}">🏢 不屬於案件（公司期程）</option>`
+    +(sorted.length?sorted.map(c=>`<option value="${c.id}">${esc(c.name)}${c.category?`（${esc(c.category)}）`:''}</option>`).join(''):'');
+  document.getElementById('msCaseField').style.display='block';
+  openMo('msModal');setTimeout(()=>pick.focus(),80);
+}
+function saveMilestone(){
+  const label=document.getElementById('msLabel').value.trim();const date=document.getElementById('msDate').value;let endDate=document.getElementById('msEndDate').value;
+  if(!label||!date||!endDate){showToast('⚠ 請填入名稱與日期','warn');return;}
+  if(endDate<date){showToast('⚠ 結束日不能早於開始日','warn');return;}
+  const field=document.getElementById('msCaseField');
+  let caseId=document.getElementById('msCaseId').value;
+  if(field&&field.style.display!=='none'){
+    caseId=document.getElementById('msCasePick').value;
+    if(!caseId){showToast('⚠ 請選擇所屬案件，或選「公司期程」','warn');return;}
+  }
+  const msId=document.getElementById('msId').value;
+  if(caseId===COMPANY_ID){
+    if(!db.companyMilestones)db.companyMilestones=[];
+    if(msId){const m=db.companyMilestones.find(m=>m.id===msId);if(m){m.label=label;m.date=date;m.endDate=endDate;}}
+    else db.companyMilestones.push({id:uid(),label,date,endDate});
+  }else{
+    const c=db.cases.find(c=>c.id===caseId);if(!c)return;
+    if(msId){const m=c.milestones.find(m=>m.id===msId);if(m){m.label=label;m.date=date;m.endDate=endDate;}}
+    else c.milestones.push({id:uid(),label,date,endDate});
+  }
+  saveData();refreshCurrentView();closeMo('msModal');showToast(msId?'✓ 期程已更新':'✓ 期程已新增');
+}
+function deleteMilestone(caseId,msId){
+  if(!confirm('確定刪除此期程？'))return;
+  if(caseId===COMPANY_ID){db.companyMilestones=(db.companyMilestones||[]).filter(m=>m.id!==msId);}
+  else{const c=db.cases.find(c=>c.id===caseId);if(!c)return;c.milestones=c.milestones.filter(m=>m.id!==msId);}
+  saveData();refreshCurrentView();
+}
+
+/* ══ Log CRUD ══ */
+function openLogModal(caseId,refId,logId){
+  document.getElementById('logMT').textContent=logId?'編輯記錄':'新增聯絡記錄';
+  document.getElementById('logCaseId').value=caseId;document.getElementById('logRefId').value=refId;document.getElementById('logId').value=logId||'';
+  const c=db.cases.find(c=>c.id===caseId);const ref=c&&c.contactRefs.find(r=>r.id===refId);
+  const l=logId&&ref?ref.logs.find(l=>l.id===logId):null;
+  document.getElementById('logDate').value=l?l.date:today();document.getElementById('logContent').value=l?l.content:'';
+  openMo('logModal');setTimeout(()=>document.getElementById('logContent').focus(),80);
+}
+function saveLog(){
+  const date=document.getElementById('logDate').value;const content=document.getElementById('logContent').value.trim();
+  if(!date||!content){showToast('⚠ 請填入日期與內容','warn');return;}
+  const caseId=document.getElementById('logCaseId').value;const refId=document.getElementById('logRefId').value;const logId=document.getElementById('logId').value;
+  const c=db.cases.find(c=>c.id===caseId);if(!c)return;const ref=c.contactRefs.find(r=>r.id===refId);if(!ref)return;
+  if(logId){const l=ref.logs.find(l=>l.id===logId);if(l){l.date=date;l.content=content;}}
+  else{ref.logs.push({id:uid(),date,content});ref._logsOpen=true;}
+  saveData();renderCasesRP();closeMo('logModal');showToast(logId?'✓ 記錄已更新':'✓ 記錄已新增');
+}
+function deleteLog(caseId,refId,logId){
+  const c=db.cases.find(c=>c.id===caseId);if(!c)return;const ref=c.contactRefs.find(r=>r.id===refId);if(!ref)return;
+  if(!confirm('確定刪除此聯絡記錄？'))return;ref.logs=ref.logs.filter(l=>l.id!==logId);saveData();renderCasesRP();
+}
+function toggleLogs(caseId,refId){
+  const c=db.cases.find(c=>c.id===caseId);if(!c)return;const ref=c.contactRefs.find(r=>r.id===refId);if(!ref)return;
+  ref._logsOpen=!ref._logsOpen;renderCasesRP();
+}
+function saveMemo(caseId,val){const c=db.cases.find(c=>c.id===caseId);if(!c)return;if(c.memo!==val){c.memo=val;saveData();}}
+
+/* ══ Settings (now a tab — see renderSettingsPage) ══ */
+function renderCatList(){
+  document.getElementById('catList').innerHTML=db.categories.map(cat=>{
+    const[,fg]=catCol(cat);
+    return`<div class="scat-item" data-cat="${esc(cat)}">
+      <div class="scat-nm"><span class="scat-drag" onpointerdown="ptrDragBegin(event,'.scat-item','${esc(cat)}',commitCatReorder)" title="拖曳排序"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></span><div class="scat-dot" style="background:${fg}"></div>${esc(cat)}</div>
+      <button class="ibtn del" onclick="deleteCat('${esc(cat)}')" title="刪除"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>`;
+  }).join('');
+}
+function addCategory(){
+  const val=document.getElementById('newCatInput').value.trim();if(!val)return;
+  if(db.categories.includes(val)){showToast('⚠ 此類別已存在','warn');return;}
+  db.categories.push(val);document.getElementById('newCatInput').value='';
+  saveData();renderCatChips();renderCatList();renderStageTemplateList();showToast(`✓ 已新增類別「${val}」`);
+}
+function deleteCat(cat){
+  const used=db.cases.filter(c=>c.category===cat).length;
+  if(!confirm(used?`有 ${used} 個案件使用此類別，刪除後將清空。確定？`:`確定刪除「${cat}」？`))return;
+  if(used)db.cases.forEach(c=>{if(c.category===cat)c.category='';});
+  db.categories=db.categories.filter(c=>c!==cat);
+  if(db.categoryStageTemplates)delete db.categoryStageTemplates[cat];
+  saveData();renderCatChips();renderCatList();renderCasesList();renderStageTemplateList();showToast('類別已刪除','warn');
+}
+
+/* ══ Modal Helpers ══ */
+const openMo=id=>document.getElementById(id).classList.add('open');
+const closeMo=id=>document.getElementById(id).classList.remove('open');
+document.querySelectorAll('.mo').forEach(el=>el.addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');}));
+
+/* ══ Search ══ */
+function setupCaseSearch(){
+  const cEl=document.getElementById('searchCase'),ctEl=document.getElementById('searchContact');
+  if(!cEl)return;
+  cEl.addEventListener('keydown',e=>{if(e.key==='Enter'){searchCaseQ=e.target.value.trim();const m=visCases();if(m.length>0)selId=m[0].id;syncLayoutMode();renderCasesList();if(selId)renderCasesRP();}});
+  cEl.addEventListener('input',e=>{if(!e.target.value){searchCaseQ='';renderCasesList();}});
+  ctEl.addEventListener('keydown',e=>{if(e.key==='Enter'){searchCtQ=e.target.value.trim();if(searchCtQ){const q=searchCtQ.toLowerCase();const m=visCases();if(m.length>0){selId=m[0].id;const c=db.cases.find(c=>c.id===selId);if(c)c.contactRefs.forEach(ref=>{if(getGContact(ref).name.toLowerCase().includes(q))ref._logsOpen=true;});}}syncLayoutMode();renderCasesList();if(selId)renderCasesRP();}});
+  ctEl.addEventListener('input',e=>{if(!e.target.value){searchCtQ='';renderCasesList();}});
+}
+
+/* ══ Mobile ══ */
+function mobileBack(){
+  selId=null;selDirId=null;document.getElementById('rp').classList.remove('mobile-show');
+  syncLayoutMode();
+  if(view==='cases')renderCasesList();else if(view==='directory')renderDirLP();
+}
+
+/* ══ Copy / Toast ══ */
+function copyText(text,label){
+  navigator.clipboard.writeText(text)
+    .then(()=>showToast(`✓ ${label} 已複製`))
+    .catch(()=>showToast('複製失敗','warn'));
+}
+
+// 事件委派：處理所有 data-copy 按鈕
+document.addEventListener('click',e=>{
+  const btn=e.target.closest('[data-copy]');
+  if(!btn)return;
+  e.stopPropagation();
+  const text=btn.getAttribute('data-copy');
+  const label=btn.getAttribute('data-label')||'';
+  if(!text)return;
+  navigator.clipboard.writeText(text)
+    .then(()=>showToast(`✓ ${label} 已複製`))
+    .catch(()=>{
+      // fallback for older browsers
+      const ta=document.createElement('textarea');
+      ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+      document.body.appendChild(ta);ta.select();
+      try{document.execCommand('copy');showToast(`✓ ${label} 已複製`);}
+      catch{showToast('複製失敗，請手動選取','warn');}
+      document.body.removeChild(ta);
+    });
+});
+let _tt;
+function showToast(msg,type){
+  const t=document.getElementById('toast');t.style.display='flex';t.style.animation='none';t.offsetHeight;t.style.animation='tsi .2s ease';
+  t.innerHTML=`<span style="color:${type==='warn'?'var(--warn)':'var(--ok)'}">●</span><span>${esc(msg)}</span>`;
+  clearTimeout(_tt);_tt=setTimeout(()=>t.style.display='none',type==='warn'?4000:2800);
+}
+
+/* ══ Build Select ══ */
+function buildSel(el,cur){el.innerHTML='<option value="">— 請選擇 —</option>'+db.categories.map(c=>`<option value="${esc(c)}" ${c===cur?'selected':''}>${esc(c)}</option>`).join('');}
+
+/* ══ Export / Import / Print ══ */
+function exportJSON(){
+  dlBlob(new Blob([JSON.stringify(cleanDb(),null,2)],{type:'application/json'}),`contact_control_${today()}.json`);
+  showToast('✓ JSON 匯出完成，可上傳 GitHub 備份');
+}
+function importJSON(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const imp=JSON.parse(ev.target.result);if(!Array.isArray(imp.cases))throw 0;
+      if(!confirm(`確定匯入？現有 ${db.cases.length} 筆案件、${db.contacts.length} 位聯絡人將被覆蓋。`))return;
+      db=imp;if(!db.categories)db.categories=[...DEF_CATS];if(!db.contacts)db.contacts=[];if(!db.categoryStageTemplates||typeof db.categoryStageTemplates!=='object')db.categoryStageTemplates={};
+      db.cases.forEach(c=>{if(!c.status)c.status='進行中';if(!c.milestones)c.milestones=[];if(!c.stages)c.stages=[];if(!c.contactRefs)c.contactRefs=[];if(c.memo==null)c.memo='';if(!c.createdAt)c.createdAt=Date.now();c.contactRefs.forEach(ref=>{if(!ref.logs)ref.logs=[];});});
+      selId=null;selDirId=null;saveData();renderToolbar();renderLP();renderRP();showToast(`✓ 已匯入 ${db.cases.length} 筆案件、${db.contacts.length} 位聯絡人`);
+    }catch{showToast('⚠ 匯入失敗：請確認為有效 JSON 備份','warn');}e.target.value='';
+  };reader.readAsText(file);
+}
+
+/* ══ Word 匯出（瀏覽器端載入 docx 函式庫產生 .docx）══ */
+let _docxLibPromise=null;
+function loadDocxLib(){
+  if(window.docx)return Promise.resolve(window.docx);
+  if(_docxLibPromise)return _docxLibPromise;
+  _docxLibPromise=new Promise((resolve,reject)=>{
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.js';
+    s.onload=()=>window.docx?resolve(window.docx):reject(new Error('docx 未正確載入'));
+    s.onerror=()=>reject(new Error('docx 函式庫載入失敗'));
+    document.head.appendChild(s);
+  });
+  return _docxLibPromise;
+}
+async function exportWordCase(caseId){
+  const c=db.cases.find(c=>c.id===caseId);if(!c)return;
+  showToast('正在產生 Word 報告…');
+  let docx;try{docx=await loadDocxLib();}catch{showToast('⚠ 無法載入 Word 匯出元件，請檢查網路連線','warn');return;}
+  const{Document,Packer,Paragraph,TextRun,HeadingLevel,Table,TableRow,TableCell,WidthType,ShadingType}=docx;
+  const children=[
+    new Paragraph({text:c.name,heading:HeadingLevel.HEADING_1}),
+    new Paragraph({children:[new TextRun({text:`類別：${c.category||'未分類'}　狀態：${c.status||'進行中'}`,size:21,color:'666666'})]})
+  ];
+  if(c.note)children.push(new Paragraph({children:[new TextRun({text:c.note,italics:true,size:20,color:'888888'})]}));
+  children.push(new Paragraph({text:''}));
+  if((c.stages||[]).length){
+    children.push(new Paragraph({text:'案件進度',heading:HeadingLevel.HEADING_2}));
+    c.stages.forEach(s=>children.push(new Paragraph({children:[new TextRun({text:(s.done?'☑ ':'☐ ')+s.label,size:21})]})));
+    children.push(new Paragraph({text:''}));
+  }
+  if((c.milestones||[]).length){
+    children.push(new Paragraph({text:'期程',heading:HeadingLevel.HEADING_2}));
+    [...c.milestones].sort((a,b)=>a.date.localeCompare(b.date)).forEach(m=>children.push(new Paragraph({children:[new TextRun({text:`${msDateStr(m)}　${m.label}`,size:21})]})));
+    children.push(new Paragraph({text:''}));
+  }
+  const refs=c.contactRefs||[];
+  if(refs.length){
+    children.push(new Paragraph({text:'聯絡人',heading:HeadingLevel.HEADING_2}));
+    const colW=[1300,1200,1300,1300,1500,1700,900];
+    const mkCell=(t,head)=>new TableCell({width:{size:0,type:WidthType.AUTO},shading:head?{type:ShadingType.CLEAR,fill:'E7ECF7'}:undefined,children:[new Paragraph({children:[new TextRun({text:t,bold:!!head,size:18})]})]});
+    const headerRow=new TableRow({tableHeader:true,children:['姓名','身份/職位','角色類別','電話','Email','說明','案件備註'].map(h=>mkCell(h,true))});
+    const rows=[headerRow];
+    refs.forEach(ref=>{
+      const ct=getGContact(ref);
+      rows.push(new TableRow({children:[ct.name+(ref.primary?' ★':''),ct.role||'',ct.contactType||'',ct.phone||'',ct.email||'',ct.description||'',ref.caseNote||''].map(v=>mkCell(v,false))}));
+    });
+    children.push(new Table({rows,width:{size:9200,type:WidthType.DXA},columnWidths:colW}));
+    children.push(new Paragraph({text:''}));
+    if(refs.some(r=>(r.logs||[]).length)){
+      children.push(new Paragraph({text:'聯絡記錄',heading:HeadingLevel.HEADING_2}));
+      refs.forEach(ref=>{
+        const logs=(ref.logs||[]).sort((a,b)=>b.date.localeCompare(a.date));
+        if(!logs.length)return;
+        const ct=getGContact(ref);
+        children.push(new Paragraph({children:[new TextRun({text:ct.name,bold:true,size:20})]}));
+        logs.forEach(l=>children.push(new Paragraph({children:[new TextRun({text:`${l.date}　`,bold:true,size:18}),new TextRun({text:l.content,size:18})]})));
+      });
+      children.push(new Paragraph({text:''}));
+    }
+  }
+  if(c.memo){
+    children.push(new Paragraph({text:'備忘欄',heading:HeadingLevel.HEADING_2}));
+    c.memo.split('\n').forEach(line=>children.push(new Paragraph({children:[new TextRun({text:line||' ',size:20})]})));
+  }
+  const doc=new Document({sections:[{properties:{},children}]});
+  const blob=await Packer.toBlob(doc);
+  dlBlob(blob,`${c.name}_案件報告_${today()}.docx`);
+  showToast('✓ Word 報告已匯出');
+}
+async function exportWordAll(){
+  if(!db.cases.length){showToast('⚠ 尚無案件可匯出','warn');return;}
+  showToast('正在產生 Word 彙整…');
+  let docx;try{docx=await loadDocxLib();}catch{showToast('⚠ 無法載入 Word 匯出元件，請檢查網路連線','warn');return;}
+  const{Document,Packer,Paragraph,TextRun,HeadingLevel,Table,TableRow,TableCell,WidthType,ShadingType}=docx;
+  const children=[
+    new Paragraph({text:'案件彙整清單',heading:HeadingLevel.HEADING_1}),
+    new Paragraph({children:[new TextRun({text:`匯出日期：${today()}　共 ${db.cases.length} 筆案件`,size:20,color:'888888'})]}),
+    new Paragraph({text:''})
+  ];
+  const headers=['案件名稱','類別','狀態','主要聯絡人','電話','最近期程'];
+  const colW=[2400,1200,1000,1500,1500,2000];
+  const mkCell=(t,head)=>new TableCell({width:{size:0,type:WidthType.AUTO},shading:head?{type:ShadingType.CLEAR,fill:'E7ECF7'}:undefined,children:[new Paragraph({children:[new TextRun({text:t,bold:!!head,size:18})]})]});
+  const rows=[new TableRow({tableHeader:true,children:headers.map(h=>mkCell(h,true))})];
+  db.cases.forEach(c=>{
+    const primary=(c.contactRefs||[]).find(r=>r.primary)||(c.contactRefs||[])[0];
+    const pc=primary?getGContact(primary):null;
+    const nextMs=[...(c.milestones||[])].sort((a,b)=>a.date.localeCompare(b.date))[0];
+    const vals=[c.name,c.category||'',c.status||'',pc?pc.name:'',pc?(pc.phone||''):'',nextMs?`${nextMs.label}（${msDateStr(nextMs)}）`:''];
+    rows.push(new TableRow({children:vals.map(v=>mkCell(v,false))}));
+  });
+  children.push(new Table({rows,width:{size:9600,type:WidthType.DXA},columnWidths:colW}));
+  const doc=new Document({sections:[{properties:{},children}]});
+  const blob=await Packer.toBlob(doc);
+  dlBlob(blob,`contact_control_案件彙整_${today()}.docx`);
+  showToast('✓ Word 彙整已匯出');
+}
+
+function exportCSV(){
+  const rows=[['案件名稱','類別','狀態','案件備註','期程','聯絡人姓名','身份/職位','角色類別','說明','電話','Email','備註','案件備注','主要']];
+  db.cases.forEach(c=>{
+    const msStr=(c.milestones||[]).map(m=>`${m.label}(${msDateStr(m)})`).join('；');
+    const refs=c.contactRefs||[];
+    if(!refs.length){rows.push([c.name,c.category||'',c.status||'',c.note||'',msStr,'','','','','','','','','']);return;}
+    refs.forEach(ref=>{const ct=getGContact(ref);rows.push([c.name,c.category||'',c.status||'',c.note||'',msStr,ct.name,ct.role||'',ct.contactType||'',ct.description||'',ct.phone||'',ct.email||'',ct.note||'',ref.caseNote||'',ref.primary?'是':'']);});
+  });
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  dlBlob(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}),`contact_control_${today()}.csv`);showToast('✓ CSV 匯出完成');
+}
+function dlBlob(blob,name){const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(blob),download:name});a.click();}
+function printView(){
+  let html=`<!DOCTYPE html><html lang="zh-TW"><head><meta charset="UTF-8"><title>contact control 列印</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,'PingFang TC','Microsoft JhengHei',sans-serif;font-size:12px;color:#1a1a1a;padding:20px 28px}h1{font-size:16px;font-weight:700;border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:20px}.case{border:1px solid #ccc;border-radius:6px;margin-bottom:20px;page-break-inside:avoid}.ch{background:#f0f4fa;padding:10px 14px;border-bottom:1px solid #ccc}.ch h2{font-size:14px;font-weight:700}.meta{font-size:11px;color:#555;margin-top:3px}.cb{padding:12px 14px}.sec{margin-bottom:12px}.st{font-size:11px;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:6px}table{width:100%;border-collapse:collapse;font-size:11px}th{background:#f5f5f5;font-weight:600;text-align:left;padding:5px 8px;border:1px solid #ddd}td{padding:5px 8px;border:1px solid #ddd;vertical-align:top}.msc{display:flex;flex-wrap:wrap;gap:5px}.msp{padding:2px 7px;border-radius:4px;font-size:11px;border:1px solid #bbb;background:#f5f5f5}.logs{padding:4px 0 4px 8px;border-left:2px solid #ddd;margin-top:4px}.lr{font-size:11px;margin-bottom:3px}.ld{font-weight:600;min-width:80px;display:inline-block}.memo{background:#fafafa;border:1px solid #ddd;border-radius:4px;padding:8px;font-size:12px;white-space:pre-wrap}.star{color:#e67e22}</style></head><body>`;
+  html+=`<h1>contact control · 列印輸出 ${today()}</h1>`;
+  db.cases.forEach(c=>{
+    html+=`<div class="case"><div class="ch"><h2>${esc(c.name)}</h2><div class="meta">${c.category?`[${esc(c.category)}] `:''} ${esc(c.status||'')} ${c.note?'· '+esc(c.note):''}</div></div><div class="cb">`;
+    const mss=c.milestones||[];
+    if(mss.length){html+=`<div class="sec"><div class="st">期程</div><div class="msc">`;mss.sort((a,b)=>a.date.localeCompare(b.date)).forEach(m=>{html+=`<span class="msp">${esc(m.label)} · ${msDateStr(m)}</span>`;});html+=`</div></div>`;}
+    const refs=c.contactRefs||[];
+    if(refs.length){
+      html+=`<div class="sec"><div class="st">聯絡人</div><table><tr><th>姓名</th><th>身份/職位</th><th>角色類別</th><th>電話</th><th>Email</th><th>說明</th><th>案件備注</th></tr>`;
+      refs.forEach(ref=>{
+        const ct=getGContact(ref);
+        html+=`<tr><td>${esc(ct.name)}${ref.primary?' <span class="star">★</span>':''}</td><td>${esc(ct.role||'')}</td><td>${esc(ct.contactType||'')}</td><td>${esc(ct.phone||'')}</td><td>${esc(ct.email||'')}</td><td>${esc(ct.description||'')}</td><td>${esc(ref.caseNote||'')}</td></tr>`;
+        const logs=(ref.logs||[]).sort((a,b)=>b.date.localeCompare(a.date));
+        if(logs.length){html+=`<tr><td colspan="7"><div class="logs">`;logs.forEach(l=>{html+=`<div class="lr"><span class="ld">${l.date}</span>${esc(l.content)}</div>`;});html+=`</div></td></tr>`;}
+      });
+      html+=`</table></div>`;
+    }
+    if(c.memo)html+=`<div class="sec"><div class="st">備忘欄</div><div class="memo">${esc(c.memo)}</div></div>`;
+    html+=`</div></div>`;
+  });
+  html+=`</body></html>`;
+  const w=window.open('','_blank');w.document.write(html);w.document.close();w.focus();setTimeout(()=>w.print(),400);
+}
+
+/* ══ Data Source Indicator ══ */
+function setDsPill(source,msg){
+  const pill=document.getElementById('dsPill');
+  const txt=document.getElementById('dsPillText');
+  if(!pill)return;
+  pill.className='ds-pill '+(source==='github'?'ds-github':source==='local'?'ds-local':'ds-loading');
+  const icons={
+    github:'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>',
+    local: '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
+    loading:'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'
+  };
+  pill.innerHTML=`${icons[source]||icons.loading}<span>${msg}</span>`;
+}
+
+/* ══ Fetch JSON from GitHub ══ */
+async function tryFetchJSON(){
+  setDsPill('loading','讀取中…');
+  try{
+    const res=await fetch('./contact_control.json',{cache:'no-cache'});
+    if(!res.ok)throw new Error(`HTTP ${res.status}`);
+    let raw;
+    try{raw=await res.json();}catch{throw new Error('JSON 格式錯誤');}
+    // Validate required fields
+    if(!raw||typeof raw!=='object')throw new Error('資料格式異常');
+    if(!Array.isArray(raw.cases))throw new Error('缺少 cases 欄位');
+    if(!Array.isArray(raw.contacts))raw.contacts=[];
+    if(!Array.isArray(raw.categories))raw.categories=[...DEF_CATS];
+    if(!raw.categoryStageTemplates||typeof raw.categoryStageTemplates!=='object')raw.categoryStageTemplates={};
+    if(!Array.isArray(raw.companyMilestones))raw.companyMilestones=[];
+    // Migrate old contacts[] → contactRefs[] + global contacts directory
+    raw.cases.forEach(c=>{
+      if(!c.id)c.id=uid();
+      if(!c.status)c.status='進行中';
+      if(!c.milestones)c.milestones=[];
+      if(!c.stages)c.stages=[];
+      if(c.memo==null)c.memo='';
+      if(!c.createdAt)c.createdAt=Date.now();
+      // 舊格式遷移
+      if(c.contacts&&!c.contactRefs){
+        c.contactRefs=c.contacts.map(ct=>{
+          // 先找全域名冊是否已有同名+同電話
+          let gct=raw.contacts.find(g=>
+            g.name===ct.name&&(g.phone===ct.phone||(!g.phone&&!ct.phone))
+          );
+          if(!gct){
+            gct={
+              id:ct.id||uid(),
+              name:ct.name||'',
+              role:ct.role||'',
+              contactType:ct.contactType||'',
+              description:ct.description||'',
+              phone:ct.phone||'',
+              email:ct.email||'',
+              note:ct.note||'',
+              createdAt:Date.now()
+            };
+            raw.contacts.push(gct);
+          }
+          return{
+            id:uid(),
+            contactId:gct.id,
+            primary:!!ct.primary,
+            caseNote:'',
+            logs:ct.logs||[]
+          };
+        });
+        delete c.contacts;
+      }
+      if(!c.contactRefs)c.contactRefs=[];
+      c.contactRefs.forEach(ref=>{if(!ref.logs)ref.logs=[];});
+    });
+    raw.contacts.forEach(ct=>{if(!ct.id)ct.id=uid();});
+    db=raw;
+    // Also save to localStorage as cache
+    localStorage.setItem(SK,JSON.stringify(cleanDb()));
+    updateStorage();
+    const ts=new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
+    setDsPill('github',`GitHub · ${ts}`);
+    return true;
+  }catch(err){
+    console.warn('fetch JSON failed:',err.message);
+    return false;
+  }
+}
+
+/* ══ Password System ══ */
+const PWD_KEY='cc_pwd_h';
+const SES_KEY='cc_ses';
+
+async function hashPwd(pwd){
+  try{
+    const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(pwd));
+    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }catch{return btoa(pwd+':cc_salt_2025');}
+}
+
+function togglePwdView(inputId,btn){
+  const inp=document.getElementById(inputId);if(!inp)return;
+  const hide=inp.type==='password';inp.type=hide?'text':'password';
+  btn.style.opacity=hide?'1':'.5';
+}
+
+async function checkAuth(){
+  const storedHash=localStorage.getItem(PWD_KEY);
+  if(!storedHash)return true;
+  const sesHash=sessionStorage.getItem(SES_KEY);
+  if(sesHash===storedHash)return true;
+  showLoginScreen();return false;
+}
+
+function showLoginScreen(){
+  const ol=document.getElementById('loginOverlay');ol.style.display='flex';
+  document.getElementById('loginErr').textContent='';
+  document.getElementById('pwdInput').value='';
+  setTimeout(()=>document.getElementById('pwdInput').focus(),250);
+}
+
+async function doLogin(){
+  const pwd=document.getElementById('pwdInput').value;
+  const errEl=document.getElementById('loginErr');
+  if(!pwd){errEl.textContent='請輸入密碼';return;}
+  const hash=await hashPwd(pwd);
+  if(hash===localStorage.getItem(PWD_KEY)){
+    sessionStorage.setItem(SES_KEY,hash);
+    document.getElementById('loginOverlay').style.display='none';
+    errEl.textContent='';
+  }else{
+    errEl.textContent='密碼錯誤，請再試一次';
+    document.getElementById('pwdInput').select();
+  }
+}
+
+function forgotPwd(){
+  if(!confirm('忘記密碼將清除所有本機資料並移除密碼保護。\n\n⚠ 此操作無法復原（GitHub 上的 JSON 備份不受影響）\n\n確定繼續？'))return;
+  localStorage.clear();sessionStorage.clear();location.reload();
+}
+
+function openSetPwd(){
+  const hasPwd=!!localStorage.getItem(PWD_KEY);
+  document.getElementById('setPwdMT').textContent=hasPwd?'變更密碼':'設定密碼';
+  document.getElementById('newPwd1').value='';
+  document.getElementById('newPwd2').value='';
+  document.getElementById('setPwdErr').textContent='';
+  openMo('setPwdModal');
+  setTimeout(()=>document.getElementById('newPwd1').focus(),80);
+}
+
+async function doSetPwd(){
+  const p1=document.getElementById('newPwd1').value;
+  const p2=document.getElementById('newPwd2').value;
+  const errEl=document.getElementById('setPwdErr');
+  if(!p1||p1.length<4){errEl.textContent='密碼至少需要 4 個字元';return;}
+  if(p1!==p2){errEl.textContent='兩次輸入的密碼不一致';return;}
+  const hash=await hashPwd(p1);
+  localStorage.setItem(PWD_KEY,hash);sessionStorage.setItem(SES_KEY,hash);
+  closeMo('setPwdModal');updatePwdStatus();
+  showToast('✓ 密碼已設定，下次開啟時需要登入');
+}
+
+function removePwd(){
+  if(!confirm('確定移除密碼保護？'))return;
+  localStorage.removeItem(PWD_KEY);sessionStorage.removeItem(SES_KEY);
+  updatePwdStatus();showToast('密碼已移除','warn');
+}
+
+function updatePwdStatus(){
+  const hasPwd=!!localStorage.getItem(PWD_KEY);
+  const s=document.getElementById('pwdStatus');
+  const lb=document.getElementById('pwdBtnLabel');
+  const rb=document.getElementById('removePwdBtn');
+  if(!s)return;
+  s.innerHTML=hasPwd
+    ?`<div class="pwd-dot-on"></div><span style="color:var(--ok);font-size:14px;font-weight:600">已啟用</span><span style="font-size:13px;color:var(--txm);margin-left:4px">· 下次開啟需要登入</span>`
+    :`<div class="pwd-dot-off"></div><span style="font-size:14px;color:var(--txm)">未設定</span>`;
+  if(lb)lb.textContent=hasPwd?'變更密碼':'設定密碼';
+  if(rb)rb.style.display=hasPwd?'inline-flex':'none';
+}
+
+/* ══ Init (async) ══ */
+async function init(){
+  // 1. 主題先套用（讓登入畫面有正確顏色）
+  setThemeMode(themeMode);
+  // 2. 驗證密碼
+  const authed=await checkAuth();
+  if(!authed){
+    // 等使用者登入後才繼續（doLogin 驗證成功後整頁已顯示）
+    // 監聽登入完成後初始化主程式
+    const observer=new MutationObserver(()=>{
+      if(document.getElementById('loginOverlay').style.display==='none'){
+        observer.disconnect();bootApp();
+      }
+    });
+    observer.observe(document.getElementById('loginOverlay'),{attributes:true,attributeFilter:['style']});
+    return;
+  }
+  bootApp();
+}
+
+async function bootApp(){
+  const fromGitHub=await tryFetchJSON();
+  if(!fromGitHub){
+    loadData();
+    const hasLocal=!!localStorage.getItem(SK);
+    setDsPill('local',hasLocal?'本機資料':'無資料');
+  }
+  updateStorage();
+  setView('cases');
+  setInterval(()=>{if(themeMode==='auto')applyTheme();},60000);
+}
+
+function visDirCts(){
+  const q=(document.getElementById('searchDir')?.value||'').toLowerCase();
+  let cts=[...db.contacts];
+  if(q)cts=cts.filter(c=>c.name.toLowerCase().includes(q)||(c.phone||'').includes(q)||(c.email||'').toLowerCase().includes(q)||(c.lineId||'').toLowerCase().includes(q)||(c.description||'').toLowerCase().includes(q)||(c.note||'').toLowerCase().includes(q)||(c.role||'').toLowerCase().includes(q)||(c.contactType||'').toLowerCase().includes(q));
+  return cts;
+}
+function moveSelection(dir){
+  if(view==='cases'){
+    const list=visCases();if(!list.length)return;
+    let idx=list.findIndex(c=>c.id===selId);
+    idx=idx===-1?(dir>0?0:list.length-1):Math.min(list.length-1,Math.max(0,idx+dir));
+    selCase(list[idx].id);
+    document.getElementById('ci-'+list[idx].id)?.scrollIntoView({block:'nearest'});
+  }else if(view==='directory'){
+    const list=visDirCts();if(!list.length)return;
+    let idx=list.findIndex(c=>c.id===selDirId);
+    idx=idx===-1?(dir>0?0:list.length-1):Math.min(list.length-1,Math.max(0,idx+dir));
+    selDir(list[idx].id);
+    document.getElementById('dct-'+list[idx].id)?.scrollIntoView({block:'nearest'});
+  }
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')document.querySelectorAll('.mo.open').forEach(m=>m.classList.remove('open'));
+  if(document.querySelector('.mo.open'))return;
+  if((e.ctrlKey||e.metaKey)&&e.key==='n'){e.preventDefault();if(view==='cases')openCaseModal();else if(view==='directory')openGContactModal();}
+  const tag=(e.target.tagName||'').toLowerCase();
+  const typing=tag==='input'||tag==='textarea'||tag==='select'||e.target.isContentEditable;
+  if(typing)return;
+  if(e.key==='/'){
+    const id=view==='cases'?'searchCase':view==='directory'?'searchDir':null;
+    if(id){e.preventDefault();document.getElementById(id)?.focus();}
+  }else if((e.key==='ArrowDown'||e.key==='ArrowUp')&&(view==='cases'||view==='directory')){
+    e.preventDefault();moveSelection(e.key==='ArrowDown'?1:-1);
+  }
+});
+
+init();
+</script>
+</body>
+</html>
