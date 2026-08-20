@@ -359,15 +359,15 @@
       "memo": "",
       "milestones": [
         {
-          "id": "mp6ksb8cn8mw",
-          "label": "說明會辦理",
-          "date": "2026-09-02"
-        },
-        {
           "id": "mswwaouzwet6",
           "label": "說明會現勘",
           "date": "2026-08-27",
           "endDate": "2026-08-27"
+        },
+        {
+          "id": "mp6ksb8cn8mw",
+          "label": "說明會辦理",
+          "date": "2026-09-02"
         }
       ],
       "createdAt": 1778827839352,
@@ -389,7 +389,13 @@
         },
         {
           "id": "msskyr5gm276",
-          "logs": [],
+          "logs": [
+            {
+              "id": "mt16g928x8sa",
+              "date": "2026-08-20",
+              "content": "1.一樓財政課拿單子再到農會繳款\n2.二樓觀光課找王小姐拿鑰匙"
+            }
+          ],
           "contactId": "msskyr5glh7a",
           "primary": false,
           "caseNote": ""
