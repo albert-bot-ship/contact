@@ -851,10 +851,28 @@ function renderSchedule(){
     <div style="font-size:11px;color:var(--txf);margin:-4px 0 8px">點月曆上任一天，或點下方清單裡的期程，都能直接編輯</div>
     <div id="schedFullList"></div>
   </div>`;
+  fitCalGrid(startDow+daysInMonth);
   if(calSelDay)showCalDay(calSelDay);
   if(!allMs.length){document.getElementById('schedFullList').innerHTML=`<div class="dash-empty">尚無期程，點上方「新增期程」即可新增</div>`;return;}
   renderSchedFullList(allMs);
 }
+/* 桌機：讓月曆格子動態貼合可視高度，整個月不用捲動就看得到；手機維持原本自然高度＋捲動 */
+function fitCalGrid(totalCells){
+  const grid=document.querySelector('.cal-grid');
+  if(!grid)return;
+  if(window.innerWidth<769){grid.classList.remove('fit');grid.style.height='';grid.style.gridTemplateRows='';return;}
+  const weeks=Math.ceil(totalCells/7);
+  const top=grid.getBoundingClientRect().top;
+  const h=Math.max(240,window.innerHeight-top-16);
+  grid.classList.add('fit');
+  grid.style.height=h+'px';
+  grid.style.gridTemplateRows=`auto repeat(${weeks},1fr)`;
+}
+let calFitResizeT=null;
+window.addEventListener('resize',()=>{
+  clearTimeout(calFitResizeT);
+  calFitResizeT=setTimeout(()=>{if(view==='schedule'){const{y,m}=calMonth;const startDow=new Date(y,m,1).getDay();const daysInMonth=new Date(y,m+1,0).getDate();fitCalGrid(startDow+daysInMonth);}},150);
+});
 function urgencyRank(d){const u=urgency(d);return u==='overdue'?0:u==='urgent'?1:u==='soon'?2:3;}
 function calNav(dir){
   if(dir===0){const d=new Date();calMonth={y:d.getFullYear(),m:d.getMonth()};}
