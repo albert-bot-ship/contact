@@ -204,6 +204,7 @@
       </button>
     </div>
     <button class="btn btn-p" style="width:100%;justify-content:center;font-size:15px;padding:10px" onclick="doLogin()">登入</button>
+    <label class="fck" style="justify-content:center;margin-top:12px"><input type="checkbox" id="rememberDevice"> 記住此裝置（下次不用再輸入密碼）</label>
     <div class="login-err" id="loginErr"></div>
     <div class="login-footer">
       <button class="login-link" onclick="forgotPwd()">忘記密碼？（清除所有資料重置）</button>
@@ -219,7 +220,7 @@
       <div class="fg">
         <label class="fl">新密碼</label>
         <div class="pwd-wrap" style="margin-bottom:0">
-          <input type="password" class="fi" id="newPwd1" placeholder="請輸入新密碼（至少 4 字元）" autocomplete="new-password">
+          <input type="password" class="fi" id="newPwd1" placeholder="請輸入新密碼（至少 6 字元）" autocomplete="new-password">
           <button class="pwd-toggle" onclick="togglePwdView('newPwd1',this)" tabindex="-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
         </div>
       </div>
@@ -1733,6 +1734,8 @@ async function tryFetchJSON(){
 /* ══ Password System ══ */
 const PWD_KEY='cc_pwd_h';
 const SES_KEY='cc_ses';
+const REM_KEY='cc_remember';
+let loginAttempts=0,loginLockUntil=0,loginLockTimer=null;
 
 async function hashPwd(pwd){
   try{
@@ -1752,29 +1755,65 @@ async function checkAuth(){
   if(!storedHash)return true;
   const sesHash=sessionStorage.getItem(SES_KEY);
   if(sesHash===storedHash)return true;
+  const remHash=localStorage.getItem(REM_KEY);
+  if(remHash===storedHash){sessionStorage.setItem(SES_KEY,storedHash);return true;}
   showLoginScreen();return false;
 }
 
 function showLoginScreen(){
   const ol=document.getElementById('loginOverlay');ol.style.display='flex';
-  document.getElementById('loginErr').textContent='';
   document.getElementById('pwdInput').value='';
-  setTimeout(()=>document.getElementById('pwdInput').focus(),250);
+  if(Date.now()<loginLockUntil){startLoginLockUI();}
+  else{
+    document.getElementById('loginErr').textContent='';
+    document.getElementById('pwdInput').disabled=false;
+    const btn=document.querySelector('#loginOverlay .btn-p');if(btn)btn.disabled=false;
+    setTimeout(()=>document.getElementById('pwdInput').focus(),250);
+  }
 }
 
 async function doLogin(){
+  if(Date.now()<loginLockUntil){startLoginLockUI();return;}
   const pwd=document.getElementById('pwdInput').value;
   const errEl=document.getElementById('loginErr');
   if(!pwd){errEl.textContent='請輸入密碼';return;}
   const hash=await hashPwd(pwd);
   if(hash===localStorage.getItem(PWD_KEY)){
+    loginAttempts=0;
     sessionStorage.setItem(SES_KEY,hash);
+    const remember=document.getElementById('rememberDevice')?.checked;
+    if(remember)localStorage.setItem(REM_KEY,hash);else localStorage.removeItem(REM_KEY);
     document.getElementById('loginOverlay').style.display='none';
     errEl.textContent='';
   }else{
-    errEl.textContent='密碼錯誤，請再試一次';
-    document.getElementById('pwdInput').select();
+    loginAttempts++;
+    if(loginAttempts>=5){
+      loginLockUntil=Date.now()+30000;loginAttempts=0;
+      startLoginLockUI();
+    }else{
+      errEl.textContent=`密碼錯誤，請再試一次（還可嘗試 ${5-loginAttempts} 次）`;
+      document.getElementById('pwdInput').select();
+    }
   }
+}
+function startLoginLockUI(){
+  const errEl=document.getElementById('loginErr');
+  const inp=document.getElementById('pwdInput');
+  const btn=document.querySelector('#loginOverlay .btn-p');
+  inp.disabled=true;if(btn)btn.disabled=true;
+  clearInterval(loginLockTimer);
+  const tick=()=>{
+    const remain=Math.ceil((loginLockUntil-Date.now())/1000);
+    if(remain<=0){
+      clearInterval(loginLockTimer);
+      inp.disabled=false;if(btn)btn.disabled=false;
+      errEl.textContent='';inp.focus();
+      return;
+    }
+    errEl.textContent=`嘗試次數過多，請 ${remain} 秒後再試`;
+  };
+  tick();
+  loginLockTimer=setInterval(tick,1000);
 }
 
 function forgotPwd(){
@@ -1798,7 +1837,7 @@ async function doSetPwd(){
   const p1=document.getElementById('newPwd1').value;
   const p2=document.getElementById('newPwd2').value;
   const errEl=document.getElementById('setPwdErr');
-  if(!p1||p1.length<4){errEl.textContent='密碼至少需要 4 個字元';return;}
+  if(!p1||p1.length<6){errEl.textContent='密碼至少需要 6 個字元';return;}
   if(p1!==p2){errEl.textContent='兩次輸入的密碼不一致';return;}
   const hash=await hashPwd(p1);
   localStorage.setItem(PWD_KEY,hash);sessionStorage.setItem(SES_KEY,hash);
@@ -1808,7 +1847,7 @@ async function doSetPwd(){
 
 function removePwd(){
   if(!confirm('確定移除密碼保護？'))return;
-  localStorage.removeItem(PWD_KEY);sessionStorage.removeItem(SES_KEY);
+  localStorage.removeItem(PWD_KEY);sessionStorage.removeItem(SES_KEY);localStorage.removeItem(REM_KEY);
   updatePwdStatus();showToast('密碼已移除','warn');
 }
 
