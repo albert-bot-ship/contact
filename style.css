@@ -254,7 +254,14 @@ tr.ci:hover .ctd-acts{opacity:1}
 .ms-card:hover{border-color:var(--bd2);box-shadow:var(--shadow-sm);transform:translateY(-1px)}
 .ms-card.overdue{border-color:var(--err);background:var(--errd);color:var(--err)}
 .ms-card.urgent,.ms-card.soon{border-color:var(--warn);background:var(--warnd);color:var(--warn)}
+.ms-check{width:16px;height:16px;border-radius:5px;border:2px solid var(--bd2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;background:var(--sf);cursor:pointer}
+.ms-check:hover{border-color:var(--ac)}
+.ms-check.done{background:var(--ok);border-color:var(--ok);color:var(--on-accent)}
 .ms-lbl{font-weight:700}
+.ms-card.ms-done{opacity:.55}
+.ms-card.ms-done .ms-lbl{text-decoration:line-through}
+.dash-due-item.done{border-left-color:var(--ok);opacity:.6}
+.dash-due-item.done .dash-due-label{text-decoration:line-through}
 .ms-dt{font-size:13px;opacity:.85;font-family:var(--font-m)}
 .ms-del-btn{background:none;border:none;cursor:pointer;color:inherit;opacity:.3;padding:1px 0 1px 4px;font-size:19px;line-height:1;display:flex;align-items:center}
 .ms-del-btn:hover{opacity:1}
