@@ -462,7 +462,7 @@ function sortArr(a){
 }
 
 function nextMsInfo(c){
-  const mss=(c.milestones||[]).slice().sort((a,b)=>a.date.localeCompare(b.date));
+  const mss=(c.milestones||[]).filter(m=>!m.done).slice().sort((a,b)=>a.date.localeCompare(b.date));
   if(!mss.length)return null;
   const t=new Date();t.setHours(0,0,0,0);
   const upcoming=mss.find(m=>{const x=new Date(msEnd(m));x.setHours(0,0,0,0);return x>=t;});
@@ -535,7 +535,11 @@ function renderCasesRP(){
   const sy=rp.scrollTop;const col=catCol(c.category);const acCol=c.category?col[1]:'var(--ac)';
   const sCls=STATUS_CLS[c.status]||'s-active';
   const mss=(c.milestones||[]).sort((a,b)=>a.date.localeCompare(b.date));
-  const msHtml=mss.map(m=>{const urg=urgency(msEnd(m));const an=urg==='overdue'?' bl-fast':urg==='urgent'?' bl-slow':'';return`<button class="ms-card ${urg}${an}" onclick="openMsModal('${c.id}','${m.id}')"><span class="ms-lbl">${esc(m.label)}</span><span class="ms-dt">${msDateStr(m)}</span><span class="ms-del-btn" onclick="event.stopPropagation();deleteMilestone('${c.id}','${m.id}')">×</span></button>`;}).join('');
+  const msHtml=mss.map(m=>{
+    if(m.done)return`<button class="ms-card ms-done" onclick="openMsModal('${c.id}','${m.id}')"><span class="ms-check done" onclick="event.stopPropagation();toggleMsDone('${c.id}','${m.id}')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span><span class="ms-lbl">${esc(m.label)}</span><span class="ms-dt">${msDateStr(m)}</span><span class="ms-del-btn" onclick="event.stopPropagation();deleteMilestone('${c.id}','${m.id}')">×</span></button>`;
+    const urg=urgency(msEnd(m));const an=urg==='overdue'?' bl-fast':urg==='urgent'?' bl-slow':'';
+    return`<button class="ms-card ${urg}${an}" onclick="openMsModal('${c.id}','${m.id}')"><span class="ms-check" onclick="event.stopPropagation();toggleMsDone('${c.id}','${m.id}')"></span><span class="ms-lbl">${esc(m.label)}</span><span class="ms-dt">${msDateStr(m)}</span><span class="ms-del-btn" onclick="event.stopPropagation();deleteMilestone('${c.id}','${m.id}')">×</span></button>`;
+  }).join('');
   const ctHtml=(c.contactRefs||[]).map(ref=>renderRefCard(c.id,ref)).join('');
   const remainingTmplSteps=templateStepsRemaining(c);
   rp.innerHTML=`<div>
@@ -738,7 +742,11 @@ function renderDashboard(){
   const rp=document.getElementById('rp');
   const t=new Date();t.setHours(0,0,0,0);
   const allMs=[];db.cases.forEach(c=>{(c.milestones||[]).forEach(m=>{allMs.push({...m,caseId:c.id,caseName:c.name});});});allMs.push(...companyMsItems());
-  const upcoming=allMs.filter(m=>{const x=new Date(msEnd(m));x.setHours(0,0,0,0);return(x-t)/86400000<=7;}).sort((a,b)=>a.date.localeCompare(b.date));
+  const upcoming=allMs.filter(m=>{
+    const x=new Date(msEnd(m));x.setHours(0,0,0,0);
+    if(m.done)return x.getFullYear()===t.getFullYear()&&x.getMonth()===t.getMonth();
+    return(x-t)/86400000<=7;
+  }).sort((a,b)=>a.date.localeCompare(b.date));
   const statusCounts={};['進行中','待辦','暫停','結案'].forEach(s=>statusCounts[s]=0);
   db.cases.forEach(c=>{const s=c.status||'進行中';statusCounts[s]=(statusCounts[s]||0)+1;});
   const catCounts={};db.cases.forEach(c=>{const cat=c.category||'未分類';catCounts[cat]=(catCounts[cat]||0)+1;});
@@ -751,9 +759,9 @@ function renderDashboard(){
       <div class="dash-card" style="grid-column:1/-1">
         <div class="dash-card-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>7 天內到期期程（含逾期）</div>
         <div class="dash-list">
-          ${upcoming.length?upcoming.map(m=>{const urg=urgency(msEnd(m));const goto=m.isCompany?`setView('schedule')`:`setView('cases');selCase('${m.caseId}')`;return`<div class="dash-due-item ${urg==='overdue'?'overdue':urg==='urgent'?'urgent':''}" onclick="${goto}">
-            <div class="dash-due-info"><div class="dash-due-label">${esc(m.label)}</div><div class="dash-due-case">${m.isCompany?'🏢 公司期程':esc(m.caseName)}</div></div>
-            <span class="dash-due-date" style="color:${urg==='overdue'?'var(--err)':urg==='urgent'?'var(--warn)':'var(--txm)'}">${msDateStr(m)}</span>
+          ${upcoming.length?upcoming.map(m=>{const urg=urgency(msEnd(m));const goto=m.isCompany?`setView('schedule')`:`setView('cases');selCase('${m.caseId}')`;const cls=m.done?'done':(urg==='overdue'?'overdue':urg==='urgent'?'urgent':'');return`<div class="dash-due-item ${cls}" onclick="${goto}">
+            <div class="dash-due-info"><div class="dash-due-label">${m.done?'✓ ':''}${esc(m.label)}</div><div class="dash-due-case">${m.isCompany?'🏢 公司期程':esc(m.caseName)}</div></div>
+            <span class="dash-due-date" style="color:${m.done?'var(--txf)':urg==='overdue'?'var(--err)':urg==='urgent'?'var(--warn)':'var(--txm)'}">${msDateStr(m)}</span>
           </div>`;}).join(''):`<div class="dash-empty">近期沒有到期期程</div>`}
         </div>
       </div>
@@ -801,7 +809,7 @@ function hideCalTip(){
 }
 function renderSchedule(){
   const rp=document.getElementById('rp');
-  const allMs=[];db.cases.forEach(c=>{(c.milestones||[]).forEach(m=>{allMs.push({...m,caseId:c.id,caseName:c.name,caseCategory:c.category});});});allMs.push(...companyMsItems());
+  const allMs=[];db.cases.forEach(c=>{(c.milestones||[]).forEach(m=>{if(!m.done)allMs.push({...m,caseId:c.id,caseName:c.name,caseCategory:c.category});});});allMs.push(...companyMsItems().filter(m=>!m.done));
   const{y,m}=calMonth;
   const first=new Date(y,m,1);const startDow=first.getDay();const daysInMonth=new Date(y,m+1,0).getDate();
   const byDate={};allMs.forEach(ms=>{dateRangeArr(ms.date,msEnd(ms)).forEach(ds=>{if(!byDate[ds])byDate[ds]=[];byDate[ds].push(ms);});});
@@ -906,7 +914,7 @@ function showCalDay(dateStr,ev){
     document.querySelectorAll('.cal-cell').forEach(el=>el.classList.remove('sel'));
     ev.currentTarget?.classList.add('sel');
   }
-  const inRange=m=>dateStr>=m.date&&dateStr<=msEnd(m);
+  const inRange=m=>!m.done&&dateStr>=m.date&&dateStr<=msEnd(m);
   const items=[];db.cases.forEach(c=>{(c.milestones||[]).forEach(m=>{if(inRange(m))items.push({...m,caseId:c.id,caseName:c.name,caseCategory:c.category});});});
   items.push(...companyMsItems().filter(inRange));
   const el=document.getElementById('calDayDetail');if(!el)return;
@@ -1373,6 +1381,14 @@ function saveMilestone(){
     else c.milestones.push({id:uid(),label,date,endDate});
   }
   saveData();refreshCurrentView();closeMo('msModal');showToast(msId?'✓ 期程已更新':'✓ 期程已新增');
+}
+function toggleMsDone(caseId,msId){
+  let m=null;
+  if(caseId===COMPANY_ID){m=(db.companyMilestones||[]).find(x=>x.id===msId);}
+  else{const c=db.cases.find(c=>c.id===caseId);if(c)m=c.milestones.find(x=>x.id===msId);}
+  if(!m)return;
+  m.done=!m.done;
+  saveData();refreshCurrentView();
 }
 function deleteMilestone(caseId,msId){
   if(!confirm('確定刪除此期程？'))return;
