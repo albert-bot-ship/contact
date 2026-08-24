@@ -230,7 +230,8 @@ tr.ci:hover .ctd-acts{opacity:1}
 .rp-empty-txt{font-size:15px;color:var(--txf)}
 
 /* ── Case Detail ── */
-.cd-head{position:relative;overflow:hidden;background:var(--sf);border-bottom:1px solid var(--bd);padding:22px 26px 20px}
+.cd-head{position:sticky;top:0;z-index:6;overflow:hidden;background:var(--sf);border-bottom:1px solid var(--bd);padding:22px 26px 20px;box-shadow:0 6px 14px -6px rgba(0,0,0,.28)}
+[data-theme=light] .cd-head{box-shadow:0 6px 14px -6px rgba(15,20,35,.12)}
 [data-theme=light] .cd-head .topo{opacity:.2}
 .cd-accent{position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--m-grad)}
 .cd-top{display:flex;align-items:flex-start;gap:14px;padding-left:10px;padding-right:34px;position:relative;z-index:1}
