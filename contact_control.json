@@ -468,28 +468,21 @@
       "category": "環評",
       "note": "",
       "memo": "",
-      "milestones": [
-        {
-          "id": "mt2b13fyw97f",
-          "label": "跟川睦拿提送公文",
-          "date": "2026-08-24",
-          "endDate": "2026-08-24"
-        }
-      ],
+      "milestones": [],
       "createdAt": 1778827833415,
       "status": "進行中",
       "contactRefs": [
         {
-          "id": "mpanmrad1d4f",
-          "contactId": "mp6kan9dw36k",
-          "primary": false,
+          "id": "mpanmradk4ip",
+          "contactId": "mp6kcglins0c",
+          "primary": true,
           "caseNote": "",
           "logs": []
         },
         {
-          "id": "mpanmradk4ip",
-          "contactId": "mp6kcglins0c",
-          "primary": true,
+          "id": "mpanmrad1d4f",
+          "contactId": "mp6kan9dw36k",
+          "primary": false,
           "caseNote": "",
           "logs": []
         }
