@@ -322,6 +322,18 @@
       "email": "henry8319941117@mail.nteph.gov.tw",
       "lineId": "",
       "note": ""
+    },
+    {
+      "id": "mt7ynpjwv7h3",
+      "createdAt": 1787619774236,
+      "name": "吳先生",
+      "role": "環保局/空污課",
+      "contactType": "",
+      "description": "",
+      "phone": "04-7115655#228",
+      "email": "",
+      "lineId": "",
+      "note": ""
     }
   ],
   "categoryStageTemplates": {
@@ -742,6 +754,13 @@
           "primary": false,
           "caseNote": "",
           "logs": []
+        },
+        {
+          "id": "mt7ynpjwbe42",
+          "logs": [],
+          "contactId": "mt7ynpjwv7h3",
+          "primary": false,
+          "caseNote": ""
         }
       ],
       "stages": []
