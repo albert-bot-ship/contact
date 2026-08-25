@@ -212,6 +212,7 @@ tr.ci:hover .ctd-drag{opacity:.9}
 .ctd-drag:active{cursor:grabbing}
 .ctd-name{font-family:var(--font-d);font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
 .cat-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;flex-shrink:0;line-height:1.4;letter-spacing:.03em;white-space:nowrap}
+.phase-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;flex-shrink:0;line-height:1.4;letter-spacing:.02em;white-space:nowrap;border:1px solid var(--bd);color:var(--txm);background:transparent;margin-left:6px}
 .ctd-ms{font-family:var(--font-m);font-size:12.5px;white-space:nowrap}
 .ctd-contact{color:var(--txm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px}
 .ctd-stage-wrap{display:flex;align-items:center;gap:7px}
@@ -307,9 +308,10 @@ tr.ci:hover .ctd-acts{opacity:1}
 .log-item:last-of-type{border-bottom:none}
 .log-date{font-size:13px;color:var(--txf);font-weight:700;width:86px;flex-shrink:0;padding-top:1px;font-family:var(--font-m)}
 .log-content{flex:1;font-size:14px;color:var(--tx);white-space:pre-wrap;word-break:break-all}
-.log-del-btn{background:none;border:none;cursor:pointer;color:var(--txf);display:flex;align-items:flex-start;padding:2px;opacity:0;transition:opacity .15s;flex-shrink:0}
-.log-item:hover .log-del-btn{opacity:1}
+.log-del-btn,.log-edit-btn{background:none;border:none;cursor:pointer;color:var(--txf);display:flex;align-items:flex-start;padding:2px;opacity:0;transition:opacity .15s;flex-shrink:0}
+.log-item:hover .log-del-btn,.log-item:hover .log-edit-btn{opacity:1}
 .log-del-btn:hover{color:var(--err)}
+.log-edit-btn:hover{color:var(--ac)}
 .log-add{margin-top:8px}
 
 /* Memo */
@@ -617,7 +619,7 @@ tr.ci:hover .ctd-acts{opacity:1}
    原本很多操作按鈕、拖曳把手預設是半透明或完全隱藏，要滑鼠移過去(hover)才會顯示／變明顯。
    觸控裝置沒有 hover 狀態，這些東西平常摸不到也看不清楚，這裡強制常駐顯示。 */
 @media(hover:none){
-  .ctd-acts,.log-del-btn,.dir-acts,.sched-item-acts,.stage-del{opacity:1}
+  .ctd-acts,.log-del-btn,.log-edit-btn,.dir-acts,.sched-item-acts,.stage-del{opacity:1}
   .ctd-drag,.ct-drag-handle,.dir-drag-handle,.tmpl-drag,.scat-drag,.ms-del-btn{opacity:.55}
   /* 觸控熱區加大，蘋果建議至少 44x44pt */
   .ibtn{padding:8px}
