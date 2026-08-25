@@ -711,19 +711,19 @@
       "memo": "1.下包資料找厚哥(找好了)\n2.空污抵換計畫(腐化菌購買)",
       "milestones": [],
       "createdAt": 1778830610783,
-      "status": "待辦",
+      "status": "進行中",
       "contactRefs": [
-        {
-          "id": "mpanmracnqte",
-          "contactId": "mp6lv92h0463",
-          "primary": false,
-          "caseNote": "",
-          "logs": []
-        },
         {
           "id": "mpanmradnnp0",
           "contactId": "mp6lx79tplh7",
           "primary": true,
+          "caseNote": "",
+          "logs": []
+        },
+        {
+          "id": "mpanmracnqte",
+          "contactId": "mp6lv92h0463",
+          "primary": false,
           "caseNote": "",
           "logs": []
         },
