@@ -263,7 +263,7 @@ function catCol(cat){if(!cat)return['var(--acd)','var(--ac)'];if(BASE_COL[cat]){
 /* ── State ── */
 let db={categories:[...DEF_CATS],contacts:[],cases:[],categoryStageTemplates:{},companyMilestones:[]};
 let view='cases',selId=null,selDirId=null;
-let sortKey='newest',filterCat='',filterStatus='',searchCaseQ='',searchCtQ='';
+let sortKey=localStorage.getItem('caseSortKey')||'newest',filterCat='',filterStatus='',searchCaseQ='',searchCtQ='';
 const stageOpenIds=new Set();
 function toggleStageOpen(caseId){
   if(stageOpenIds.has(caseId))stageOpenIds.delete(caseId);else stageOpenIds.add(caseId);
@@ -438,7 +438,7 @@ function renderStatusChips(){
 function doFC(el,cat){filterCat=cat;document.querySelectorAll('#catChips .chip').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderCasesList();}
 function doFS(el,st){filterStatus=st;document.querySelectorAll('#statusChips .chip').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderCasesList();}
 function buildSel(el,cur){el.innerHTML='<option value="">— 請選擇 —</option>'+db.categories.map(c=>`<option value="${esc(c)}" ${c===cur?'selected':''}>${esc(c)}</option>`).join('');}
-function setSort(el,key){sortKey=key;document.querySelectorAll('.sbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderCasesList();}
+function setSort(el,key){sortKey=key;localStorage.setItem('caseSortKey',key);document.querySelectorAll('.sbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderCasesList();}
 
 function visCases(){
   let cs=db.cases;
@@ -1104,6 +1104,7 @@ function commitCaseReorder(dragId,overRow){
   const insertAt=isTop?(fromIdx<toIdx?toIdx-1:toIdx):(fromIdx>toIdx?toIdx+1:toIdx);
   db.cases.splice(insertAt,0,item);
   sortKey='custom';
+  localStorage.setItem('caseSortKey','custom');
   document.querySelectorAll('.sbtn').forEach(b=>b.classList.toggle('active',b.getAttribute('data-key')==='custom'));
   saveData();renderCasesList();
 }
