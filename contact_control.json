@@ -347,11 +347,7 @@
       "第三次初審會",
       "大會"
     ],
-    "監測": [
-      "施工期間",
-      "施工暨營運期間",
-      "營運期間"
-    ]
+    "監測": []
   },
   "companyMilestones": [
     {
@@ -531,11 +527,6 @@
       "memo": "",
       "milestones": [
         {
-          "id": "mp6m678qjv57",
-          "label": "提送監測報告",
-          "date": "2026-09-30"
-        },
-        {
           "id": "mszny02m61n5",
           "label": "工區放流水跟營建噪音振動監測",
           "date": "2026-09-03",
@@ -546,6 +537,11 @@
           "label": "營建噪音振動監測",
           "date": "2026-09-21",
           "endDate": "2026-09-21"
+        },
+        {
+          "id": "mp6m678qjv57",
+          "label": "提送監測報告",
+          "date": "2026-09-30"
         }
       ],
       "createdAt": 1778827464732,
@@ -593,7 +589,8 @@
           "label": "施工期間",
           "done": false
         }
-      ]
+      ],
+      "monitorPhase": "施工期間"
     },
     {
       "id": "mp6k58jpa1ve",
@@ -653,7 +650,8 @@
           "label": "施工暨營運期間",
           "done": false
         }
-      ]
+      ],
+      "monitorPhase": "施工暨營運期間"
     },
     {
       "id": "mp6k5k8x9u9a",
@@ -699,7 +697,8 @@
           "label": "施工期間",
           "done": false
         }
-      ]
+      ],
+      "monitorPhase": "施工期間"
     },
     {
       "id": "mp6ltfmnx90v",
@@ -761,7 +760,8 @@
           "caseNote": ""
         }
       ],
-      "stages": []
+      "stages": [],
+      "monitorPhase": "施工期間"
     }
   ]
 }
