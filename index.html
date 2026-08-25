@@ -72,7 +72,7 @@
       <input type="hidden" id="caseId">
       <div class="fg"><label class="fl">案件名稱 <span class="fr">*</span></label><input class="fi" id="caseName" placeholder="例：○○廠 環境影響評估"></div>
       <div class="frow">
-        <div class="fg"><label class="fl">案件類別</label><select class="fs" id="caseCat"></select></div>
+        <div class="fg"><label class="fl">案件類別</label><select class="fs" id="caseCat" onchange="toggleMonitorPhaseField()"></select></div>
         <div class="fg"><label class="fl">案件狀態</label>
           <select class="fs" id="caseStatus">
             <option value="進行中">進行中</option>
@@ -81,6 +81,15 @@
             <option value="結案">結案</option>
           </select>
         </div>
+      </div>
+      <div class="fg" id="caseMonitorPhaseWrap" style="display:none">
+        <label class="fl">監測階段</label>
+        <select class="fs" id="caseMonitorPhase">
+          <option value="">— 請選擇 —</option>
+          <option value="施工期間">施工期間</option>
+          <option value="施工暨營運期間">施工暨營運期間</option>
+          <option value="營運期間">營運期間</option>
+        </select>
       </div>
       <div class="fg"><label class="fl">備註</label><input class="fi" id="caseNote" placeholder="選填"></div>
     </div>
@@ -493,7 +502,7 @@ function renderCasesList(){
       onclick="selCase('${c.id}')">
       <td class="ctd-drag" onclick="event.stopPropagation()" onpointerdown="ptrDragBegin(event,'.ci','${c.id}',commitCaseReorder)" title="拖曳排序"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></td>
       <td class="ctd-name">${hl(c.name,searchCaseQ)}</td>
-      <td>${c.category?`<span class="cat-badge" style="background:${col[0]};color:${col[1]}">${esc(c.category)}</span>`:'<span class="ctd-muted">—</span>'}</td>
+      <td>${c.category?`<span class="cat-badge" style="background:${col[0]};color:${col[1]}">${esc(c.category)}</span>${c.category==='監測'&&c.monitorPhase?`<span class="phase-badge">${esc(c.monitorPhase)}</span>`:''}`:'<span class="ctd-muted">—</span>'}</td>
       <td><span class="status-badge ${sCls}">${esc(c.status||'進行中')}</span></td>
       <td class="ctd-ms">${msHtml}</td>
       <td class="ctd-contact">${primaryCt?esc(primaryCt.name):'<span class="ctd-muted">—</span>'}</td>
@@ -553,6 +562,7 @@ function renderCasesRP(){
           <div class="cd-badges">
             ${c.category?`<span class="cat-badge" style="background:${col[0]};color:${col[1]}">${esc(c.category)}</span>`:''}
             <span class="status-badge ${sCls}">${esc(c.status||'進行中')}</span>
+            ${c.category==='監測'&&c.monitorPhase?`<span class="phase-badge">${esc(c.monitorPhase)}</span>`:''}
           </div>
           <div class="cd-name">${esc(c.name)}</div>
           ${c.note?`<div class="cd-note-txt">${esc(c.note)}</div>`:''}
@@ -609,7 +619,7 @@ function renderCasesRP(){
 function renderRefCard(caseId,ref){
   const ct=getGContact(ref);
   const logs=(ref.logs||[]).sort((a,b)=>b.date.localeCompare(a.date));
-  const logsHtml=logs.map(l=>`<div class="log-item"><div class="log-date">${esc(l.date)}</div><div class="log-content">${esc(l.content)}</div><button class="log-del-btn" onclick="deleteLog('${caseId}','${ref.id}','${l.id}')" title="刪除"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`).join('');
+  const logsHtml=logs.map(l=>`<div class="log-item"><div class="log-date">${esc(l.date)}</div><div class="log-content">${esc(l.content)}</div><button class="log-edit-btn" onclick="openLogModal('${caseId}','${ref.id}','${l.id}')" title="編輯"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="log-del-btn" onclick="deleteLog('${caseId}','${ref.id}','${l.id}')" title="刪除"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`).join('');
   return`<div class="ct-card" id="ct-${ref.id}">
     <div class="ct-head">
       <div class="ct-drag-handle" onpointerdown="ptrDragBegin(event,'.ct-card',{caseId:'${caseId}',refId:'${ref.id}'},commitRefReorder)" title="拖曳排序"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></div>
@@ -1143,6 +1153,10 @@ function commitCatReorder(dragCat,overRow){
 
 
 /* ══ CRUD : Case ══ */
+function toggleMonitorPhaseField(){
+  const cat=document.getElementById('caseCat').value;
+  document.getElementById('caseMonitorPhaseWrap').style.display=cat==='監測'?'':'none';
+}
 function openCaseModal(id){
   document.getElementById('caseMT').textContent=id?'編輯案件':'新增案件';
   document.getElementById('caseId').value=id||'';
@@ -1150,7 +1164,9 @@ function openCaseModal(id){
   document.getElementById('caseName').value=c?c.name:'';
   document.getElementById('caseStatus').value=c?(c.status||'進行中'):'進行中';
   document.getElementById('caseNote').value=c?(c.note||''):'';
+  document.getElementById('caseMonitorPhase').value=c?(c.monitorPhase||''):'';
   buildSel(document.getElementById('caseCat'),c?c.category:'');
+  toggleMonitorPhaseField();
   openMo('caseModal');setTimeout(()=>document.getElementById('caseName').focus(),80);
 }
 function saveCase(){
@@ -1160,15 +1176,16 @@ function saveCase(){
   const category=document.getElementById('caseCat').value;
   const status=document.getElementById('caseStatus').value;
   const note=document.getElementById('caseNote').value.trim();
+  const monitorPhase=category==='監測'?document.getElementById('caseMonitorPhase').value:'';
   if(id){
     const c=db.cases.find(c=>c.id===id);
     if(c){
       const catChanged=c.category!==category;
-      c.name=name;c.category=category;c.status=status;c.note=note;
+      c.name=name;c.category=category;c.status=status;c.note=note;c.monitorPhase=monitorPhase;
       if(catChanged&&(!c.stages||!c.stages.length))applyStageTemplate(c);
     }
   }
-  else{const nc={id:uid(),name,category,status,note,memo:'',milestones:[],stages:[],contactRefs:[],createdAt:Date.now()};applyStageTemplate(nc);db.cases.unshift(nc);selId=nc.id;}
+  else{const nc={id:uid(),name,category,status,note,monitorPhase,memo:'',milestones:[],stages:[],contactRefs:[],createdAt:Date.now()};applyStageTemplate(nc);db.cases.unshift(nc);selId=nc.id;}
   saveData();syncLayoutMode();renderCatChips();renderCasesList();if(selId)renderCasesRP();closeMo('caseModal');showToast(id?'✓ 案件已更新':'✓ 案件已新增');
 }
 function deleteCase(id){
