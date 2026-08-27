@@ -754,7 +754,13 @@
         },
         {
           "id": "mt7ynpjwbe42",
-          "logs": [],
+          "logs": [
+            {
+              "id": "mtb80q5j7s64",
+              "date": "2026-08-27",
+              "content": "1.吳先生會與科長進行「若3年做不完抵換」的討論，8/31(一)下午會跟澔宇說明\n2.農會地點調查公文會一並在8/31(一)下午會跟澔宇說明"
+            }
+          ],
           "contactId": "mt7ynpjwv7h3",
           "primary": false,
           "caseNote": ""
