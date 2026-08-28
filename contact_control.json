@@ -474,7 +474,13 @@
           "contactId": "mp6kcglins0c",
           "primary": true,
           "caseNote": "",
-          "logs": []
+          "logs": [
+            {
+              "id": "mtckd4x5zryl",
+              "date": "2026-08-28",
+              "content": "倉儲系統登陸碼：1103BB0005"
+            }
+          ]
         },
         {
           "id": "mpanmrad1d4f",
