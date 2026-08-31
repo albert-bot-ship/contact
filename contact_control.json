@@ -334,6 +334,18 @@
       "email": "",
       "lineId": "",
       "note": ""
+    },
+    {
+      "id": "mtglte0ay2ez",
+      "createdAt": 1788142399786,
+      "name": "卓小姐",
+      "role": "庶古",
+      "contactType": "下包",
+      "description": "",
+      "phone": "06-5409714 ＃6198",
+      "email": "",
+      "lineId": "",
+      "note": "追蹤文化監看報告提供進度"
     }
   ],
   "categoryStageTemplates": {
@@ -649,6 +661,13 @@
           "primary": false,
           "caseNote": "",
           "logs": []
+        },
+        {
+          "id": "mtglte0atd9v",
+          "logs": [],
+          "contactId": "mtglte0ay2ez",
+          "primary": false,
+          "caseNote": ""
         }
       ],
       "stages": [
