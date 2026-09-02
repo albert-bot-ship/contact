@@ -738,7 +738,14 @@
       "category": "監測",
       "note": "",
       "memo": "1.下包資料找厚哥(找好了)\n2.空污抵換計畫(腐化菌購買)",
-      "milestones": [],
+      "milestones": [
+        {
+          "id": "mtjv4npt9mwv",
+          "label": "監測點位現勘(10:00)",
+          "date": "2026-09-16",
+          "endDate": "2026-09-16"
+        }
+      ],
       "createdAt": 1778830610783,
       "status": "進行中",
       "contactRefs": [
