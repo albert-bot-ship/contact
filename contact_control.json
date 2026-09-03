@@ -59,10 +59,11 @@
       "role": "浦騰",
       "contactType": "規劃團隊",
       "description": "水保、水計",
-      "phone": "",
+      "phone": "04-2382 5566",
       "email": "",
       "note": "用Line聯繫",
-      "createdAt": 1779075523237
+      "createdAt": 1779075523237,
+      "lineId": ""
     },
     {
       "id": "mp6m0k3ueyhn",
