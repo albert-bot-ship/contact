@@ -513,7 +513,7 @@
       "memo": "",
       "milestones": [],
       "createdAt": 1778827826145,
-      "status": "進行中",
+      "status": "結案",
       "contactRefs": [
         {
           "id": "mpanmradpqe6",
@@ -537,7 +537,8 @@
           "logs": []
         }
       ],
-      "stages": []
+      "stages": [],
+      "monitorPhase": ""
     },
     {
       "id": "mp6jy04c0f7k",
