@@ -18,6 +18,7 @@
   <div class="nav-tabs">
     <button class="nav-tab" id="tabDashboard" onclick="setView('dashboard')">儀表板</button>
     <button class="nav-tab active" id="tabCases" onclick="setView('cases')">案件</button>
+    <button class="nav-tab" id="tabClosed" onclick="setView('closed')">已結案</button>
     <button class="nav-tab" id="tabDir" onclick="setView('directory')">名冊</button>
     <button class="nav-tab" id="tabSchedule" onclick="setView('schedule')">期程總覽</button>
     <button class="nav-tab" id="tabSettings" onclick="setView('settings')">設定</button>
@@ -263,7 +264,7 @@ function catCol(cat){if(!cat)return['var(--acd)','var(--ac)'];if(BASE_COL[cat]){
 /* ── State ── */
 let db={categories:[...DEF_CATS],contacts:[],cases:[],categoryStageTemplates:{},companyMilestones:[]};
 let view='cases',selId=null,selDirId=null;
-let sortKey=localStorage.getItem('caseSortKey')||'newest',filterCat='',filterStatus='',searchCaseQ='',searchCtQ='';
+let sortKey=localStorage.getItem('caseSortKey')||'newest',filterCat='',filterStatus='',searchCaseQ='',searchCtQ='',showClosedInAll=false;
 const stageOpenIds=new Set();
 function toggleStageOpen(caseId){
   if(stageOpenIds.has(caseId))stageOpenIds.delete(caseId);else stageOpenIds.add(caseId);
@@ -336,7 +337,7 @@ function nearestMs(c){const t=new Date();t.setHours(0,0,0,0);const f=(c.mileston
 function getGContact(ref){return db.contacts.find(c=>c.id===ref.contactId)||{name:'(已刪除)',phone:'',email:'',lineId:'',role:'',contactType:'',description:'',note:''};}
 
 /* ── View Navigation ── */
-const VIEW_TAB_IDS={dashboard:'tabDashboard',cases:'tabCases',directory:'tabDir',schedule:'tabSchedule',settings:'tabSettings'};
+const VIEW_TAB_IDS={dashboard:'tabDashboard',cases:'tabCases',closed:'tabClosed',directory:'tabDir',schedule:'tabSchedule',settings:'tabSettings'};
 function syncLayoutMode(){
   const ml=document.getElementById('mainLayout');if(!ml)return;
   ml.classList.toggle('cases-mode',view==='cases');
@@ -349,7 +350,7 @@ function setView(v){
   const rp=document.getElementById('rp');
   // 案件/名冊在手機版是「先看清單、點了才看內容」，所以切頁籤時要先隱藏 rp、顯示清單。
   // 儀表板/期程總覽/設定沒有清單、本身就是內容，手機版切過去要直接顯示，不能被藏起來。
-  if(v==='cases'||v==='directory')rp.classList.remove('mobile-show');
+  if(v==='cases'||v==='directory'||v==='closed')rp.classList.remove('mobile-show');
   else rp.classList.add('mobile-show');
   syncLayoutMode();
   renderToolbar();renderLP();renderRP();
@@ -374,6 +375,8 @@ function renderToolbar(){
       <div class="sw" style="width:260px"><span class="si"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span><input class="sinput" id="searchDir" placeholder="搜尋名冊(含說明/備註)… (Enter)" type="search" autocomplete="off" onkeydown="if(event.key==='Enter')renderLP()" oninput="if(!this.value)renderLP()"></div>
       <div class="tbsp"></div>
       <button class="btn btn-p" onclick="openGContactModal()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增聯絡人</button>`;
+  } else if(view==='closed'){
+    tb.innerHTML=`<span style="font-size:14px;color:var(--txm);font-weight:600">已結案 · 封存案件查詢</span><div class="tbsp"></div>`;
   } else if(view==='dashboard'){
     tb.innerHTML=`<span style="font-size:14px;color:var(--txm);font-weight:600">儀表板 · 案件現況總覽</span><div class="tbsp"></div>`;
   } else if(view==='schedule'){
@@ -386,6 +389,7 @@ function renderToolbar(){
 /* ── LP Rendering ── */
 function renderLP(){
   if(view==='cases') renderCasesLP();
+  else if(view==='closed') renderClosedLP();
   else if(view==='directory') renderDirLP();
   else { document.getElementById('lp').style.display='none'; document.getElementById('rp').style.width='100%'; renderRP(); return; }
   document.getElementById('lp').style.display='flex';
@@ -394,10 +398,22 @@ function renderLP(){
 
 function renderRP(){
   if(view==='cases') renderCasesRP();
+  else if(view==='closed') renderCasesRP();
   else if(view==='directory') renderDirRP();
   else if(view==='dashboard') renderDashboard();
   else if(view==='schedule') renderSchedule();
   else if(view==='settings') renderSettingsPage();
+}
+
+/* 已結案分頁：沿用案件的詳情面板(renderCasesRP)，只是左側清單換成封存清單 */
+function renderClosedLP(){
+  const lpTop=document.getElementById('lpTop');
+  lpTop.innerHTML=`<div class="fl-label">已結案案件（依建立時間，新到舊）</div>`;
+  document.getElementById('lpBottom').innerHTML='';
+  renderCasesList();
+}
+function visClosedCases(){
+  return db.cases.filter(c=>c.status==='結案').sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
 }
 
 /* ══ CASES VIEW ══ */
@@ -436,7 +452,7 @@ function renderStatusChips(){
   }).join('');
 }
 function doFC(el,cat){filterCat=cat;document.querySelectorAll('#catChips .chip').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderCasesList();}
-function doFS(el,st){filterStatus=st;document.querySelectorAll('#statusChips .chip').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderCasesList();}
+function doFS(el,st){filterStatus=st;if(st==='')showClosedInAll=true;document.querySelectorAll('#statusChips .chip').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderCasesList();}
 function buildSel(el,cur){el.innerHTML='<option value="">— 請選擇 —</option>'+db.categories.map(c=>`<option value="${esc(c)}" ${c===cur?'selected':''}>${esc(c)}</option>`).join('');}
 function setSort(el,key){sortKey=key;localStorage.setItem('caseSortKey',key);document.querySelectorAll('.sbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderCasesList();}
 
@@ -444,6 +460,7 @@ function visCases(){
   let cs=db.cases;
   if(filterCat)cs=cs.filter(c=>c.category===filterCat);
   if(filterStatus)cs=cs.filter(c=>c.status===filterStatus);
+  else if(!showClosedInAll)cs=cs.filter(c=>c.status!=='結案');
   if(searchCaseQ){
     const q=searchCaseQ.toLowerCase();
     cs=cs.filter(c=>
@@ -482,8 +499,9 @@ function stageProgressInfo(c){
   return{done:st.filter(s=>s.done).length,total:st.length};
 }
 function renderCasesList(){
-  const cs=visCases();const el=document.getElementById('lpList');
-  if(!cs.length){el.innerHTML=`<div class="lp-empty">${!db.cases.length?'尚無案件，點右上角「新增案件」':'無符合條件的案件'}</div>`;return;}
+  const isClosedView=view==='closed';
+  const cs=isClosedView?visClosedCases():visCases();const el=document.getElementById('lpList');
+  if(!cs.length){el.innerHTML=`<div class="lp-empty">${isClosedView?'尚無已結案案件':(!db.cases.length?'尚無案件，點右上角「新增案件」':'無符合條件的案件')}</div>`;return;}
   const rows=cs.map(c=>{
     const primary=(c.contactRefs||[]).find(ref=>ref.primary)||(c.contactRefs||[])[0];
     const primaryCt=primary?getGContact(primary):null;
@@ -500,7 +518,7 @@ function renderCasesList(){
     const stgHtml=stg?`<div class="ctd-stage-wrap"><div class="ctd-stage-bar"><div class="ctd-stage-fill" style="width:${Math.round(stg.done/stg.total*100)}%"></div></div><span class="ctd-stage-txt">${stg.done}/${stg.total}</span></div>`:'<span class="ctd-muted">—</span>';
     return`<tr class="ci ${isSel?'sel':''}" id="ci-${c.id}"
       onclick="selCase('${c.id}')">
-      <td class="ctd-drag" onclick="event.stopPropagation()" onpointerdown="ptrDragBegin(event,'.ci','${c.id}',commitCaseReorder)" title="拖曳排序"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></td>
+      ${isClosedView?'':`<td class="ctd-drag" onclick="event.stopPropagation()" onpointerdown="ptrDragBegin(event,'.ci','${c.id}',commitCaseReorder)" title="拖曳排序"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></td>`}
       <td class="ctd-name">${hl(c.name,searchCaseQ)}</td>
       <td>${c.category?`<span class="cat-badge" style="background:${col[0]};color:${col[1]}">${esc(c.category)}</span>${c.category==='監測'&&c.monitorPhase?`<span class="phase-badge">${esc(c.monitorPhase)}</span>`:''}`:'<span class="ctd-muted">—</span>'}</td>
       <td><span class="status-badge ${sCls}">${esc(c.status||'進行中')}</span></td>
@@ -515,7 +533,7 @@ function renderCasesList(){
   }).join('');
   el.innerHTML=`<div class="case-table-wrap"><table class="case-table">
     <thead><tr>
-      <th style="width:20px"></th>
+      ${isClosedView?'':'<th style="width:20px"></th>'}
       <th>案件名稱</th>
       <th>類別</th>
       <th>狀態</th>
@@ -1562,7 +1580,7 @@ function setupCaseSearch(){
 function mobileBack(){
   selId=null;selDirId=null;document.getElementById('rp').classList.remove('mobile-show');
   syncLayoutMode();
-  if(view==='cases')renderCasesList();else if(view==='directory')renderDirLP();
+  if(view==='cases'||view==='closed')renderCasesList();else if(view==='directory')renderDirLP();
 }
 
 /* ══ Copy / Toast ══ */
