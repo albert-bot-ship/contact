@@ -344,7 +344,7 @@
       "contactType": "下包",
       "description": "",
       "phone": "06-5905168 ＃6198",
-      "email": "",
+      "email": "arch5905168@gmail.com",
       "lineId": "",
       "note": "追蹤文化監看報告提供進度"
     }
@@ -621,15 +621,15 @@
       "memo": "",
       "milestones": [
         {
-          "id": "mp6m5yibsuzl",
-          "label": "提送監測報告",
-          "date": "2026-09-30"
-        },
-        {
           "id": "mtgvoo3vuzqx",
           "label": "文化調查報告提供截止日",
           "date": "2026-09-11",
           "endDate": "2026-09-11"
+        },
+        {
+          "id": "mp6m5yibsuzl",
+          "label": "提送監測報告",
+          "date": "2026-09-30"
         }
       ],
       "createdAt": 1778827802245,
