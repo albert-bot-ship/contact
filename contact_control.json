@@ -458,7 +458,8 @@
         {
           "id": "mp6ksb8cn8mw",
           "label": "說明會辦理",
-          "date": "2026-09-02"
+          "date": "2026-09-02",
+          "done": true
         }
       ],
       "createdAt": 1778827839352,
@@ -621,7 +622,8 @@
           "id": "mszny02m61n5",
           "label": "工區放流水跟營建噪音振動監測",
           "date": "2026-09-03",
-          "endDate": "2026-09-03"
+          "endDate": "2026-09-03",
+          "done": true
         },
         {
           "id": "mszny910zfcr",
