@@ -92,6 +92,10 @@
           <option value="營運期間">營運期間</option>
         </select>
       </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">委託單位</label><input class="fi" id="caseClientName" placeholder="客戶／業主名稱，選填"></div>
+        <div class="fg"><label class="fl">委託單位地址</label><textarea class="fta" id="caseClientAddress" placeholder="用於列印信封/標籤，選填" style="min-height:40px"></textarea></div>
+      </div>
       <div class="fg"><label class="fl">備註</label><input class="fi" id="caseNote" placeholder="選填"></div>
     </div>
     <div class="mf"><button class="btn" onclick="closeMo('caseModal')">取消</button><button class="btn btn-p" onclick="saveCase()">儲存</button></div>
@@ -115,9 +119,55 @@
         <div class="fg"><label class="fl">Email</label><input class="fi" id="gCtEmail" type="email" placeholder="example@mail.com"></div>
       </div>
       <div class="fg"><label class="fl">LINE ID</label><input class="fi" id="gCtLine" placeholder="選填"></div>
+      <div class="fg"><label class="fl">地址</label><textarea class="fta" id="gCtAddress" placeholder="用於列印信封/標籤，選填（可分行輸入郵遞區號、路名等）" style="min-height:52px"></textarea></div>
       <div class="fg"><label class="fl">備註</label><textarea class="fta" id="gCtNote" placeholder="其他補充…" style="min-height:52px"></textarea></div>
     </div>
     <div class="mf"><button class="btn" onclick="closeMo('gContactModal')">取消</button><button class="btn btn-p" onclick="saveGContact()">儲存</button></div>
+  </div>
+</div>
+
+<!-- Address Print Modal -->
+<div class="mo" id="addrPrintModal">
+  <div class="md">
+    <div class="mh"><span class="mt">列印地址</span><button class="mcl" onclick="closeMo('addrPrintModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mb">
+      <div class="fg">
+        <label class="fl">收件人（<span id="apRecipientCount">0</span>）</label>
+        <div id="apRecipientList" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">列印方式</label>
+          <select class="fs" id="apMode" onchange="apOnModeChange()">
+            <option value="envelope">信封</option>
+            <option value="label">標籤</option>
+          </select>
+        </div>
+        <div class="fg"><label class="fl">常用尺寸</label>
+          <select class="fs" id="apPreset" onchange="apOnPresetChange()"></select>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">寬（mm）</label><input class="fi" id="apW" type="number" step="0.1" min="10"></div>
+        <div class="fg"><label class="fl">高（mm）</label><input class="fi" id="apH" type="number" step="0.1" min="10"></div>
+      </div>
+      <div class="fg"><label class="fl">字體大小（pt）</label><input class="fi" id="apFontSize" type="number" step="0.5" min="6" style="max-width:120px"></div>
+      <div id="apLabelWrap" style="display:none">
+        <div class="frow">
+          <div class="fg"><label class="fl">欄數</label><input class="fi" id="apCols" type="number" min="1"></div>
+          <div class="fg"><label class="fl">列數</label><input class="fi" id="apRows" type="number" min="1"></div>
+        </div>
+        <div class="frow">
+          <div class="fg"><label class="fl">欄間距（mm）</label><input class="fi" id="apGapX" type="number" step="0.1" min="0"></div>
+          <div class="fg"><label class="fl">列間距（mm）</label><input class="fi" id="apGapY" type="number" step="0.1" min="0"></div>
+        </div>
+        <div class="frow">
+          <div class="fg"><label class="fl">上邊距（mm）</label><input class="fi" id="apMarginTop" type="number" step="0.1" min="0"></div>
+          <div class="fg"><label class="fl">左邊距（mm）</label><input class="fi" id="apMarginLeft" type="number" step="0.1" min="0"></div>
+        </div>
+        <div style="font-size:12px;color:var(--txf);margin-top:-4px">💡 標籤紙牌子不同、邊距可能有差異，建議先試印一張比對，再依偏移微調上面的數字。</div>
+      </div>
+    </div>
+    <div class="mf"><button class="btn" onclick="closeMo('addrPrintModal')">取消</button><button class="btn btn-p" onclick="doAddrPrint()">列印</button></div>
   </div>
 </div>
 
@@ -264,6 +314,7 @@ function catCol(cat){if(!cat)return['var(--acd)','var(--ac)'];if(BASE_COL[cat]){
 /* ── State ── */
 let db={categories:[...DEF_CATS],contacts:[],cases:[],categoryStageTemplates:{},companyMilestones:[]};
 let view='cases',selId=null,selDirId=null;
+let addrSelDir=new Set();
 let sortKey=localStorage.getItem('caseSortKey')||'newest',filterCat='',filterStatus='',searchCaseQ='',searchCtQ='',showClosedInAll=false;
 const stageOpenIds=new Set();
 function toggleStageOpen(caseId){
@@ -334,7 +385,7 @@ function msEnd(m){return m.endDate||m.date;}
 function msDateStr(m){return m.endDate&&m.endDate!==m.date?`${m.date} ～ ${m.endDate}`:m.date;}
 function dateRangeArr(start,end){const out=[];let d=new Date(start+'T00:00:00');const e=new Date((end||start)+'T00:00:00');let guard=0;while(d<=e&&guard<730){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');out.push(`${y}-${m}-${dd}`);d.setDate(d.getDate()+1);guard++;}return out;}
 function nearestMs(c){const t=new Date();t.setHours(0,0,0,0);const f=(c.milestones||[]).filter(m=>{const e=new Date(msEnd(m));e.setHours(0,0,0,0);return e>=t;}).map(m=>new Date(m.date).getTime());return f.length?Math.min(...f):Infinity;}
-function getGContact(ref){return db.contacts.find(c=>c.id===ref.contactId)||{name:'(已刪除)',phone:'',email:'',lineId:'',role:'',contactType:'',description:'',note:''};}
+function getGContact(ref){return db.contacts.find(c=>c.id===ref.contactId)||{name:'(已刪除)',phone:'',email:'',lineId:'',role:'',contactType:'',description:'',address:'',note:''};}
 
 /* ── View Navigation ── */
 const VIEW_TAB_IDS={dashboard:'tabDashboard',cases:'tabCases',closed:'tabClosed',directory:'tabDir',schedule:'tabSchedule',settings:'tabSettings'};
@@ -344,7 +395,7 @@ function syncLayoutMode(){
   ml.classList.toggle('has-sel',view==='cases'&&!!selId);
 }
 function setView(v){
-  view=v;selId=null;selDirId=null;
+  view=v;selId=null;selDirId=null;addrSelDir.clear();
   Object.values(VIEW_TAB_IDS).forEach(id=>document.getElementById(id)?.classList.remove('active'));
   document.getElementById(VIEW_TAB_IDS[v])?.classList.add('active');
   const rp=document.getElementById('rp');
@@ -587,6 +638,7 @@ function renderCasesRP(){
         </div>
         <div class="cd-hacts">
           <button class="btn btn-sm" onclick="printCase('${c.id}')" title="列印此案件報告 (PDF)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>列印</button>
+          <button class="btn btn-sm" onclick="printCaseClientAddress('${c.id}')" title="列印委託單位地址（信封/標籤）"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>列印地址</button>
           <button class="btn btn-sm" onclick="openCaseModal('${c.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>編輯</button>
           <button class="btn btn-sm" style="color:var(--err);border-color:rgba(240,69,69,.3)" onclick="deleteCase('${c.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>刪除</button>
         </div>
@@ -679,7 +731,7 @@ function renderRefCard(caseId,ref){
 
 /* ══ DIRECTORY VIEW ══ */
 function renderDirLP(){
-  document.getElementById('lpTop').innerHTML=`<div class="fl-label">全域聯絡人名冊</div>`;
+  document.getElementById('lpTop').innerHTML=`<div class="fl-label" style="display:flex;align-items:center;justify-content:space-between;gap:8px">全域聯絡人名冊<button class="btn btn-xs btn-gh" onclick="openAddrPrintFromDir()" title="列印目前勾選（或選取）的聯絡人地址"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>列印地址${addrSelDir.size?`（已選 ${addrSelDir.size}）`:''}</button></div>`;
   document.getElementById('lpBottom').innerHTML=`<button class="btn btn-gh" style="width:100%;justify-content:center;font-size:14px" onclick="openGContactModal()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增聯絡人</button>`;
   const q=(document.getElementById('searchDir')?.value||'').toLowerCase();
   let cts=[...db.contacts];
@@ -693,6 +745,7 @@ function renderDirLP(){
       onclick="selDir('${ct.id}')">
       <div class="dir-card-inner">
         <div class="dir-drag-handle" onclick="event.stopPropagation()" onpointerdown="ptrDragBegin(event,'.dir-card','${ct.id}',commitDirReorder)" title="拖曳排序"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></div>
+        <input type="checkbox" class="dir-addr-chk" onclick="event.stopPropagation()" onchange="toggleAddrSel('${ct.id}',this.checked)" ${addrSelDir.has(ct.id)?'checked':''} title="勾選以批次列印地址" style="cursor:pointer">
         <div class="av" style="width:34px;height:34px;font-size:13px">${ini(ct.name)}</div>
         <div class="dir-info">
           <div class="dir-name">${hl(ct.name,q)}</div>
@@ -702,6 +755,7 @@ function renderDirLP(){
           </div>
         </div>
         <div class="dir-acts" onclick="event.stopPropagation()">
+          <button class="ibtn" onclick="printOneContactAddr('${ct.id}')" title="列印此聯絡人地址"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
           <button class="ibtn" onclick="openGContactModal('${ct.id}')" title="編輯"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
           <button class="ibtn del" onclick="deleteGContact('${ct.id}')" title="刪除"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
         </div>
@@ -765,6 +819,7 @@ function renderDirRP(){
           </div>
         </div>
         <div style="display:flex;gap:6px">
+          <button class="btn btn-sm" onclick="printOneContactAddr('${ct.id}')" title="列印此聯絡人地址"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>列印地址</button>
           <button class="btn btn-sm" onclick="openGContactModal('${ct.id}')">編輯</button>
           <button class="btn btn-sm" style="color:var(--err);border-color:rgba(240,69,69,.3)" onclick="deleteGContact('${ct.id}')">刪除</button>
         </div>
@@ -1241,6 +1296,8 @@ function openCaseModal(id){
   document.getElementById('caseStatus').value=c?(c.status||'進行中'):'進行中';
   document.getElementById('caseNote').value=c?(c.note||''):'';
   document.getElementById('caseMonitorPhase').value=c?(c.monitorPhase||''):'';
+  document.getElementById('caseClientName').value=c?(c.clientName||''):'';
+  document.getElementById('caseClientAddress').value=c?(c.clientAddress||''):'';
   buildSel(document.getElementById('caseCat'),c?c.category:'');
   toggleMonitorPhaseField();
   openMo('caseModal');setTimeout(()=>document.getElementById('caseName').focus(),80);
@@ -1253,15 +1310,17 @@ function saveCase(){
   const status=document.getElementById('caseStatus').value;
   const note=document.getElementById('caseNote').value.trim();
   const monitorPhase=category==='監測'?document.getElementById('caseMonitorPhase').value:'';
+  const clientName=document.getElementById('caseClientName').value.trim();
+  const clientAddress=document.getElementById('caseClientAddress').value.trim();
   if(id){
     const c=db.cases.find(c=>c.id===id);
     if(c){
       const catChanged=c.category!==category;
-      c.name=name;c.category=category;c.status=status;c.note=note;c.monitorPhase=monitorPhase;
+      c.name=name;c.category=category;c.status=status;c.note=note;c.monitorPhase=monitorPhase;c.clientName=clientName;c.clientAddress=clientAddress;
       if(catChanged&&(!c.stages||!c.stages.length))applyStageTemplate(c);
     }
   }
-  else{const nc={id:uid(),name,category,status,note,monitorPhase,memo:'',milestones:[],stages:[],contactRefs:[],createdAt:Date.now()};applyStageTemplate(nc);db.cases.unshift(nc);selId=nc.id;}
+  else{const nc={id:uid(),name,category,status,note,monitorPhase,clientName,clientAddress,memo:'',milestones:[],stages:[],contactRefs:[],createdAt:Date.now()};applyStageTemplate(nc);db.cases.unshift(nc);selId=nc.id;}
   saveData();syncLayoutMode();renderCatChips();renderCasesList();if(selId)renderCasesRP();closeMo('caseModal');showToast(id?'✓ 案件已更新':'✓ 案件已新增');
 }
 function deleteCase(id){
@@ -1324,6 +1383,7 @@ function openGContactModal(id){
   document.getElementById('gCtPhone').value=ct?(ct.phone||''):'';
   document.getElementById('gCtEmail').value=ct?(ct.email||''):'';
   document.getElementById('gCtLine').value=ct?(ct.lineId||''):'';
+  document.getElementById('gCtAddress').value=ct?(ct.address||''):'';
   document.getElementById('gCtNote').value=ct?(ct.note||''):'';
   openMo('gContactModal');setTimeout(()=>document.getElementById('gCtName').focus(),80);
 }
@@ -1331,7 +1391,7 @@ function saveGContact(){
   const name=document.getElementById('gCtName').value.trim();
   if(!name){showToast('⚠ 請輸入姓名','warn');return;}
   const id=document.getElementById('gCtId').value;
-  const p={name,role:document.getElementById('gCtRole').value.trim(),contactType:document.getElementById('gCtType').value.trim(),description:document.getElementById('gCtDesc').value.trim(),phone:document.getElementById('gCtPhone').value.trim(),email:document.getElementById('gCtEmail').value.trim(),lineId:document.getElementById('gCtLine').value.trim(),note:document.getElementById('gCtNote').value.trim()};
+  const p={name,role:document.getElementById('gCtRole').value.trim(),contactType:document.getElementById('gCtType').value.trim(),description:document.getElementById('gCtDesc').value.trim(),phone:document.getElementById('gCtPhone').value.trim(),email:document.getElementById('gCtEmail').value.trim(),lineId:document.getElementById('gCtLine').value.trim(),address:document.getElementById('gCtAddress').value.trim(),note:document.getElementById('gCtNote').value.trim()};
   if(id){const ct=db.contacts.find(c=>c.id===id);if(ct)Object.assign(ct,p);}
   else{db.contacts.push({id:uid(),createdAt:Date.now(),...p});selDirId=db.contacts[db.contacts.length-1].id;}
   saveData();renderLP();renderRP();closeMo('gContactModal');showToast(id?'✓ 聯絡人已更新':'✓ 聯絡人已新增至名冊');
@@ -1692,6 +1752,144 @@ function printAllCases(){
   });
   html+=`</table></div>`;
   openPrintWindow(`contact_control_案件彙整_${today()}`,html);
+}
+
+/* ══ 地址列印（信封 / 標籤）══
+   常見尺寸來源：中式12K/西式12K依中華郵政標準型信封規格與坊間常見印刷廠標示；
+   標籤格數依市售 A4 標籤貼紙常見規格。不同廠牌可能略有誤差，請先試印一張核對再大量列印。 */
+let apRecipients=[];
+const ADDR_PRESETS={
+  envelope:[
+    {key:'zh12k',label:'中式信封 12K（120×220mm）',w:120,h:220},
+    {key:'west12k',label:'西式信封 12K（231×115mm）',w:231,h:115},
+    {key:'custom',label:'自訂尺寸',w:100,h:200}
+  ],
+  label:[
+    {key:'a4_12',label:'A4 12格（105×49.5mm，2欄6列）',w:105,h:49.5,cols:2,rows:6,gapX:0,gapY:0,marginTop:0,marginLeft:0},
+    {key:'a4_18',label:'A4 18格（70×49.5mm，2欄9列）',w:70,h:49.5,cols:2,rows:9,gapX:0,gapY:0,marginTop:0,marginLeft:0},
+    {key:'a4_24',label:'A4 24格（70×37.1mm，4欄6列）',w:70,h:37.1,cols:4,rows:6,gapX:0,gapY:0,marginTop:0,marginLeft:0},
+    {key:'custom',label:'自訂尺寸',w:70,h:40,cols:2,rows:5,gapX:0,gapY:0,marginTop:0,marginLeft:0}
+  ]
+};
+function loadAddrSettings(){try{return JSON.parse(localStorage.getItem('addrPrintSettings'))||null;}catch{return null;}}
+function saveAddrSettings(s){try{localStorage.setItem('addrPrintSettings',JSON.stringify(s));}catch{}}
+function apPopulatePresetOptions(mode){
+  document.getElementById('apPreset').innerHTML=ADDR_PRESETS[mode].map(p=>`<option value="${p.key}">${esc(p.label)}</option>`).join('');
+}
+function apOnModeChange(){
+  const mode=document.getElementById('apMode').value;
+  apPopulatePresetOptions(mode);
+  document.getElementById('apLabelWrap').style.display=mode==='label'?'':'none';
+  document.getElementById('apPreset').value=ADDR_PRESETS[mode][0].key;
+  apOnPresetChange();
+}
+function apOnPresetChange(){
+  const mode=document.getElementById('apMode').value;
+  const key=document.getElementById('apPreset').value;
+  const p=ADDR_PRESETS[mode].find(x=>x.key===key)||ADDR_PRESETS[mode][0];
+  document.getElementById('apW').value=p.w;
+  document.getElementById('apH').value=p.h;
+  if(mode==='label'){
+    document.getElementById('apCols').value=p.cols;
+    document.getElementById('apRows').value=p.rows;
+    document.getElementById('apGapX').value=p.gapX;
+    document.getElementById('apGapY').value=p.gapY;
+    document.getElementById('apMarginTop').value=p.marginTop;
+    document.getElementById('apMarginLeft').value=p.marginLeft;
+  }
+}
+function openAddrPrintModal(recipients){
+  apRecipients=(recipients||[]).filter(r=>r&&(r.address||'').trim());
+  const skipped=(recipients||[]).length-apRecipients.length;
+  if(!apRecipients.length){showToast('⚠ 所選對象都沒有地址資料，請先於編輯畫面補上地址','warn');return;}
+  if(skipped>0)showToast(`⚠ 已略過 ${skipped} 筆沒有地址的對象`,'warn');
+  document.getElementById('apRecipientCount').textContent=apRecipients.length;
+  document.getElementById('apRecipientList').innerHTML=apRecipients.map(r=>`<span class="ct-type-tag">${esc(r.name||'(未命名)')}</span>`).join('');
+  const saved=loadAddrSettings();
+  const mode=saved?.mode||'envelope';
+  document.getElementById('apMode').value=mode;
+  apPopulatePresetOptions(mode);
+  document.getElementById('apLabelWrap').style.display=mode==='label'?'':'none';
+  if(saved){
+    document.getElementById('apPreset').value=saved.presetKey&&ADDR_PRESETS[mode].some(p=>p.key===saved.presetKey)?saved.presetKey:ADDR_PRESETS[mode][0].key;
+    document.getElementById('apW').value=saved.w;
+    document.getElementById('apH').value=saved.h;
+    document.getElementById('apFontSize').value=saved.fontSize||12;
+    document.getElementById('apCols').value=saved.cols||2;
+    document.getElementById('apRows').value=saved.rows||5;
+    document.getElementById('apGapX').value=saved.gapX||0;
+    document.getElementById('apGapY').value=saved.gapY||0;
+    document.getElementById('apMarginTop').value=saved.marginTop||0;
+    document.getElementById('apMarginLeft').value=saved.marginLeft||0;
+  }else{
+    document.getElementById('apPreset').value=ADDR_PRESETS[mode][0].key;
+    apOnPresetChange();
+    document.getElementById('apFontSize').value=12;
+  }
+  openMo('addrPrintModal');
+}
+function toggleAddrSel(id,checked){
+  if(checked)addrSelDir.add(id);else addrSelDir.delete(id);
+  renderDirLP();
+}
+function printOneContactAddr(id){
+  const ct=db.contacts.find(c=>c.id===id);if(!ct)return;
+  openAddrPrintModal([{name:ct.name,address:ct.address||''}]);
+}
+function openAddrPrintFromDir(){
+  const chosen=[...addrSelDir];
+  const recipients=chosen.length?chosen.map(id=>db.contacts.find(c=>c.id===id)).filter(Boolean):(selDirId?[db.contacts.find(c=>c.id===selDirId)].filter(Boolean):[]);
+  if(!recipients.length){showToast('⚠ 請先勾選或點選至少一位聯絡人','warn');return;}
+  openAddrPrintModal(recipients.map(ct=>({name:ct.name,address:ct.address||''})));
+}
+function printCaseClientAddress(caseId){
+  const c=db.cases.find(c=>c.id===caseId);if(!c)return;
+  if(!(c.clientAddress||'').trim()){showToast('⚠ 此案件尚未填寫委託單位地址，請先於編輯畫面補上','warn');return;}
+  openAddrPrintModal([{name:c.clientName||c.name,address:c.clientAddress}]);
+}
+function doAddrPrint(){
+  const mode=document.getElementById('apMode').value;
+  const presetKey=document.getElementById('apPreset').value;
+  const w=parseFloat(document.getElementById('apW').value)||100;
+  const h=parseFloat(document.getElementById('apH').value)||50;
+  const fontSize=parseFloat(document.getElementById('apFontSize').value)||12;
+  const settings={mode,presetKey,w,h,fontSize};
+  let styleCss,bodyHtml;
+  const addrText=r=>`${r.name?esc(r.name)+' 收\n':''}${esc(r.address)}`;
+  if(mode==='envelope'){
+    styleCss=`@page{size:${w}mm ${h}mm;margin:0}*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,'PingFang TC','Microsoft JhengHei',sans-serif}.env-page{width:${w}mm;height:${h}mm;position:relative;page-break-after:always}.addr-block{position:absolute;left:42%;top:48%;max-width:${(w*0.55).toFixed(1)}mm;font-size:${fontSize}pt;line-height:1.6;white-space:pre-wrap}`;
+    bodyHtml=apRecipients.map(r=>`<div class="env-page"><div class="addr-block">${addrText(r)}</div></div>`).join('');
+  }else{
+    const cols=parseInt(document.getElementById('apCols').value)||2;
+    const rows=parseInt(document.getElementById('apRows').value)||5;
+    const gapX=parseFloat(document.getElementById('apGapX').value)||0;
+    const gapY=parseFloat(document.getElementById('apGapY').value)||0;
+    const marginTop=parseFloat(document.getElementById('apMarginTop').value)||0;
+    const marginLeft=parseFloat(document.getElementById('apMarginLeft').value)||0;
+    Object.assign(settings,{cols,rows,gapX,gapY,marginTop,marginLeft});
+    const perPage=Math.max(1,cols*rows);
+    styleCss=`@page{size:A4;margin:0}*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,'PingFang TC','Microsoft JhengHei',sans-serif}.label-sheet{position:relative;width:210mm;height:297mm;page-break-after:always}.label-cell{position:absolute;width:${w}mm;height:${h}mm;padding:2mm;font-size:${fontSize}pt;line-height:1.4;overflow:hidden;display:flex;align-items:center;white-space:pre-wrap}`;
+    const pages=[];
+    for(let i=0;i<apRecipients.length;i+=perPage){
+      const chunk=apRecipients.slice(i,i+perPage);
+      const cells=chunk.map((r,idx)=>{
+        const col=idx%cols,row=Math.floor(idx/cols);
+        const left=marginLeft+col*(w+gapX);
+        const top=marginTop+row*(h+gapY);
+        return`<div class="label-cell" style="left:${left.toFixed(2)}mm;top:${top.toFixed(2)}mm">${addrText(r)}</div>`;
+      }).join('');
+      pages.push(`<div class="label-sheet">${cells}</div>`);
+    }
+    bodyHtml=pages.join('');
+  }
+  saveAddrSettings(settings);
+  closeMo('addrPrintModal');
+  openCustomPrintWindow('列印地址',styleCss,bodyHtml);
+}
+function openCustomPrintWindow(title,styleCss,bodyHtml){
+  const html=`<!DOCTYPE html><html lang="zh-TW"><head><meta charset="UTF-8"><title>${esc(title)}</title><style>${styleCss}</style></head><body>${bodyHtml}</body></html>`;
+  const w=window.open('','_blank');if(!w){showToast('⚠ 瀏覽器攔截了新視窗，請允許彈出視窗後再試一次','warn');return;}
+  w.document.write(html);w.document.close();w.focus();setTimeout(()=>w.print(),400);
 }
 
 function exportCSV(){
