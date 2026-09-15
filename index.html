@@ -201,6 +201,7 @@
         <div class="fg"><label class="fl">Email</label><input class="fi" id="refEmail" type="email"></div>
       </div>
       <div class="fg"><label class="fl">LINE ID</label><input class="fi" id="refLine" placeholder="選填"></div>
+      <div class="fg"><label class="fl">地址</label><textarea class="fta" id="refAddress" placeholder="用於列印信封/標籤，選填" style="min-height:52px"></textarea></div>
       <div class="fg"><label class="fl">備註（全域）</label><textarea class="fta" id="refGNote" placeholder="此人的一般備注…" style="min-height:52px"></textarea></div>
       <hr class="fdivider">
       <div class="fsection-label">── 此案件專屬</div>
@@ -710,6 +711,7 @@ function renderRefCard(caseId,ref){
       <div class="ct-hacts">
         <button class="ibtn" onclick="openRefModal('${caseId}','${ref.id}')" title="編輯"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
         <button class="ibtn" onclick="setView('directory');selDirId='${ref.contactId}';renderLP();renderRP();" title="在名冊中查看"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
+        <button class="ibtn" onclick="printOneContactAddr('${ref.contactId}')" title="列印此聯絡人地址"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
         <button class="ibtn" onclick="printContactLog('${caseId}','${ref.id}')" title="列印此聯絡人紀錄 (PDF)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
         <button class="ibtn del" onclick="deleteRef('${caseId}','${ref.id}')" title="移除"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
       </div>
@@ -1423,6 +1425,7 @@ function openRefModal(caseId,refId){
   document.getElementById('refPhone').value=ct?(ct.phone||''):'';
   document.getElementById('refEmail').value=ct?(ct.email||''):'';
   document.getElementById('refLine').value=ct?(ct.lineId||''):'';
+  document.getElementById('refAddress').value=ct?(ct.address||''):'';
   document.getElementById('refGNote').value=ct?(ct.note||''):'';
   document.getElementById('refCaseNote').value=ref?(ref.caseNote||''):'';
   document.getElementById('refPrimary').checked=ref?!!ref.primary:false;
@@ -1438,7 +1441,7 @@ function saveRef(){
   const c=db.cases.find(c=>c.id===caseId);if(!c)return;
   const isPrimary=document.getElementById('refPrimary').checked;
   if(isPrimary)c.contactRefs.forEach(r=>r.primary=false);
-  const gPayload={name,role:document.getElementById('refRole').value.trim(),contactType:document.getElementById('refType').value.trim(),description:document.getElementById('refDesc').value.trim(),phone:document.getElementById('refPhone').value.trim(),email:document.getElementById('refEmail').value.trim(),lineId:document.getElementById('refLine').value.trim(),note:document.getElementById('refGNote').value.trim()};
+  const gPayload={name,role:document.getElementById('refRole').value.trim(),contactType:document.getElementById('refType').value.trim(),description:document.getElementById('refDesc').value.trim(),phone:document.getElementById('refPhone').value.trim(),email:document.getElementById('refEmail').value.trim(),lineId:document.getElementById('refLine').value.trim(),address:document.getElementById('refAddress').value.trim(),note:document.getElementById('refGNote').value.trim()};
   let gId=pickedGId;
   if(gId){const gct=db.contacts.find(c=>c.id===gId);if(gct)Object.assign(gct,gPayload);}
   else{const newGct={id:uid(),createdAt:Date.now(),...gPayload};db.contacts.push(newGct);gId=newGct.id;}
@@ -1473,6 +1476,7 @@ function pickRefContact(id){
   document.getElementById('refPhone').value=ct.phone||'';
   document.getElementById('refEmail').value=ct.email||'';
   document.getElementById('refLine').value=ct.lineId||'';
+  document.getElementById('refAddress').value=ct.address||'';
   document.getElementById('refGNote').value=ct.note||'';
   document.getElementById('refAcDrop').classList.remove('show');
   document.getElementById('refLinked').style.display='flex';
