@@ -86,7 +86,11 @@
       "email": "",
       "note": "用Line聯絡",
       "createdAt": 1779075523237,
-      "lineId": ""
+      "lineId": "",
+      "postalCode": "406",
+      "addrCompany": "天誠開發顧問有限公司",
+      "addrTitle": "先生",
+      "address": "臺中市北屯區松茂里松竹路二段160巷3弄6號"
     },
     {
       "id": "mp6ko9wi5xgl",
@@ -265,7 +269,12 @@
       "phone": "05-5379117#836",
       "email": "",
       "note": "",
-      "createdAt": 1779075523237
+      "createdAt": 1779075523237,
+      "lineId": "",
+      "postalCode": "640",
+      "addrCompany": "豐泰企業股份有限公司",
+      "addrTitle": "經理",
+      "address": "雲林縣斗六市科工八路52號"
     },
     {
       "id": "mp6k39amsdl2",
@@ -310,7 +319,11 @@
       "phone": "",
       "email": "",
       "lineId": "",
-      "note": ""
+      "note": "",
+      "postalCode": "403",
+      "addrCompany": "日月明珠股份有限公司",
+      "addrTitle": "經理",
+      "address": "台中市西區臺灣大道二段181號13樓"
     },
     {
       "id": "mswrxt92390m",
