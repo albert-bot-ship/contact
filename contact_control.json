@@ -383,8 +383,11 @@
       "phone": "",
       "email": "",
       "lineId": "",
-      "address": "407臺中市西屯區大河里美滿街17巷28號1樓",
-      "note": ""
+      "address": "臺中市西屯區大河里美滿街17巷28號1樓",
+      "note": "",
+      "postalCode": "407",
+      "addrCompany": "棣品工程有限公司",
+      "addrTitle": ""
     }
   ],
   "categoryStageTemplates": {
