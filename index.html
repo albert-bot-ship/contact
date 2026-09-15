@@ -110,7 +110,7 @@
       <input type="hidden" id="gCtId">
       <div class="frow">
         <div class="fg"><label class="fl">姓名 <span class="fr">*</span></label><input class="fi" id="gCtName" placeholder="王小明"></div>
-        <div class="fg"><label class="fl">身份 / 職位</label><input class="fi" id="gCtRole" placeholder="業主、承辦…"></div>
+        <div class="fg"><label class="fl">公司/身分</label><input class="fi" id="gCtRole" placeholder="業主、承辦…"></div>
       </div>
       <div class="fg"><label class="fl">角色類別</label><input class="fi" id="gCtType" placeholder="業主、下包（空品監測）、規劃團隊…"></div>
       <div class="fg"><label class="fl">說明</label><textarea class="fta" id="gCtDesc" placeholder="負責範疇、對接事項…"></textarea></div>
@@ -192,7 +192,7 @@
             已連結名冊 · 修改將同步更新
           </div>
         </div>
-        <div class="fg"><label class="fl">身份 / 職位</label><input class="fi" id="refRole" placeholder="業主、承辦…"></div>
+        <div class="fg"><label class="fl">公司/身分</label><input class="fi" id="refRole" placeholder="業主、承辦…"></div>
       </div>
       <div class="fg"><label class="fl">角色類別</label><input class="fi" id="refType" placeholder="業主、下包（空品監測）、規劃團隊…"></div>
       <div class="fg"><label class="fl">說明</label><textarea class="fta" id="refDesc" placeholder="負責範疇、對接事項…"></textarea></div>
@@ -638,8 +638,10 @@ function renderCasesRP(){
           ${c.note?`<div class="cd-note-txt">${esc(c.note)}</div>`:''}
         </div>
         <div class="cd-hacts">
+          <button class="btn btn-sm" onclick="openMsModal('${c.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增期程</button>
+          <button class="btn btn-sm" onclick="openRefModal('${c.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增聯絡人</button>
           <button class="btn btn-sm" onclick="printCase('${c.id}')" title="列印此案件報告 (PDF)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>列印</button>
-          <button class="btn btn-sm" onclick="printCaseClientAddress('${c.id}')" title="列印委託單位地址（信封/標籤）"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>列印地址</button>
+          <button class="btn btn-sm" onclick="printCaseClientAddress('${c.id}')" title="列印委託單位地址（信封/標籤）"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>列印地址</button>
           <button class="btn btn-sm" onclick="openCaseModal('${c.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>編輯</button>
           <button class="btn btn-sm" style="color:var(--err);border-color:rgba(240,69,69,.3)" onclick="deleteCase('${c.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>刪除</button>
         </div>
@@ -711,7 +713,7 @@ function renderRefCard(caseId,ref){
       <div class="ct-hacts">
         <button class="ibtn" onclick="openRefModal('${caseId}','${ref.id}')" title="編輯"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
         <button class="ibtn" onclick="setView('directory');selDirId='${ref.contactId}';renderLP();renderRP();" title="在名冊中查看"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
-        <button class="ibtn" onclick="printOneContactAddr('${ref.contactId}')" title="列印此聯絡人地址"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
+        <button class="ibtn" onclick="printOneContactAddr('${ref.contactId}')" title="列印此聯絡人地址"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></button>
         <button class="ibtn" onclick="printContactLog('${caseId}','${ref.id}')" title="列印此聯絡人紀錄 (PDF)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
         <button class="ibtn del" onclick="deleteRef('${caseId}','${ref.id}')" title="移除"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
       </div>
@@ -733,7 +735,7 @@ function renderRefCard(caseId,ref){
 
 /* ══ DIRECTORY VIEW ══ */
 function renderDirLP(){
-  document.getElementById('lpTop').innerHTML=`<div class="fl-label" style="display:flex;align-items:center;justify-content:space-between;gap:8px">全域聯絡人名冊<button class="btn btn-xs btn-gh" onclick="openAddrPrintFromDir()" title="列印目前勾選（或選取）的聯絡人地址"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>列印地址${addrSelDir.size?`（已選 ${addrSelDir.size}）`:''}</button></div>`;
+  document.getElementById('lpTop').innerHTML=`<div class="fl-label" style="display:flex;align-items:center;justify-content:space-between;gap:8px">全域聯絡人名冊<button class="btn btn-xs btn-gh" onclick="openAddrPrintFromDir()" title="列印目前勾選（或選取）的聯絡人地址"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>列印地址${addrSelDir.size?`（已選 ${addrSelDir.size}）`:''}</button></div>`;
   document.getElementById('lpBottom').innerHTML=`<button class="btn btn-gh" style="width:100%;justify-content:center;font-size:14px" onclick="openGContactModal()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增聯絡人</button>`;
   const q=(document.getElementById('searchDir')?.value||'').toLowerCase();
   let cts=[...db.contacts];
@@ -757,7 +759,7 @@ function renderDirLP(){
           </div>
         </div>
         <div class="dir-acts" onclick="event.stopPropagation()">
-          <button class="ibtn" onclick="printOneContactAddr('${ct.id}')" title="列印此聯絡人地址"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
+          <button class="ibtn" onclick="printOneContactAddr('${ct.id}')" title="列印此聯絡人地址"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></button>
           <button class="ibtn" onclick="openGContactModal('${ct.id}')" title="編輯"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
           <button class="ibtn del" onclick="deleteGContact('${ct.id}')" title="刪除"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
         </div>
@@ -821,7 +823,7 @@ function renderDirRP(){
           </div>
         </div>
         <div style="display:flex;gap:6px">
-          <button class="btn btn-sm" onclick="printOneContactAddr('${ct.id}')" title="列印此聯絡人地址"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>列印地址</button>
+          <button class="btn btn-sm" onclick="printOneContactAddr('${ct.id}')" title="列印此聯絡人地址"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>列印地址</button>
           <button class="btn btn-sm" onclick="openGContactModal('${ct.id}')">編輯</button>
           <button class="btn btn-sm" style="color:var(--err);border-color:rgba(240,69,69,.3)" onclick="deleteGContact('${ct.id}')">刪除</button>
         </div>
