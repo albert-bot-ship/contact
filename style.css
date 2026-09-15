@@ -342,6 +342,7 @@ tr.ci:hover .ctd-acts{opacity:1}
 .dir-card.dragging{opacity:.97;position:relative;z-index:5;box-shadow:0 10px 24px rgba(0,0,0,.35)}
 .dir-card-inner{display:flex;align-items:center;gap:10px;padding:10px 12px}
 .dir-drag-handle{color:var(--txf);cursor:grab;display:flex;align-items:center;padding:2px;opacity:.3;transition:opacity .15s;flex-shrink:0;touch-action:none}
+.dir-addr-chk{width:15px;height:15px;flex-shrink:0;accent-color:var(--ac)}
 .dir-card:hover .dir-drag-handle{opacity:.8}
 .dir-drag-handle:active{cursor:grabbing}
 .dir-info{flex:1;min-width:0}
