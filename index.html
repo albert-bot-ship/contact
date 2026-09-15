@@ -1898,7 +1898,7 @@ function doAddrPrint(){
   const settings={mode,presetKey,w,h,fontSize};
   let styleCss,bodyHtml;
   if(mode==='envelope'){
-    styleCss=`@page{size:${w}mm ${h}mm;margin:0}*{box-sizing:border-box;margin:0;padding:0}body{font-family:'BiauKai','標楷體','PMingLiU',-apple-system,'PingFang TC','Microsoft JhengHei',serif}.env-page{width:${w}mm;height:${h}mm;position:relative;page-break-after:always}.addr-block{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:${(w*0.82).toFixed(1)}mm;text-align:center;font-size:${fontSize}pt;line-height:1.7}.addr-block .aline{margin-bottom:1.3em;white-space:pre-wrap}.addr-block .aline:last-child{margin-bottom:0}`;
+    styleCss=`@page{size:${w}mm ${h}mm;margin:0}*{box-sizing:border-box;margin:0;padding:0}body{font-family:'BiauKai','標楷體','PMingLiU',-apple-system,'PingFang TC','Microsoft JhengHei',serif}.env-page{width:${w}mm;height:${h}mm;position:relative;page-break-after:always}.addr-block{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:${(w*0.82).toFixed(1)}mm;text-align:center;font-size:${fontSize}pt;line-height:1.4}.addr-block .aline{margin-bottom:0.6em;white-space:pre-wrap}.addr-block .aline:last-child{margin-bottom:0}`;
     bodyHtml=apRecipients.map(r=>{
       const groups=buildAddrGroups(r).map(g=>`<div class="aline">${esc(g).replace(/\n/g,'<br>')}</div>`).join('');
       return`<div class="env-page"><div class="addr-block">${groups}</div></div>`;
