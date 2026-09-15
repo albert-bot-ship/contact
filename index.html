@@ -94,6 +94,7 @@
       </div>
       <div class="frow">
         <div class="fg"><label class="fl">委託單位</label><input class="fi" id="caseClientName" placeholder="客戶／業主名稱，選填"></div>
+        <div class="fg" style="max-width:130px"><label class="fl">郵遞區號</label><input class="fi" id="caseClientPostal" placeholder="407" maxlength="10"></div>
         <div class="fg"><label class="fl">委託單位地址</label><textarea class="fta" id="caseClientAddress" placeholder="用於列印信封/標籤，選填" style="min-height:40px"></textarea></div>
       </div>
       <div class="fg"><label class="fl">備註</label><input class="fi" id="caseNote" placeholder="選填"></div>
@@ -119,7 +120,13 @@
         <div class="fg"><label class="fl">Email</label><input class="fi" id="gCtEmail" type="email" placeholder="example@mail.com"></div>
       </div>
       <div class="fg"><label class="fl">LINE ID</label><input class="fi" id="gCtLine" placeholder="選填"></div>
-      <div class="fg"><label class="fl">地址</label><textarea class="fta" id="gCtAddress" placeholder="用於列印信封/標籤，選填（可分行輸入郵遞區號、路名等）" style="min-height:52px"></textarea></div>
+      <div class="fsection-label">── 列印地址用（選填）</div>
+      <div class="frow">
+        <div class="fg" style="max-width:130px"><label class="fl">郵遞區號</label><input class="fi" id="gCtPostal" placeholder="407" maxlength="10"></div>
+        <div class="fg"><label class="fl">公司名稱</label><input class="fi" id="gCtAddrCompany" placeholder="棣品工程有限公司"></div>
+      </div>
+      <div class="fg"><label class="fl">職稱</label><input class="fi" id="gCtAddrTitle" placeholder="技師、經理…"></div>
+      <div class="fg"><label class="fl">地址</label><textarea class="fta" id="gCtAddress" placeholder="用於列印信封/標籤，選填" style="min-height:52px"></textarea></div>
       <div class="fg"><label class="fl">備註</label><textarea class="fta" id="gCtNote" placeholder="其他補充…" style="min-height:52px"></textarea></div>
     </div>
     <div class="mf"><button class="btn" onclick="closeMo('gContactModal')">取消</button><button class="btn btn-p" onclick="saveGContact()">儲存</button></div>
@@ -201,6 +208,12 @@
         <div class="fg"><label class="fl">Email</label><input class="fi" id="refEmail" type="email"></div>
       </div>
       <div class="fg"><label class="fl">LINE ID</label><input class="fi" id="refLine" placeholder="選填"></div>
+      <div class="fsection-label">── 列印地址用（選填）</div>
+      <div class="frow">
+        <div class="fg" style="max-width:130px"><label class="fl">郵遞區號</label><input class="fi" id="refPostal" placeholder="407" maxlength="10"></div>
+        <div class="fg"><label class="fl">公司名稱</label><input class="fi" id="refAddrCompany" placeholder="棣品工程有限公司"></div>
+      </div>
+      <div class="fg"><label class="fl">職稱</label><input class="fi" id="refAddrTitle" placeholder="技師、經理…"></div>
       <div class="fg"><label class="fl">地址</label><textarea class="fta" id="refAddress" placeholder="用於列印信封/標籤，選填" style="min-height:52px"></textarea></div>
       <div class="fg"><label class="fl">備註（全域）</label><textarea class="fta" id="refGNote" placeholder="此人的一般備注…" style="min-height:52px"></textarea></div>
       <hr class="fdivider">
@@ -386,7 +399,7 @@ function msEnd(m){return m.endDate||m.date;}
 function msDateStr(m){return m.endDate&&m.endDate!==m.date?`${m.date} ～ ${m.endDate}`:m.date;}
 function dateRangeArr(start,end){const out=[];let d=new Date(start+'T00:00:00');const e=new Date((end||start)+'T00:00:00');let guard=0;while(d<=e&&guard<730){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');out.push(`${y}-${m}-${dd}`);d.setDate(d.getDate()+1);guard++;}return out;}
 function nearestMs(c){const t=new Date();t.setHours(0,0,0,0);const f=(c.milestones||[]).filter(m=>{const e=new Date(msEnd(m));e.setHours(0,0,0,0);return e>=t;}).map(m=>new Date(m.date).getTime());return f.length?Math.min(...f):Infinity;}
-function getGContact(ref){return db.contacts.find(c=>c.id===ref.contactId)||{name:'(已刪除)',phone:'',email:'',lineId:'',role:'',contactType:'',description:'',address:'',note:''};}
+function getGContact(ref){return db.contacts.find(c=>c.id===ref.contactId)||{name:'(已刪除)',phone:'',email:'',lineId:'',role:'',contactType:'',description:'',address:'',postalCode:'',addrCompany:'',addrTitle:'',note:''};}
 
 /* ── View Navigation ── */
 const VIEW_TAB_IDS={dashboard:'tabDashboard',cases:'tabCases',closed:'tabClosed',directory:'tabDir',schedule:'tabSchedule',settings:'tabSettings'};
@@ -1301,6 +1314,7 @@ function openCaseModal(id){
   document.getElementById('caseNote').value=c?(c.note||''):'';
   document.getElementById('caseMonitorPhase').value=c?(c.monitorPhase||''):'';
   document.getElementById('caseClientName').value=c?(c.clientName||''):'';
+  document.getElementById('caseClientPostal').value=c?(c.clientPostal||''):'';
   document.getElementById('caseClientAddress').value=c?(c.clientAddress||''):'';
   buildSel(document.getElementById('caseCat'),c?c.category:'');
   toggleMonitorPhaseField();
@@ -1315,16 +1329,17 @@ function saveCase(){
   const note=document.getElementById('caseNote').value.trim();
   const monitorPhase=category==='監測'?document.getElementById('caseMonitorPhase').value:'';
   const clientName=document.getElementById('caseClientName').value.trim();
+  const clientPostal=document.getElementById('caseClientPostal').value.trim();
   const clientAddress=document.getElementById('caseClientAddress').value.trim();
   if(id){
     const c=db.cases.find(c=>c.id===id);
     if(c){
       const catChanged=c.category!==category;
-      c.name=name;c.category=category;c.status=status;c.note=note;c.monitorPhase=monitorPhase;c.clientName=clientName;c.clientAddress=clientAddress;
+      c.name=name;c.category=category;c.status=status;c.note=note;c.monitorPhase=monitorPhase;c.clientName=clientName;c.clientPostal=clientPostal;c.clientAddress=clientAddress;
       if(catChanged&&(!c.stages||!c.stages.length))applyStageTemplate(c);
     }
   }
-  else{const nc={id:uid(),name,category,status,note,monitorPhase,clientName,clientAddress,memo:'',milestones:[],stages:[],contactRefs:[],createdAt:Date.now()};applyStageTemplate(nc);db.cases.unshift(nc);selId=nc.id;}
+  else{const nc={id:uid(),name,category,status,note,monitorPhase,clientName,clientPostal,clientAddress,memo:'',milestones:[],stages:[],contactRefs:[],createdAt:Date.now()};applyStageTemplate(nc);db.cases.unshift(nc);selId=nc.id;}
   saveData();syncLayoutMode();renderCatChips();renderCasesList();if(selId)renderCasesRP();closeMo('caseModal');showToast(id?'✓ 案件已更新':'✓ 案件已新增');
 }
 function deleteCase(id){
@@ -1387,6 +1402,9 @@ function openGContactModal(id){
   document.getElementById('gCtPhone').value=ct?(ct.phone||''):'';
   document.getElementById('gCtEmail').value=ct?(ct.email||''):'';
   document.getElementById('gCtLine').value=ct?(ct.lineId||''):'';
+  document.getElementById('gCtPostal').value=ct?(ct.postalCode||''):'';
+  document.getElementById('gCtAddrCompany').value=ct?(ct.addrCompany||''):'';
+  document.getElementById('gCtAddrTitle').value=ct?(ct.addrTitle||''):'';
   document.getElementById('gCtAddress').value=ct?(ct.address||''):'';
   document.getElementById('gCtNote').value=ct?(ct.note||''):'';
   openMo('gContactModal');setTimeout(()=>document.getElementById('gCtName').focus(),80);
@@ -1395,7 +1413,7 @@ function saveGContact(){
   const name=document.getElementById('gCtName').value.trim();
   if(!name){showToast('⚠ 請輸入姓名','warn');return;}
   const id=document.getElementById('gCtId').value;
-  const p={name,role:document.getElementById('gCtRole').value.trim(),contactType:document.getElementById('gCtType').value.trim(),description:document.getElementById('gCtDesc').value.trim(),phone:document.getElementById('gCtPhone').value.trim(),email:document.getElementById('gCtEmail').value.trim(),lineId:document.getElementById('gCtLine').value.trim(),address:document.getElementById('gCtAddress').value.trim(),note:document.getElementById('gCtNote').value.trim()};
+  const p={name,role:document.getElementById('gCtRole').value.trim(),contactType:document.getElementById('gCtType').value.trim(),description:document.getElementById('gCtDesc').value.trim(),phone:document.getElementById('gCtPhone').value.trim(),email:document.getElementById('gCtEmail').value.trim(),lineId:document.getElementById('gCtLine').value.trim(),postalCode:document.getElementById('gCtPostal').value.trim(),addrCompany:document.getElementById('gCtAddrCompany').value.trim(),addrTitle:document.getElementById('gCtAddrTitle').value.trim(),address:document.getElementById('gCtAddress').value.trim(),note:document.getElementById('gCtNote').value.trim()};
   if(id){const ct=db.contacts.find(c=>c.id===id);if(ct)Object.assign(ct,p);}
   else{db.contacts.push({id:uid(),createdAt:Date.now(),...p});selDirId=db.contacts[db.contacts.length-1].id;}
   saveData();renderLP();renderRP();closeMo('gContactModal');showToast(id?'✓ 聯絡人已更新':'✓ 聯絡人已新增至名冊');
@@ -1427,6 +1445,9 @@ function openRefModal(caseId,refId){
   document.getElementById('refPhone').value=ct?(ct.phone||''):'';
   document.getElementById('refEmail').value=ct?(ct.email||''):'';
   document.getElementById('refLine').value=ct?(ct.lineId||''):'';
+  document.getElementById('refPostal').value=ct?(ct.postalCode||''):'';
+  document.getElementById('refAddrCompany').value=ct?(ct.addrCompany||''):'';
+  document.getElementById('refAddrTitle').value=ct?(ct.addrTitle||''):'';
   document.getElementById('refAddress').value=ct?(ct.address||''):'';
   document.getElementById('refGNote').value=ct?(ct.note||''):'';
   document.getElementById('refCaseNote').value=ref?(ref.caseNote||''):'';
@@ -1443,7 +1464,7 @@ function saveRef(){
   const c=db.cases.find(c=>c.id===caseId);if(!c)return;
   const isPrimary=document.getElementById('refPrimary').checked;
   if(isPrimary)c.contactRefs.forEach(r=>r.primary=false);
-  const gPayload={name,role:document.getElementById('refRole').value.trim(),contactType:document.getElementById('refType').value.trim(),description:document.getElementById('refDesc').value.trim(),phone:document.getElementById('refPhone').value.trim(),email:document.getElementById('refEmail').value.trim(),lineId:document.getElementById('refLine').value.trim(),address:document.getElementById('refAddress').value.trim(),note:document.getElementById('refGNote').value.trim()};
+  const gPayload={name,role:document.getElementById('refRole').value.trim(),contactType:document.getElementById('refType').value.trim(),description:document.getElementById('refDesc').value.trim(),phone:document.getElementById('refPhone').value.trim(),email:document.getElementById('refEmail').value.trim(),lineId:document.getElementById('refLine').value.trim(),postalCode:document.getElementById('refPostal').value.trim(),addrCompany:document.getElementById('refAddrCompany').value.trim(),addrTitle:document.getElementById('refAddrTitle').value.trim(),address:document.getElementById('refAddress').value.trim(),note:document.getElementById('refGNote').value.trim()};
   let gId=pickedGId;
   if(gId){const gct=db.contacts.find(c=>c.id===gId);if(gct)Object.assign(gct,gPayload);}
   else{const newGct={id:uid(),createdAt:Date.now(),...gPayload};db.contacts.push(newGct);gId=newGct.id;}
@@ -1478,6 +1499,9 @@ function pickRefContact(id){
   document.getElementById('refPhone').value=ct.phone||'';
   document.getElementById('refEmail').value=ct.email||'';
   document.getElementById('refLine').value=ct.lineId||'';
+  document.getElementById('refPostal').value=ct.postalCode||'';
+  document.getElementById('refAddrCompany').value=ct.addrCompany||'';
+  document.getElementById('refAddrTitle').value=ct.addrTitle||'';
   document.getElementById('refAddress').value=ct.address||'';
   document.getElementById('refGNote').value=ct.note||'';
   document.getElementById('refAcDrop').classList.remove('show');
@@ -1810,7 +1834,7 @@ function openAddrPrintModal(recipients){
   if(!apRecipients.length){showToast('⚠ 所選對象都沒有地址資料，請先於編輯畫面補上地址','warn');return;}
   if(skipped>0)showToast(`⚠ 已略過 ${skipped} 筆沒有地址的對象`,'warn');
   document.getElementById('apRecipientCount').textContent=apRecipients.length;
-  document.getElementById('apRecipientList').innerHTML=apRecipients.map(r=>`<span class="ct-type-tag">${esc(r.name||'(未命名)')}</span>`).join('');
+  document.getElementById('apRecipientList').innerHTML=apRecipients.map(r=>`<span class="ct-type-tag">${esc(r.name||r.addrCompany||'(未命名)')}</span>`).join('');
   const saved=loadAddrSettings();
   const mode=saved?.mode||'envelope';
   document.getElementById('apMode').value=mode;
@@ -1840,18 +1864,30 @@ function toggleAddrSel(id,checked){
 }
 function printOneContactAddr(id){
   const ct=db.contacts.find(c=>c.id===id);if(!ct)return;
-  openAddrPrintModal([{name:ct.name,address:ct.address||''}]);
+  openAddrPrintModal([{name:ct.name,address:ct.address||'',postalCode:ct.postalCode||'',addrCompany:ct.addrCompany||'',addrTitle:ct.addrTitle||''}]);
 }
 function openAddrPrintFromDir(){
   const chosen=[...addrSelDir];
   const recipients=chosen.length?chosen.map(id=>db.contacts.find(c=>c.id===id)).filter(Boolean):(selDirId?[db.contacts.find(c=>c.id===selDirId)].filter(Boolean):[]);
   if(!recipients.length){showToast('⚠ 請先勾選或點選至少一位聯絡人','warn');return;}
-  openAddrPrintModal(recipients.map(ct=>({name:ct.name,address:ct.address||''})));
+  openAddrPrintModal(recipients.map(ct=>({name:ct.name,address:ct.address||'',postalCode:ct.postalCode||'',addrCompany:ct.addrCompany||'',addrTitle:ct.addrTitle||''})));
 }
 function printCaseClientAddress(caseId){
   const c=db.cases.find(c=>c.id===caseId);if(!c)return;
   if(!(c.clientAddress||'').trim()){showToast('⚠ 此案件尚未填寫委託單位地址，請先於編輯畫面補上','warn');return;}
-  openAddrPrintModal([{name:c.clientName||c.name,address:c.clientAddress}]);
+  openAddrPrintModal([{name:'',address:c.clientAddress,postalCode:c.clientPostal||'',addrCompany:c.clientName||c.name,addrTitle:''}]);
+}
+/* 組出地址列印用的三段內容：①郵遞區號+地址 ②公司名稱 ③姓名．職稱．收（缺姓名則不產生第三段） */
+function buildAddrGroups(r){
+  const groups=[];
+  const addrFull=`${(r.postalCode||'').trim()?r.postalCode.trim()+' ':''}${(r.address||'').trim()}`.trim();
+  if(addrFull)groups.push(addrFull);
+  if((r.addrCompany||'').trim())groups.push(r.addrCompany.trim());
+  if((r.name||'').trim()){
+    const nameParts=[r.name.trim(),(r.addrTitle||'').trim(),'收'].filter(Boolean);
+    groups.push(nameParts.join('．'));
+  }
+  return groups;
 }
 function doAddrPrint(){
   const mode=document.getElementById('apMode').value;
@@ -1861,10 +1897,12 @@ function doAddrPrint(){
   const fontSize=parseFloat(document.getElementById('apFontSize').value)||12;
   const settings={mode,presetKey,w,h,fontSize};
   let styleCss,bodyHtml;
-  const addrText=r=>`${r.name?esc(r.name)+' 收\n':''}${esc(r.address)}`;
   if(mode==='envelope'){
-    styleCss=`@page{size:${w}mm ${h}mm;margin:0}*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,'PingFang TC','Microsoft JhengHei',sans-serif}.env-page{width:${w}mm;height:${h}mm;position:relative;page-break-after:always}.addr-block{position:absolute;left:42%;top:48%;max-width:${(w*0.55).toFixed(1)}mm;font-size:${fontSize}pt;line-height:1.6;white-space:pre-wrap}`;
-    bodyHtml=apRecipients.map(r=>`<div class="env-page"><div class="addr-block">${addrText(r)}</div></div>`).join('');
+    styleCss=`@page{size:${w}mm ${h}mm;margin:0}*{box-sizing:border-box;margin:0;padding:0}body{font-family:'BiauKai','標楷體','PMingLiU',-apple-system,'PingFang TC','Microsoft JhengHei',serif}.env-page{width:${w}mm;height:${h}mm;position:relative;page-break-after:always}.addr-block{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:${(w*0.82).toFixed(1)}mm;text-align:center;font-size:${fontSize}pt;line-height:1.7}.addr-block .aline{margin-bottom:1.3em;white-space:pre-wrap}.addr-block .aline:last-child{margin-bottom:0}`;
+    bodyHtml=apRecipients.map(r=>{
+      const groups=buildAddrGroups(r).map(g=>`<div class="aline">${esc(g).replace(/\n/g,'<br>')}</div>`).join('');
+      return`<div class="env-page"><div class="addr-block">${groups}</div></div>`;
+    }).join('');
   }else{
     const cols=parseInt(document.getElementById('apCols').value)||2;
     const rows=parseInt(document.getElementById('apRows').value)||5;
@@ -1874,7 +1912,7 @@ function doAddrPrint(){
     const marginLeft=parseFloat(document.getElementById('apMarginLeft').value)||0;
     Object.assign(settings,{cols,rows,gapX,gapY,marginTop,marginLeft});
     const perPage=Math.max(1,cols*rows);
-    styleCss=`@page{size:A4;margin:0}*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,'PingFang TC','Microsoft JhengHei',sans-serif}.label-sheet{position:relative;width:210mm;height:297mm;page-break-after:always}.label-cell{position:absolute;width:${w}mm;height:${h}mm;padding:2mm;font-size:${fontSize}pt;line-height:1.4;overflow:hidden;display:flex;align-items:center;white-space:pre-wrap}`;
+    styleCss=`@page{size:A4;margin:0}*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,'PingFang TC','Microsoft JhengHei',sans-serif}.label-sheet{position:relative;width:210mm;height:297mm;page-break-after:always}.label-cell{position:absolute;width:${w}mm;height:${h}mm;padding:2mm;font-size:${fontSize}pt;line-height:1.35;overflow:hidden;display:flex;align-items:center;white-space:pre-wrap}`;
     const pages=[];
     for(let i=0;i<apRecipients.length;i+=perPage){
       const chunk=apRecipients.slice(i,i+perPage);
@@ -1882,7 +1920,8 @@ function doAddrPrint(){
         const col=idx%cols,row=Math.floor(idx/cols);
         const left=marginLeft+col*(w+gapX);
         const top=marginTop+row*(h+gapY);
-        return`<div class="label-cell" style="left:${left.toFixed(2)}mm;top:${top.toFixed(2)}mm">${addrText(r)}</div>`;
+        const text=esc(buildAddrGroups(r).join('\n'));
+        return`<div class="label-cell" style="left:${left.toFixed(2)}mm;top:${top.toFixed(2)}mm">${text}</div>`;
       }).join('');
       pages.push(`<div class="label-sheet">${cells}</div>`);
     }
