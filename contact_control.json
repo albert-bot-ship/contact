@@ -347,6 +347,18 @@
       "email": "arch5905168@gmail.com",
       "lineId": "",
       "note": "追蹤文化監看報告提供進度"
+    },
+    {
+      "id": "mu22yh06bgkr",
+      "createdAt": 1789440980118,
+      "name": "蔡智淵",
+      "role": "中環",
+      "contactType": "下包(物化監測)",
+      "description": "物化監測聯絡窗口",
+      "phone": "",
+      "email": "",
+      "lineId": "",
+      "note": ""
     }
   ],
   "categoryStageTemplates": {
@@ -821,6 +833,13 @@
             }
           ],
           "contactId": "mt7ynpjwv7h3",
+          "primary": false,
+          "caseNote": ""
+        },
+        {
+          "id": "mu22yh06k2uh",
+          "logs": [],
+          "contactId": "mu22yh06bgkr",
           "primary": false,
           "caseNote": ""
         }
