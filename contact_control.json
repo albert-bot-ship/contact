@@ -393,14 +393,30 @@
       "role": "棣品",
       "contactType": "下包(邊坡穩定監測)",
       "description": "",
-      "phone": "",
-      "email": "",
+      "phone": "0938-502901",
+      "email": "dreamcat5389@gmail.com",
       "lineId": "",
       "address": "臺中市西屯區大河里美滿街17巷28號1樓",
       "note": "",
       "postalCode": "407",
       "addrCompany": "棣品工程有限公司",
       "addrTitle": ""
+    },
+    {
+      "id": "mu29t6l4t4ta",
+      "createdAt": 1789452490648,
+      "name": "林芝佑",
+      "role": "捷思",
+      "contactType": "下包(微型感測器)",
+      "description": "",
+      "phone": "(07)331-2152 #322",
+      "email": "zhiyou@jsene.com",
+      "lineId": "",
+      "postalCode": "",
+      "addrCompany": "捷思環能股份有限公司",
+      "addrTitle": "",
+      "address": "",
+      "note": ""
     }
   ],
   "categoryStageTemplates": {
@@ -883,6 +899,13 @@
           "id": "mu23hauqk17u",
           "logs": [],
           "contactId": "mu23hauq7rof",
+          "primary": false,
+          "caseNote": ""
+        },
+        {
+          "id": "mu29t6l4scmz",
+          "logs": [],
+          "contactId": "mu29t6l4t4ta",
           "primary": false,
           "caseNote": ""
         }
