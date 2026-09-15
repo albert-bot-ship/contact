@@ -243,12 +243,12 @@ tr.ci:hover .ctd-acts{opacity:1}
 [data-theme=light] .cd-head{box-shadow:0 6px 14px -6px rgba(15,20,35,.12)}
 [data-theme=light] .cd-head .topo{opacity:.2}
 .cd-accent{position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--m-grad)}
-.cd-top{display:flex;align-items:flex-start;gap:14px;padding-left:10px;padding-right:34px;position:relative;z-index:1}
-.cd-title{flex:1;min-width:0}
+.cd-top{display:flex;align-items:flex-start;gap:14px;padding-left:10px;padding-right:34px;position:relative;z-index:1;flex-wrap:wrap}
+.cd-title{flex:1 1 220px;min-width:220px}
 .cd-badges{display:flex;align-items:center;gap:6px;margin-bottom:9px}
 .cd-name{font-family:var(--font-d);font-size:22px;font-weight:700;line-height:1.3;margin-bottom:4px;letter-spacing:-.02em}
 .cd-note-txt{font-size:14px;color:var(--txm)}
-.cd-hacts{display:flex;gap:6px;flex-shrink:0;padding-top:2px;flex-wrap:wrap;justify-content:flex-end}
+.cd-hacts{display:flex;gap:6px;flex-shrink:0;padding-top:8px;flex-wrap:wrap;justify-content:flex-end;margin-left:auto}
 .cd-close{position:absolute;top:14px;right:16px;z-index:2;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:6px;color:var(--txm);cursor:pointer;display:flex;transition:all .15s}
 .cd-close:hover{color:var(--err);border-color:rgba(var(--err-rgb),.35);background:var(--errd)}
 
