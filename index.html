@@ -1786,12 +1786,15 @@ function printAllCases(){
 
 /* ══ 地址列印（信封 / 標籤）══
    常見尺寸來源：中式12K/西式12K依中華郵政標準型信封規格與坊間常見印刷廠標示；
+   A4公文封/大4K公文袋依市售黃牛皮公文封常見規格；
    標籤格數依市售 A4 標籤貼紙常見規格。不同廠牌可能略有誤差，請先試印一張核對再大量列印。 */
 let apRecipients=[];
 const ADDR_PRESETS={
   envelope:[
     {key:'zh12k',label:'中式信封 12K（120×220mm）',w:120,h:220},
     {key:'west12k',label:'西式信封 12K（231×115mm）',w:231,h:115},
+    {key:'a4doc',label:'A4 公文封／牛皮紙袋（325×229mm）',w:325,h:229},
+    {key:'big4k',label:'大4K 公文封／牛皮紙袋（390×290mm）',w:390,h:290},
     {key:'custom',label:'自訂尺寸',w:100,h:200}
   ],
   label:[
