@@ -296,6 +296,12 @@ tr.ci:hover .ctd-acts{opacity:1}
 .ct-role{font-size:12px;padding:2px 8px;border-radius:8px;background:var(--sf3);color:var(--txm);border:1px solid var(--bd2);font-weight:600;letter-spacing:.01em;flex-shrink:0}
 .ct-type-tag{font-size:12px;padding:2px 8px;border-radius:8px;font-weight:700;flex-shrink:0;background:var(--acd);color:var(--ac);border:1px solid var(--acg)}
 .ct-dets{display:flex;flex-wrap:wrap;gap:12px;margin-top:4px}
+.ct-dets-compact{margin-top:2px;font-size:13px;color:var(--txm);font-family:var(--font-m);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ct-tog{background:none;border:none;cursor:pointer;color:var(--txf);display:flex;align-items:center;padding:2px;flex-shrink:0;margin-top:2px;transition:color .15s}
+.ct-tog:hover{color:var(--ac)}
+.ct-tog svg{transition:transform .15s}
+.ct-search-row{margin-bottom:10px}
+.ct-search-input{font-size:14px;padding:7px 10px}
 /* Selectable text */
 .selectable{user-select:text;-webkit-user-select:text;cursor:text}
 .df{display:flex;align-items:center;gap:5px;font-size:14px;color:var(--txm);user-select:none;font-family:var(--font-m)}
