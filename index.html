@@ -728,6 +728,10 @@ function toggleCtCard(caseId,refId){
   ref._ctExpanded=!ref._ctExpanded;
   renderCtList(caseId);
 }
+function ctHeadClick(e,caseId,refId){
+  if(e.target.closest('.ct-hacts,.ct-drag-handle,.cpbtn,.selectable'))return;
+  toggleCtCard(caseId,refId);
+}
 function renderRefCard(caseId,ref,forceExpand){
   const ct=getGContact(ref);
   const expanded=!!(forceExpand||ref._ctExpanded);
@@ -736,8 +740,8 @@ function renderRefCard(caseId,ref,forceExpand){
   const logsHtml=logs.map(l=>`<div class="log-item"><div class="log-date">${esc(l.date)}</div><div class="log-content">${esc(l.content)}</div><button class="log-edit-btn" onclick="openLogModal('${caseId}','${ref.id}','${l.id}')" title="編輯"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="log-del-btn" onclick="deleteLog('${caseId}','${ref.id}','${l.id}')" title="刪除"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`).join('');
   const summary=ct.phone||ct.email||ct.lineId||'';
   return`<div class="ct-card" id="ct-${ref.id}">
-    <div class="ct-head">
-      <button class="ct-tog" onclick="toggleCtCard('${caseId}','${ref.id}')" title="${expanded?'收合':'展開'}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transform:rotate(${expanded?90:0}deg)"><polyline points="9 18 15 12 9 6"/></svg></button>
+    <div class="ct-head" onclick="ctHeadClick(event,'${caseId}','${ref.id}')">
+      <span class="ct-tog" title="${expanded?'收合':'展開'}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transform:rotate(${expanded?90:0}deg)"><polyline points="9 18 15 12 9 6"/></svg></span>
       <div class="ct-drag-handle" onpointerdown="ptrDragBegin(event,'.ct-card',{caseId:'${caseId}',refId:'${ref.id}'},commitRefReorder)" title="拖曳排序"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></div>
       <div class="av">${ini(ct.name)}</div>
       <div class="ct-info">
