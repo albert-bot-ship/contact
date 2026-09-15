@@ -284,7 +284,7 @@ tr.ci:hover .ctd-acts{opacity:1}
 .ct-card.drag-over-top{border-top:2px solid var(--ac)}
 .ct-card.drag-over-bot{border-bottom:2px solid var(--ac)}
 .ct-card.dragging{opacity:.97;position:relative;z-index:5;box-shadow:0 10px 24px rgba(0,0,0,.35)}
-.ct-head{display:flex;align-items:flex-start;gap:12px;padding:13px 14px 9px}
+.ct-head{display:flex;align-items:flex-start;gap:12px;padding:13px 14px 9px;cursor:pointer}
 .ct-drag-handle{color:var(--txf);cursor:grab;display:flex;align-items:center;padding:2px;opacity:.3;transition:opacity .15s;flex-shrink:0;margin-top:2px;touch-action:none}
 .ct-card:hover .ct-drag-handle{opacity:.8}
 .ct-drag-handle:active{cursor:grabbing}
