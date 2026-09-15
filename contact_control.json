@@ -426,19 +426,6 @@
   ],
   "cases": [
     {
-      "id": "mu10llt8ydos",
-      "name": "東和環差",
-      "category": "環差",
-      "status": "待辦",
-      "note": "",
-      "monitorPhase": "",
-      "memo": "",
-      "milestones": [],
-      "stages": [],
-      "contactRefs": [],
-      "createdAt": 1789376554412
-    },
-    {
       "id": "mp6k616g5813",
       "name": "佩特拉",
       "category": "環評",
@@ -902,6 +889,19 @@
       ],
       "stages": [],
       "monitorPhase": "施工期間"
+    },
+    {
+      "id": "mu10llt8ydos",
+      "name": "東和環差",
+      "category": "環差",
+      "status": "待辦",
+      "note": "",
+      "monitorPhase": "",
+      "memo": "",
+      "milestones": [],
+      "stages": [],
+      "contactRefs": [],
+      "createdAt": 1789376554412
     }
   ]
 }
