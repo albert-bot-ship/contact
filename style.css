@@ -47,6 +47,29 @@
   --mpw-bd:rgba(201,162,39,.12);--mpw-pd:rgba(217,164,65,.12);--mpw-rd:rgba(215,38,61,.1)
 }
 
+/* ══ 主題色切換（設定頁色票）══
+   body 上加 accent-xxx class，覆蓋既有品牌色變數 --ac/--ac-rgb/--acd/--acg/--mb/--am/--amd/--amg
+   與標題列三色漸層 --m-grad/--m-grad-r，深淺色模式共用同一組數值（來源只有一組色碼，不分明暗）。
+   同時保留 --主色/--主色-light/--輔色 供之後其他元件參照。
+   不動：--mpw-*（月曆專屬色）、--neon、--err/--ok/--warn、--on-accent（語意色與對比色需獨立於主題色）。 */
+body.accent-blue{--主色:#0057B8;--主色-light:#4D9FFF;--輔色:#6F2CA7;--ac:#0057B8;--ac-rgb:0,87,184;--acd:rgba(0,87,184,.18);--acg:rgba(0,87,184,.4);--mb:#4D9FFF;--am:#6F2CA7;--amd:rgba(111,44,167,.18);--amg:rgba(111,44,167,.4);--m-grad:linear-gradient(90deg,#0057B8 0%,#4D9FFF 50%,#6F2CA7 100%);--m-grad-r:linear-gradient(90deg,#6F2CA7 0%,#4D9FFF 50%,#0057B8 100%)}
+body.accent-green{--主色:#00897B;--主色-light:#4DB6AC;--輔色:#00695C;--ac:#00897B;--ac-rgb:0,137,123;--acd:rgba(0,137,123,.18);--acg:rgba(0,137,123,.4);--mb:#4DB6AC;--am:#00695C;--amd:rgba(0,105,92,.18);--amg:rgba(0,105,92,.4);--m-grad:linear-gradient(90deg,#00897B 0%,#4DB6AC 50%,#00695C 100%);--m-grad-r:linear-gradient(90deg,#00695C 0%,#4DB6AC 50%,#00897B 100%)}
+body.accent-amber{--主色:#C07A00;--主色-light:#FFB300;--輔色:#E65100;--ac:#C07A00;--ac-rgb:192,122,0;--acd:rgba(192,122,0,.18);--acg:rgba(192,122,0,.4);--mb:#FFB300;--am:#E65100;--amd:rgba(230,81,0,.18);--amg:rgba(230,81,0,.4);--m-grad:linear-gradient(90deg,#C07A00 0%,#FFB300 50%,#E65100 100%);--m-grad-r:linear-gradient(90deg,#E65100 0%,#FFB300 50%,#C07A00 100%)}
+body.accent-rose{--主色:#AD1457;--主色-light:#F06292;--輔色:#6A1B9A;--ac:#AD1457;--ac-rgb:173,20,87;--acd:rgba(173,20,87,.18);--acg:rgba(173,20,87,.4);--mb:#F06292;--am:#6A1B9A;--amd:rgba(106,27,154,.18);--amg:rgba(106,27,154,.4);--m-grad:linear-gradient(90deg,#AD1457 0%,#F06292 50%,#6A1B9A 100%);--m-grad-r:linear-gradient(90deg,#6A1B9A 0%,#F06292 50%,#AD1457 100%)}
+body.accent-cyan{--主色:#00B4D8;--主色-light:#48CAE4;--輔色:#7B2FBE;--ac:#00B4D8;--ac-rgb:0,180,216;--acd:rgba(0,180,216,.18);--acg:rgba(0,180,216,.4);--mb:#48CAE4;--am:#7B2FBE;--amd:rgba(123,47,190,.18);--amg:rgba(123,47,190,.4);--m-grad:linear-gradient(90deg,#00B4D8 0%,#48CAE4 50%,#7B2FBE 100%);--m-grad-r:linear-gradient(90deg,#7B2FBE 0%,#48CAE4 50%,#00B4D8 100%)}
+body.accent-coral{--主色:#FF6B6B;--主色-light:#FF8E53;--輔色:#FF4757;--ac:#FF6B6B;--ac-rgb:255,107,107;--acd:rgba(255,107,107,.18);--acg:rgba(255,107,107,.4);--mb:#FF8E53;--am:#FF4757;--amd:rgba(255,71,87,.18);--amg:rgba(255,71,87,.4);--m-grad:linear-gradient(90deg,#FF6B6B 0%,#FF8E53 50%,#FF4757 100%);--m-grad-r:linear-gradient(90deg,#FF4757 0%,#FF8E53 50%,#FF6B6B 100%)}
+body.accent-lavender{--主色:#9B59B6;--主色-light:#C39BD3;--輔色:#8E44AD;--ac:#9B59B6;--ac-rgb:155,89,182;--acd:rgba(155,89,182,.18);--acg:rgba(155,89,182,.4);--mb:#C39BD3;--am:#8E44AD;--amd:rgba(142,68,173,.18);--amg:rgba(142,68,173,.4);--m-grad:linear-gradient(90deg,#9B59B6 0%,#C39BD3 50%,#8E44AD 100%);--m-grad-r:linear-gradient(90deg,#8E44AD 0%,#C39BD3 50%,#9B59B6 100%)}
+body.accent-glacier{--主色:#74B9FF;--主色-light:#A8D8EA;--輔色:#0984E3;--ac:#74B9FF;--ac-rgb:116,185,255;--acd:rgba(116,185,255,.18);--acg:rgba(116,185,255,.4);--mb:#A8D8EA;--am:#0984E3;--amd:rgba(9,132,227,.18);--amg:rgba(9,132,227,.4);--m-grad:linear-gradient(90deg,#74B9FF 0%,#A8D8EA 50%,#0984E3 100%);--m-grad-r:linear-gradient(90deg,#0984E3 0%,#A8D8EA 50%,#74B9FF 100%)}
+body.accent-charcoal{--主色:#636e72;--主色-light:#b2bec3;--輔色:#2d3436;--ac:#636e72;--ac-rgb:99,110,114;--acd:rgba(99,110,114,.18);--acg:rgba(99,110,114,.4);--mb:#b2bec3;--am:#2d3436;--amd:rgba(45,52,54,.18);--amg:rgba(45,52,54,.4);--m-grad:linear-gradient(90deg,#636e72 0%,#b2bec3 50%,#2d3436 100%);--m-grad-r:linear-gradient(90deg,#2d3436 0%,#b2bec3 50%,#636e72 100%)}
+body.accent-gold{--主色:#1a6b4a;--主色-light:#00b894;--輔色:#C8A000;--ac:#1a6b4a;--ac-rgb:26,107,74;--acd:rgba(26,107,74,.18);--acg:rgba(26,107,74,.4);--mb:#00b894;--am:#C8A000;--amd:rgba(200,160,0,.18);--amg:rgba(200,160,0,.4);--m-grad:linear-gradient(90deg,#1a6b4a 0%,#00b894 50%,#C8A000 100%);--m-grad-r:linear-gradient(90deg,#C8A000 0%,#00b894 50%,#1a6b4a 100%)}
+
+.accent-swatches{display:flex;flex-wrap:wrap;gap:14px}
+.accent-swatch{width:38px;height:38px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;flex-shrink:0;box-shadow:var(--shadow-sm);transition:transform .15s ease,box-shadow .15s ease}
+.accent-swatch:hover{transform:scale(1.08)}
+.accent-swatch.active{border-color:#fff;box-shadow:0 0 0 2px var(--sw-glow),0 0 14px 3px var(--sw-glow),var(--shadow-sm)}
+.accent-swatch-label{font-size:11px;color:var(--txf);text-align:center;margin-top:4px;font-family:var(--font-m)}
+.accent-swatch-item{display:flex;flex-direction:column;align-items:center;width:52px}
+
 /* ══ Animations ══
    拿掉原本無止盡循環的「掃光」效果（漸層跑動、光束掃過）── 這類效果是很典型的
    樣板化 AI 視覺語言，長時間使用的工作工具也容易造成視覺疲勞。
