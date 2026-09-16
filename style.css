@@ -375,6 +375,8 @@ tr.ci:hover .ctd-acts{opacity:1}
 .timeline-month{font-size:13px;font-weight:700;color:var(--txf);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;margin-top:24px;padding-bottom:6px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:6px;font-family:var(--font-m)}
 .timeline-month:first-of-type{margin-top:0}
 .sched-item{display:flex;align-items:flex-start;gap:12px;padding:11px 12px;margin-bottom:8px;border-radius:var(--rl);border:1px solid var(--bd);background:var(--sf);cursor:pointer;transition:all .15s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.sched-item.done{opacity:.6}
+.sched-item.done .sched-item-label{text-decoration:line-through;color:var(--txm)}
 .sched-item:hover{border-color:var(--mpw-bd);box-shadow:var(--shadow-md);transform:translateY(-1px)}
 .sched-item:active{transform:translateY(0) scale(.99);transition-duration:.08s}
 .sched-item-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:6px}
