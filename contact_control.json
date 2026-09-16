@@ -555,7 +555,14 @@
       "category": "環評",
       "note": "",
       "memo": "",
-      "milestones": [],
+      "milestones": [
+        {
+          "id": "mu3ske7yaf5h",
+          "label": "預計提送大坑定稿本",
+          "date": "2026-09-17",
+          "endDate": "2026-09-17"
+        }
+      ],
       "createdAt": 1778827833415,
       "status": "進行中",
       "contactRefs": [
