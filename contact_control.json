@@ -696,7 +696,8 @@
           "id": "mtgvoo3vuzqx",
           "label": "文化調查報告提供截止日",
           "date": "2026-09-11",
-          "endDate": "2026-09-11"
+          "endDate": "2026-09-11",
+          "done": true
         },
         {
           "id": "mp6m5yibsuzl",
@@ -817,7 +818,8 @@
           "id": "mtjv4npt9mwv",
           "label": "監測點位現勘(10:00)",
           "date": "2026-09-16",
-          "endDate": "2026-09-16"
+          "endDate": "2026-09-16",
+          "done": true
         }
       ],
       "createdAt": 1778830610783,
