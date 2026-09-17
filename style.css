@@ -303,6 +303,8 @@ tr.ci:hover .ctd-acts{opacity:1}
 .ms-check:hover{border-color:var(--ac)}
 .ms-check.done{background:var(--ok);border-color:var(--ok);color:var(--on-accent)}
 .ms-lbl{font-weight:700}
+.ms-note-ic{margin-left:5px;font-size:12px;cursor:pointer;opacity:.85}
+.ms-note-ic:hover{opacity:1}
 .ms-card.ms-done{opacity:.55}
 .ms-card.ms-done .ms-lbl{text-decoration:line-through}
 .dash-due-item.done{border-left-color:var(--ok);opacity:.6}
