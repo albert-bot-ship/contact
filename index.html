@@ -1201,12 +1201,12 @@ function renderSettingsTabBody(){
     el.innerHTML=`<div class="settings-sec">
       <div class="settings-hint">目前支援的鍵盤快捷鍵：</div>
       <table style="width:100%;border-collapse:collapse;font-size:13px">
-        <tr><td style="padding:6px 10px 6px 0;color:var(--txf);white-space:nowrap">Esc</td><td style="padding:6px 0">關閉目前開啟的視窗</td></tr>
-        <tr><td style="padding:6px 10px 6px 0;color:var(--txf);white-space:nowrap">Ctrl / Cmd + N</td><td style="padding:6px 0">新增案件（在「案件」頁）或新增聯絡人（在「名冊」頁）</td></tr>
-        <tr><td style="padding:6px 10px 6px 0;color:var(--txf);white-space:nowrap">/</td><td style="padding:6px 0">跳到搜尋框（「案件」或「名冊」頁）</td></tr>
-        <tr><td style="padding:6px 10px 6px 0;color:var(--txf);white-space:nowrap">↑ / ↓</td><td style="padding:6px 0">在「案件」或「名冊」清單中上下移動選取</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;color:var(--txf);white-space:nowrap">Esc</td><td style="padding:6px 0">關閉目前開啟的彈出視窗（新增/編輯案件、聯絡人、期程、記錄…等），任何頁面都有效，但要先開著一個視窗才看得出效果</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;color:var(--txf);white-space:nowrap">N</td><td style="padding:6px 0">新增案件（在「案件」頁）或新增聯絡人（在「名冊」頁）——僅這兩頁有效</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;color:var(--txf);white-space:nowrap">/</td><td style="padding:6px 0">跳到搜尋框——僅「案件」或「名冊」頁有效</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;color:var(--txf);white-space:nowrap">↑ / ↓</td><td style="padding:6px 0">上下移動清單選取——僅「案件」或「名冊」頁有效</td></tr>
       </table>
-      <div class="settings-hint" style="margin-top:10px">正在輸入框裡打字時，這些快捷鍵不會生效。</div>
+      <div class="settings-hint" style="margin-top:10px">N、/、↑↓ 只在「案件」或「名冊」頁生效，儀表板、期程總覽、設定頁按了不會有反應；正在輸入框裡打字時，這些快捷鍵也不會生效。</div>
     </div>`;
   }else{
     el.innerHTML=`<div class="settings-sec">
@@ -2424,11 +2424,13 @@ function moveSelection(dir){
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape')document.querySelectorAll('.mo.open').forEach(m=>closeMo(m.id));
   if(document.querySelector('.mo.open'))return;
-  if((e.ctrlKey||e.metaKey)&&e.key==='n'){e.preventDefault();if(view==='cases')openCaseModal();else if(view==='directory')openGContactModal();}
   const tag=(e.target.tagName||'').toLowerCase();
   const typing=tag==='input'||tag==='textarea'||tag==='select'||e.target.isContentEditable;
   if(typing)return;
-  if(e.key==='/'){
+  if(e.key==='n'||e.key==='N'){
+    if(view==='cases'){e.preventDefault();openCaseModal();}
+    else if(view==='directory'){e.preventDefault();openGContactModal();}
+  }else if(e.key==='/'){
     const id=view==='cases'?'searchCase':view==='directory'?'searchDir':null;
     if(id){e.preventDefault();document.getElementById(id)?.focus();}
   }else if((e.key==='ArrowDown'||e.key==='ArrowUp')&&(view==='cases'||view==='directory')){
