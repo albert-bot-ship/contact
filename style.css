@@ -164,6 +164,7 @@ header .topo{opacity:.4}
 .hbtn:hover{border-color:var(--ac);color:var(--ac);background:var(--acd);transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.25)}
 .hbtn:active{transform:translateY(0) scale(.96);transition-duration:.08s}
 .hbtn-icon{padding:6px 9px}
+.hbtn-icon.has-badge::after{content:'';position:absolute;top:3px;right:3px;width:7px;height:7px;border-radius:50%;background:var(--err);box-shadow:0 0 0 2px var(--sf2),0 0 5px 1px var(--err)}
 
 /* ══ Toolbar ══ */
 .toolbar{height:52px;background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px;padding:0 20px;flex-shrink:0;position:relative;overflow:hidden}
