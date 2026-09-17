@@ -913,8 +913,8 @@ function renderDashboard(){
   const t=new Date();t.setHours(0,0,0,0);
   const allMs=[];db.cases.forEach(c=>{(c.milestones||[]).forEach(m=>{allMs.push({...m,caseId:c.id,caseName:c.name});});});allMs.push(...companyMsItems());
   const upcoming=allMs.filter(m=>{
+    if(m.done)return false;
     const x=new Date(msEnd(m));x.setHours(0,0,0,0);
-    if(m.done)return x.getFullYear()===t.getFullYear()&&x.getMonth()===t.getMonth();
     return(x-t)/86400000<=7;
   }).sort((a,b)=>a.date.localeCompare(b.date));
   const statusCounts={};['進行中','待辦','暫停','結案'].forEach(s=>statusCounts[s]=0);
