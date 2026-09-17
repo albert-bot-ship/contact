@@ -949,6 +949,9 @@ function renderDashboard(){
 
 /* ══ 期程總覽（跨案件月曆） ══ */
 let calSelDay=null;
+let calDayShowDone=false;
+let schedListShowDone=false;
+let schedAllMsCache=[];
 function mUrgCol(date){
   const urg=urgency(date);
   if(urg==='overdue')return'var(--mpw-r)';
@@ -992,7 +995,8 @@ function renderSchedule(){
     const items=(byDate[dateStr]||[]).sort((a,b)=>(a.done?1:0)-(b.done?1:0)||urgencyRank(msEnd(a))-urgencyRank(msEnd(b)));
     const shown=items.slice(0,2).map(it=>{
       const style=it.done?`background:var(--sf3);color:var(--txf);text-decoration:line-through;opacity:.75`:(()=>{const col=mUrgCol(msEnd(it));return`background:${col}22;color:${col}`;})();
-      return`<div class="cal-event" style="${style}" onclick="event.stopPropagation();openMsModal('${it.caseId}','${it.id}')"><span style="font-weight:800">${esc(it.caseName)}</span>：${esc(it.label)}</div>`;
+      const directEdit=items.length===1?` onclick="event.stopPropagation();openMsModal('${it.caseId}','${it.id}')"`:'';
+      return`<div class="cal-event" style="${style}"${directEdit}><span style="font-weight:800">${esc(it.caseName)}</span>：${esc(it.label)}</div>`;
     }).join('');
     const more=items.length>2?`<span class="cal-more">+${items.length-2} 筆</span>`:'';
     const cls=['cal-cell'];
@@ -1082,27 +1086,38 @@ function schedItemHtml(m){
   </div>`;
 }
 function showCalDay(dateStr,ev){
+  if(calSelDay!==dateStr)calDayShowDone=false;
   calSelDay=dateStr;
   if(ev){
     document.querySelectorAll('.cal-cell').forEach(el=>el.classList.remove('sel'));
-    ev.currentTarget?.classList.add('sel');
+    ev.target.closest('.cal-cell')?.classList.add('sel');
   }
   const inRange=m=>dateStr>=m.date&&dateStr<=msEnd(m);
   const items=[];db.cases.forEach(c=>{(c.milestones||[]).forEach(m=>{if(inRange(m))items.push({...m,caseId:c.id,caseName:c.name,caseCategory:c.category});});});
   items.push(...companyMsItems().filter(inRange));
   items.sort((a,b)=>(a.done?1:0)-(b.done?1:0));
+  const pending=items.filter(m=>!m.done);
+  const doneItems=items.filter(m=>m.done);
+  const shownItems=calDayShowDone?items:pending;
   const el=document.getElementById('calDayDetail');if(!el)return;
   const titleRow=`<div class="sched-list-title" style="justify-content:space-between"><span>${dateStr}</span><button class="btn btn-xs" onclick="openMsModalForDate('${dateStr}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增期程</button></div>`;
-  el.innerHTML=items.length?`${titleRow}${items.map(schedItemHtml).join('')}`:`${titleRow}<div class="dash-empty">當天沒有期程</div>`;
+  const toggleBtn=doneItems.length?`<button class="btn btn-xs" style="margin:0 0 8px" onclick="calDayShowDone=!calDayShowDone;showCalDay('${dateStr}')">${calDayShowDone?'隱藏已完成期程':`顯示已完成期程 (${doneItems.length})`}</button>`:'';
+  const body=shownItems.length?shownItems.map(schedItemHtml).join(''):(items.length?`<div class="dash-empty">已完成期程已收合</div>`:`<div class="dash-empty">當天沒有期程</div>`);
+  el.innerHTML=`${titleRow}${toggleBtn}${body}`;
 }
 function renderSchedFullList(allMs){
-  const sorted=[...allMs].sort((a,b)=>a.date.localeCompare(b.date));
+  schedAllMsCache=allMs;
+  const doneItems=allMs.filter(m=>m.done);
+  const list=schedListShowDone?allMs:allMs.filter(m=>!m.done);
+  const sorted=[...list].sort((a,b)=>a.date.localeCompare(b.date));
   const grouped={};sorted.forEach(m=>{const mo=m.date.substring(0,7);if(!grouped[mo])grouped[mo]=[];grouped[mo].push(m);});
-  const html=Object.entries(grouped).map(([month,items])=>{
+  const toggleBtn=doneItems.length?`<button class="btn btn-xs" style="margin-bottom:10px" onclick="schedListShowDone=!schedListShowDone;renderSchedFullList(schedAllMsCache)">${schedListShowDone?'隱藏已完成期程':`顯示已完成期程 (${doneItems.length})`}</button>`:'';
+  const groupsHtml=Object.entries(grouped).map(([month,items])=>{
     const[y,mm]=month.split('-');
     return`<div class="timeline-month"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${y} 年 ${parseInt(mm)} 月</div>${items.map(schedItemHtml).join('')}`;
   }).join('');
-  const el=document.getElementById('schedFullList');if(el)el.innerHTML=html;
+  const body=groupsHtml||(list.length===0&&doneItems.length&&!schedListShowDone?`<div class="dash-empty">已完成期程已收合</div>`:'');
+  const el=document.getElementById('schedFullList');if(el)el.innerHTML=toggleBtn+body;
 }
 
 /* ══ 設定頁籤 ══ */
