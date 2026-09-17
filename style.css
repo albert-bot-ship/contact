@@ -603,7 +603,7 @@ tr.ci:hover .ctd-acts{opacity:1}
 .cal-cell:hover{border-color:var(--mpw-b);background:var(--mpw-bd)}
 .cal-cell.sel{border-color:var(--mpw-b);box-shadow:0 0 0 1px var(--mpw-b)}
 .cal-cell.empty{background:none;border:none;cursor:default;pointer-events:none}
-.cal-cell.today{border-color:var(--bd2)}
+.cal-cell.today{border-color:var(--mpw-b);box-shadow:0 0 0 1px var(--mpw-b)}
 .cal-cell.today::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--mpw-b),var(--mpw-p),var(--mpw-r))}
 .cal-cell.today .cal-daynum{color:var(--mpw-b);font-weight:800}
 .cal-daynum{font-family:var(--font-m);font-size:12px;color:var(--txm);font-weight:600;flex-shrink:0}
