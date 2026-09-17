@@ -239,8 +239,9 @@
       <div class="frow">
         <div class="fg"><label class="fl">名稱 <span class="fr">*</span></label><input class="fi" id="msLabel" placeholder="送件期限、審查會議…"></div>
       </div>
-      <div class="frow">
+      <div class="frow" style="grid-template-columns:1fr auto 1fr">
         <div class="fg"><label class="fl">開始日 <span class="fr">*</span></label><input class="fi" id="msDate" type="date" onchange="if(document.getElementById('msEndDate').value<this.value)document.getElementById('msEndDate').value=this.value"></div>
+        <div class="fg" style="max-width:120px"><label class="fl">時間（選填）</label><input class="fi" id="msTime" type="time"></div>
         <div class="fg"><label class="fl">結束日 <span class="fr">*</span></label><input class="fi" id="msEndDate" type="date"></div>
       </div>
       <div class="fg"><label class="fl">細項說明</label><textarea class="fta" id="msNote" placeholder="補充說明、注意事項…" style="min-height:80px"></textarea></div>
@@ -421,7 +422,7 @@ function ini(n){const c=[...(n||'').trim()];return c.length>=2?c[0]+c[c.length-1
 const today=()=>new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'});
 function urgency(d){const t=new Date();t.setHours(0,0,0,0);const x=new Date(d);x.setHours(0,0,0,0);const diff=(x-t)/86400000;return diff<0?'overdue':diff<=urgentDays?'urgent':diff<=soonDays?'soon':'normal';}
 function msEnd(m){return m.endDate||m.date;}
-function msDateStr(m){return m.endDate&&m.endDate!==m.date?`${m.date} ～ ${m.endDate}`:m.date;}
+function msDateStr(m){const d=m.endDate&&m.endDate!==m.date?`${m.date} ～ ${m.endDate}`:m.date;return m.time?`${d} ${m.time}`:d;}
 function dateRangeArr(start,end){const out=[];let d=new Date(start+'T00:00:00');const e=new Date((end||start)+'T00:00:00');let guard=0;while(d<=e&&guard<730){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');out.push(`${y}-${m}-${dd}`);d.setDate(d.getDate()+1);guard++;}return out;}
 function nearestMs(c){const t=new Date();t.setHours(0,0,0,0);const f=(c.milestones||[]).filter(m=>{const e=new Date(msEnd(m));e.setHours(0,0,0,0);return e>=t;}).map(m=>new Date(m.date).getTime());return f.length?Math.min(...f):Infinity;}
 function getGContact(ref){return db.contacts.find(c=>c.id===ref.contactId)||{name:'(已刪除)',phone:'',email:'',lineId:'',role:'',contactType:'',description:'',address:'',postalCode:'',addrCompany:'',addrTitle:'',note:''};}
@@ -1669,7 +1670,7 @@ function openMsModal(caseId,msId){
   }else{
     const c=db.cases.find(c=>c.id===caseId);m=msId&&c?c.milestones.find(m=>m.id===msId):null;
   }
-  document.getElementById('msLabel').value=m?m.label:'';document.getElementById('msDate').value=m?m.date:today();document.getElementById('msEndDate').value=m?msEnd(m):today();document.getElementById('msNote').value=m?(m.note||''):'';
+  document.getElementById('msLabel').value=m?m.label:'';document.getElementById('msDate').value=m?m.date:today();document.getElementById('msEndDate').value=m?msEnd(m):today();document.getElementById('msNote').value=m?(m.note||''):'';document.getElementById('msTime').value=m?(m.time||''):'';
   const field=document.getElementById('msCaseField');if(field)field.style.display='none';
   openMo('msModal');setTimeout(()=>document.getElementById('msLabel').focus(),80);
 }
@@ -1679,6 +1680,7 @@ function openMsModalForDate(dateStr){
   document.getElementById('msId').value='';
   document.getElementById('msLabel').value='';
   document.getElementById('msNote').value='';
+  document.getElementById('msTime').value='';
   document.getElementById('msDate').value=dateStr||today();document.getElementById('msEndDate').value=dateStr||today();
   const pick=document.getElementById('msCasePick');
   const sorted=[...db.cases].sort((a,b)=>a.name.localeCompare(b.name,'zh-TW'));
@@ -1689,7 +1691,7 @@ function openMsModalForDate(dateStr){
   openMo('msModal');setTimeout(()=>pick.focus(),80);
 }
 function saveMilestone(){
-  const label=document.getElementById('msLabel').value.trim();const date=document.getElementById('msDate').value;let endDate=document.getElementById('msEndDate').value;const note=document.getElementById('msNote').value.trim();
+  const label=document.getElementById('msLabel').value.trim();const date=document.getElementById('msDate').value;let endDate=document.getElementById('msEndDate').value;const note=document.getElementById('msNote').value.trim();const time=document.getElementById('msTime').value;
   if(!label||!date||!endDate){showToast('⚠ 請填入名稱與日期','warn');return;}
   if(endDate<date){showToast('⚠ 結束日不能早於開始日','warn');return;}
   const field=document.getElementById('msCaseField');
@@ -1701,12 +1703,12 @@ function saveMilestone(){
   const msId=document.getElementById('msId').value;
   if(caseId===COMPANY_ID){
     if(!db.companyMilestones)db.companyMilestones=[];
-    if(msId){const m=db.companyMilestones.find(m=>m.id===msId);if(m){m.label=label;m.date=date;m.endDate=endDate;m.note=note;}}
-    else db.companyMilestones.push({id:uid(),label,date,endDate,note});
+    if(msId){const m=db.companyMilestones.find(m=>m.id===msId);if(m){m.label=label;m.date=date;m.endDate=endDate;m.note=note;m.time=time;}}
+    else db.companyMilestones.push({id:uid(),label,date,endDate,note,time});
   }else{
     const c=db.cases.find(c=>c.id===caseId);if(!c)return;
-    if(msId){const m=c.milestones.find(m=>m.id===msId);if(m){m.label=label;m.date=date;m.endDate=endDate;m.note=note;}}
-    else c.milestones.push({id:uid(),label,date,endDate,note});
+    if(msId){const m=c.milestones.find(m=>m.id===msId);if(m){m.label=label;m.date=date;m.endDate=endDate;m.note=note;m.time=time;}}
+    else c.milestones.push({id:uid(),label,date,endDate,note,time});
   }
   saveData();refreshCurrentView();closeMo('msModal');showToast(msId?'✓ 期程已更新':'✓ 期程已新增');
 }
