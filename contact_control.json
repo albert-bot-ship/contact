@@ -558,9 +558,11 @@
       "milestones": [
         {
           "id": "mu3ske7yaf5h",
-          "label": "預計提送大坑定稿本",
+          "label": "提送大坑定稿本",
           "date": "2026-09-17",
-          "endDate": "2026-09-17"
+          "endDate": "2026-09-17",
+          "note": "",
+          "time": "14:00"
         }
       ],
       "createdAt": 1778827833415,
