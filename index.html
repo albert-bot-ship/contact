@@ -243,6 +243,7 @@
         <div class="fg"><label class="fl">開始日 <span class="fr">*</span></label><input class="fi" id="msDate" type="date" onchange="if(document.getElementById('msEndDate').value<this.value)document.getElementById('msEndDate').value=this.value"></div>
         <div class="fg"><label class="fl">結束日 <span class="fr">*</span></label><input class="fi" id="msEndDate" type="date"></div>
       </div>
+      <div class="fg"><label class="fl">細項說明</label><textarea class="fta" id="msNote" placeholder="補充說明、注意事項…" style="min-height:80px"></textarea></div>
     </div>
     <div class="mf"><button class="btn" onclick="closeMo('msModal')">取消</button><button class="btn btn-p" onclick="saveMilestone()">儲存</button></div>
   </div>
@@ -649,9 +650,10 @@ function renderCasesRP(){
   const sCls=STATUS_CLS[c.status]||'s-active';
   const mss=(c.milestones||[]).sort((a,b)=>a.date.localeCompare(b.date));
   const msHtml=mss.map(m=>{
-    if(m.done)return`<button class="ms-card ms-done" onclick="openMsModal('${c.id}','${m.id}')"><span class="ms-check done" onclick="event.stopPropagation();toggleMsDone('${c.id}','${m.id}')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span><span class="ms-lbl">${esc(m.label)}</span><span class="ms-dt">${msDateStr(m)}</span><span class="ms-del-btn" onclick="event.stopPropagation();deleteMilestone('${c.id}','${m.id}')">×</span></button>`;
+    const noteIcon=m.note?`<span class="ms-note-ic" title="${esc(m.note)}" onclick="event.stopPropagation();openMsModal('${c.id}','${m.id}')">📝</span>`:'';
+    if(m.done)return`<button class="ms-card ms-done" onclick="openMsModal('${c.id}','${m.id}')"><span class="ms-check done" onclick="event.stopPropagation();toggleMsDone('${c.id}','${m.id}')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span><span class="ms-lbl">${esc(m.label)}${noteIcon}</span><span class="ms-dt">${msDateStr(m)}</span><span class="ms-del-btn" onclick="event.stopPropagation();deleteMilestone('${c.id}','${m.id}')">×</span></button>`;
     const urg=urgency(msEnd(m));const an=urg==='overdue'?' bl-fast':urg==='urgent'?' bl-slow':'';
-    return`<button class="ms-card ${urg}${an}" onclick="openMsModal('${c.id}','${m.id}')"><span class="ms-check" onclick="event.stopPropagation();toggleMsDone('${c.id}','${m.id}')"></span><span class="ms-lbl">${esc(m.label)}</span><span class="ms-dt">${msDateStr(m)}</span><span class="ms-del-btn" onclick="event.stopPropagation();deleteMilestone('${c.id}','${m.id}')">×</span></button>`;
+    return`<button class="ms-card ${urg}${an}" onclick="openMsModal('${c.id}','${m.id}')"><span class="ms-check" onclick="event.stopPropagation();toggleMsDone('${c.id}','${m.id}')"></span><span class="ms-lbl">${esc(m.label)}${noteIcon}</span><span class="ms-dt">${msDateStr(m)}</span><span class="ms-del-btn" onclick="event.stopPropagation();deleteMilestone('${c.id}','${m.id}')">×</span></button>`;
   }).join('');
   const remainingTmplSteps=templateStepsRemaining(c);
   rp.innerHTML=`<div>
@@ -1071,7 +1073,7 @@ function schedItemHtml(m){
     <div class="sched-item-date">${msDateStr(m)}</div>
     <div class="sched-item-body">
       <div class="sched-item-header">${headerHtml}</div>
-      <div class="sched-item-label">${m.done?'✓ ':''}${esc(m.label)}</div>
+      <div class="sched-item-label">${m.done?'✓ ':''}${esc(m.label)}${m.note?`<span class="ms-note-ic" title="${esc(m.note)}" onclick="event.stopPropagation();openMsModal('${m.caseId}','${m.id}')">📝</span>`:''}</div>
     </div>
     <div class="sched-item-acts">
       <button class="ibtn" onclick="event.stopPropagation();openMsModal('${m.caseId}','${m.id}')" title="編輯"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
@@ -1597,7 +1599,7 @@ function openMsModal(caseId,msId){
   }else{
     const c=db.cases.find(c=>c.id===caseId);m=msId&&c?c.milestones.find(m=>m.id===msId):null;
   }
-  document.getElementById('msLabel').value=m?m.label:'';document.getElementById('msDate').value=m?m.date:today();document.getElementById('msEndDate').value=m?msEnd(m):today();
+  document.getElementById('msLabel').value=m?m.label:'';document.getElementById('msDate').value=m?m.date:today();document.getElementById('msEndDate').value=m?msEnd(m):today();document.getElementById('msNote').value=m?(m.note||''):'';
   const field=document.getElementById('msCaseField');if(field)field.style.display='none';
   openMo('msModal');setTimeout(()=>document.getElementById('msLabel').focus(),80);
 }
@@ -1606,6 +1608,7 @@ function openMsModalForDate(dateStr){
   document.getElementById('msCaseId').value='';
   document.getElementById('msId').value='';
   document.getElementById('msLabel').value='';
+  document.getElementById('msNote').value='';
   document.getElementById('msDate').value=dateStr||today();document.getElementById('msEndDate').value=dateStr||today();
   const pick=document.getElementById('msCasePick');
   const sorted=[...db.cases].sort((a,b)=>a.name.localeCompare(b.name,'zh-TW'));
@@ -1616,7 +1619,7 @@ function openMsModalForDate(dateStr){
   openMo('msModal');setTimeout(()=>pick.focus(),80);
 }
 function saveMilestone(){
-  const label=document.getElementById('msLabel').value.trim();const date=document.getElementById('msDate').value;let endDate=document.getElementById('msEndDate').value;
+  const label=document.getElementById('msLabel').value.trim();const date=document.getElementById('msDate').value;let endDate=document.getElementById('msEndDate').value;const note=document.getElementById('msNote').value.trim();
   if(!label||!date||!endDate){showToast('⚠ 請填入名稱與日期','warn');return;}
   if(endDate<date){showToast('⚠ 結束日不能早於開始日','warn');return;}
   const field=document.getElementById('msCaseField');
@@ -1628,12 +1631,12 @@ function saveMilestone(){
   const msId=document.getElementById('msId').value;
   if(caseId===COMPANY_ID){
     if(!db.companyMilestones)db.companyMilestones=[];
-    if(msId){const m=db.companyMilestones.find(m=>m.id===msId);if(m){m.label=label;m.date=date;m.endDate=endDate;}}
-    else db.companyMilestones.push({id:uid(),label,date,endDate});
+    if(msId){const m=db.companyMilestones.find(m=>m.id===msId);if(m){m.label=label;m.date=date;m.endDate=endDate;m.note=note;}}
+    else db.companyMilestones.push({id:uid(),label,date,endDate,note});
   }else{
     const c=db.cases.find(c=>c.id===caseId);if(!c)return;
-    if(msId){const m=c.milestones.find(m=>m.id===msId);if(m){m.label=label;m.date=date;m.endDate=endDate;}}
-    else c.milestones.push({id:uid(),label,date,endDate});
+    if(msId){const m=c.milestones.find(m=>m.id===msId);if(m){m.label=label;m.date=date;m.endDate=endDate;m.note=note;}}
+    else c.milestones.push({id:uid(),label,date,endDate,note});
   }
   saveData();refreshCurrentView();closeMo('msModal');showToast(msId?'✓ 期程已更新':'✓ 期程已新增');
 }
