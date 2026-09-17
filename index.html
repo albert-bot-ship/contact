@@ -25,7 +25,7 @@
     <button class="nav-tab" id="tabSettings" onclick="setView('settings')">設定</button>
   </div>
   <div class="hsp"></div>
-  <button class="hbtn hbtn-icon" onclick="exportJSON()" title="匯出 JSON 備份">
+  <button class="hbtn hbtn-icon" id="btnExportJSON" onclick="exportJSON()" title="匯出 JSON 備份">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
   </button>
   <button class="hbtn hbtn-icon" onclick="document.getElementById('importInput').click()" title="匯入 JSON 備份">
@@ -338,6 +338,9 @@ function toggleStageOpen(caseId){
   renderCasesRP();
 }
 let themeMode=localStorage.getItem('themeMode')||'auto';
+let urgentDays=parseInt(localStorage.getItem('urgentDays'))||7;
+let soonDays=parseInt(localStorage.getItem('soonDays'))||30;
+let backupReminderDays=parseInt(localStorage.getItem('backupReminderDays'))||7;
 const ACCENT_THEMES=[
   {id:'blue',name:'M藍',c1:'#0057B8',c3:'#6F2CA7'},
   {id:'green',name:'翠綠',c1:'#00897B',c3:'#00695C'},
@@ -416,7 +419,7 @@ const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>
 function hl(t,q){if(!q)return esc(t);const e=esc(t),eq=esc(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return e.replace(new RegExp(eq,'gi'),m=>`<mark>${m}</mark>`);}
 function ini(n){const c=[...(n||'').trim()];return c.length>=2?c[0]+c[c.length-1]:c[0]||'?';}
 const today=()=>new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'});
-function urgency(d){const t=new Date();t.setHours(0,0,0,0);const x=new Date(d);x.setHours(0,0,0,0);const diff=(x-t)/86400000;return diff<0?'overdue':diff<=7?'urgent':diff<=30?'soon':'normal';}
+function urgency(d){const t=new Date();t.setHours(0,0,0,0);const x=new Date(d);x.setHours(0,0,0,0);const diff=(x-t)/86400000;return diff<0?'overdue':diff<=urgentDays?'urgent':diff<=soonDays?'soon':'normal';}
 function msEnd(m){return m.endDate||m.date;}
 function msDateStr(m){return m.endDate&&m.endDate!==m.date?`${m.date} ～ ${m.endDate}`:m.date;}
 function dateRangeArr(start,end){const out=[];let d=new Date(start+'T00:00:00');const e=new Date((end||start)+'T00:00:00');let guard=0;while(d<=e&&guard<730){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');out.push(`${y}-${m}-${dd}`);d.setDate(d.getDate()+1);guard++;}return out;}
@@ -915,7 +918,7 @@ function renderDashboard(){
   const upcoming=allMs.filter(m=>{
     if(m.done)return false;
     const x=new Date(msEnd(m));x.setHours(0,0,0,0);
-    return(x-t)/86400000<=7;
+    return(x-t)/86400000<=urgentDays;
   }).sort((a,b)=>a.date.localeCompare(b.date));
   const statusCounts={};['進行中','待辦','暫停','結案'].forEach(s=>statusCounts[s]=0);
   db.cases.forEach(c=>{const s=c.status||'進行中';statusCounts[s]=(statusCounts[s]||0)+1;});
@@ -927,7 +930,7 @@ function renderDashboard(){
     <div class="dash-hd">案件現況總覽</div>
     <div class="dash-grid">
       <div class="dash-card" style="grid-column:1/-1">
-        <div class="dash-card-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>7 天內到期期程（含逾期）</div>
+        <div class="dash-card-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${urgentDays} 天內到期期程（含逾期）</div>
         <div class="dash-list">
           ${upcoming.length?upcoming.map(m=>{const urg=urgency(msEnd(m));const goto=m.isCompany?`setView('schedule')`:`setView('cases');selCase('${m.caseId}')`;const cls=m.done?'done':(urg==='overdue'?'overdue':urg==='urgent'?'urgent':'');return`<div class="dash-due-item ${cls}" onclick="${goto}">
             <div class="dash-due-info"><div class="dash-due-label">${m.done?'✓ ':''}${esc(m.label)}</div><div class="dash-due-case">${m.isCompany?'🏢 公司期程':esc(m.caseName)}</div></div>
@@ -1026,7 +1029,7 @@ function renderSchedule(){
     <div class="cal-legend" style="justify-content:space-between">
       <div style="display:flex;gap:14px;flex-wrap:wrap">
         <span class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--mpw-r)"></span>已逾期</span>
-        <span class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--mpw-p)"></span>30天內</span>
+        <span class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--mpw-p)"></span>${soonDays}天內</span>
         <span class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--mpw-b)"></span>尚早</span>
       </div>
       <button class="btn btn-xs" onclick="openMsModalForDate('')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增期程</button>
@@ -1138,6 +1141,12 @@ function renderSettingsPage(){
       <button class="settings-tab ${settingsTab==='theme'?'active':''}" onclick="setSettingsTab('theme')">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="8" r="1.4" fill="currentColor" stroke="none"/><circle cx="8.5" cy="13" r="1.4" fill="currentColor" stroke="none"/><circle cx="15.5" cy="13" r="1.4" fill="currentColor" stroke="none"/></svg>主題色
       </button>
+      <button class="settings-tab ${settingsTab==='remind'?'active':''}" onclick="setSettingsTab('remind')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>提醒設定
+      </button>
+      <button class="settings-tab ${settingsTab==='keys'?'active':''}" onclick="setSettingsTab('keys')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h12"/></svg>快捷鍵
+      </button>
     </div>
     <div id="settingsTabBody"></div>
   </div>`;
@@ -1174,6 +1183,31 @@ function renderSettingsTabBody(){
           <span class="accent-swatch-label">${esc(t.name)}</span>
         </div>`).join('')}</div>
     </div>`;
+  }else if(settingsTab==='remind'){
+    const last=localStorage.getItem('lastBackupAt');
+    const lastStr=last?new Date(parseInt(last)).toLocaleString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'尚未匯出過';
+    const d=daysSinceBackup();
+    el.innerHTML=`<div class="settings-sec">
+      <div class="settings-hint">調整期程的到期提醒門檻，以及多久沒備份要提醒你。存在這台裝置，不會跟著 JSON 備份走。</div>
+      <div class="frow">
+        <div class="fg"><label class="fl">緊急提醒天數</label><input class="fi" id="setUrgentDays" type="number" min="1" value="${urgentDays}" onchange="updateUrgentDays(this.value)"></div>
+        <div class="fg"><label class="fl">即將到期天數</label><input class="fi" id="setSoonDays" type="number" min="1" value="${soonDays}" onchange="updateSoonDays(this.value)"></div>
+      </div>
+      <div class="settings-hint">逾期＝紅、${urgentDays} 天內＝橘、${soonDays} 天內＝橘、超過 ${soonDays} 天＝藍。即將到期天數必須大於緊急提醒天數。</div>
+      <div class="fg" style="margin-top:14px"><label class="fl">超過幾天沒備份要提醒</label><input class="fi" id="setBackupDays" type="number" min="1" value="${backupReminderDays}" style="max-width:160px" onchange="updateBackupReminderDays(this.value)"></div>
+      <div class="settings-hint">上次匯出備份：${lastStr}${d!==Infinity?`（${d} 天前）`:''}</div>
+    </div>`;
+  }else if(settingsTab==='keys'){
+    el.innerHTML=`<div class="settings-sec">
+      <div class="settings-hint">目前支援的鍵盤快捷鍵：</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <tr><td style="padding:6px 10px 6px 0;color:var(--txf);white-space:nowrap">Esc</td><td style="padding:6px 0">關閉目前開啟的視窗</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;color:var(--txf);white-space:nowrap">Ctrl / Cmd + N</td><td style="padding:6px 0">新增案件（在「案件」頁）或新增聯絡人（在「名冊」頁）</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;color:var(--txf);white-space:nowrap">/</td><td style="padding:6px 0">跳到搜尋框（「案件」或「名冊」頁）</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;color:var(--txf);white-space:nowrap">↑ / ↓</td><td style="padding:6px 0">在「案件」或「名冊」清單中上下移動選取</td></tr>
+      </table>
+      <div class="settings-hint" style="margin-top:10px">正在輸入框裡打字時，這些快捷鍵不會生效。</div>
+    </div>`;
   }else{
     el.innerHTML=`<div class="settings-sec">
       <div class="pwd-status" id="pwdStatus"></div>
@@ -1187,6 +1221,27 @@ function renderSettingsTabBody(){
     </div>`;
     updatePwdStatus();
   }
+}
+function updateUrgentDays(val){
+  const n=parseInt(val);
+  if(!n||n<1){showToast('⚠ 請輸入大於 0 的天數','warn');renderSettingsTabBody();return;}
+  if(n>=soonDays){showToast('⚠ 緊急提醒天數必須小於即將到期天數','warn');renderSettingsTabBody();return;}
+  urgentDays=n;localStorage.setItem('urgentDays',n);
+  renderSettingsTabBody();refreshCurrentView();
+}
+function updateSoonDays(val){
+  const n=parseInt(val);
+  if(!n||n<1){showToast('⚠ 請輸入大於 0 的天數','warn');renderSettingsTabBody();return;}
+  if(n<=urgentDays){showToast('⚠ 即將到期天數必須大於緊急提醒天數','warn');renderSettingsTabBody();return;}
+  soonDays=n;localStorage.setItem('soonDays',n);
+  renderSettingsTabBody();refreshCurrentView();
+}
+function updateBackupReminderDays(val){
+  const n=parseInt(val);
+  if(!n||n<1){showToast('⚠ 請輸入大於 0 的天數','warn');renderSettingsTabBody();return;}
+  backupReminderDays=n;localStorage.setItem('backupReminderDays',n);
+  updateBackupBadge();
+  renderSettingsTabBody();
 }
 let _tmplFocusKey=null;
 function renderStageTemplateList(){
@@ -1803,8 +1858,34 @@ function showToast(msg,type){
 function buildSel(el,cur){el.innerHTML='<option value="">— 請選擇 —</option>'+db.categories.map(c=>`<option value="${esc(c)}" ${c===cur?'selected':''}>${esc(c)}</option>`).join('');}
 
 /* ══ Export / Import / Print ══ */
+function daysSinceBackup(){
+  const last=localStorage.getItem('lastBackupAt');
+  if(!last)return Infinity;
+  return Math.floor((Date.now()-parseInt(last))/86400000);
+}
+function updateBackupBadge(){
+  const btn=document.getElementById('btnExportJSON');
+  if(!btn)return;
+  btn.classList.toggle('has-badge',daysSinceBackup()>=backupReminderDays);
+}
+function recordBackup(){
+  localStorage.setItem('lastBackupAt',Date.now().toString());
+  updateBackupBadge();
+}
+function checkBackupReminder(){
+  updateBackupBadge();
+  const d=daysSinceBackup();
+  if(d>=backupReminderDays){
+    const todayStr=today();
+    if(localStorage.getItem('lastBackupToastDate')!==todayStr){
+      showToast(d===Infinity?'⚠ 尚未匯出過備份':`⚠ 已 ${d} 天未備份資料`,'warn');
+      localStorage.setItem('lastBackupToastDate',todayStr);
+    }
+  }
+}
 function exportJSON(){
   dlBlob(new Blob([JSON.stringify(cleanDb(),null,2)],{type:'application/json'}),`contact_control_${today()}.json`);
+  recordBackup();
   showToast('✓ JSON 匯出完成，可上傳 GitHub 備份');
 }
 function importJSON(e){
@@ -2315,6 +2396,7 @@ async function bootApp(){
   }
   updateStorage();
   setView('schedule');
+  checkBackupReminder();
   setInterval(()=>{if(themeMode==='auto')applyTheme();},60000);
 }
 
