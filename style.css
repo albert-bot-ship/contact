@@ -537,6 +537,17 @@ tr.ci:hover .ctd-acts{opacity:1}
 .dash-bar-fill{height:100%;border-radius:4px;transition:width .4s}
 .dash-bar-count{font-family:var(--font-m);font-size:13px;color:var(--txf);width:22px;text-align:right;flex-shrink:0}
 .dash-empty{font-size:14px;color:var(--txf);padding:6px 0}
+.gs-group-title{font-size:11px;font-weight:700;color:var(--txf);text-transform:uppercase;letter-spacing:.05em;margin:14px 2px 6px}
+.gs-group-title:first-child{margin-top:2px}
+.gs-item{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background .15s}
+.gs-item:hover{background:var(--acd)}
+.gs-item-main{font-size:14px;color:var(--tx);font-weight:600}
+.gs-item-sub{font-size:12px;color:var(--txf)}
+.idf-row{padding:8px 4px;font-size:13px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px;color:var(--tx)}
+.idf-row:last-child{border-bottom:none}
+.idf-row label{cursor:pointer}
+.idf-row.idf-mod{flex-direction:column;align-items:flex-start;gap:6px}
+.idf-row.idf-mod label{margin-right:14px;display:inline-flex;align-items:center;gap:4px;font-size:13px}
 
 /* ══ Review Stage Checklist ══ */
 .stage-progress-track{height:6px;background:var(--sf3);border-radius:3px;overflow:hidden;margin-bottom:12px}
