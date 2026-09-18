@@ -243,7 +243,7 @@
     <div class="mb">
       <input type="hidden" id="bmCaseId">
       <div class="fg"><label class="fl">名稱樣板 <span class="fr">*</span></label><input class="fi" id="bmLabel" placeholder="第{n}次監測、第{n}季報告…" oninput="renderBatchPreview()"></div>
-      <div class="settings-hint" style="margin-top:2px">用 <code>{n}</code> 代表第幾筆（從 1 開始），不需要編號可以不寫</div>
+      <div class="settings-hint" style="margin-top:2px">用 <code>{n}</code> 代表第幾筆（從 1 開始），半形/全形大括號都可以，不需要編號可以不寫</div>
       <div class="frow" style="margin-top:10px">
         <div class="fg"><label class="fl">起始日期 <span class="fr">*</span></label><input class="fi" id="bmStart" type="date" onchange="renderBatchPreview()"></div>
         <div class="fg"><label class="fl">產生筆數 <span class="fr">*</span></label><input class="fi" id="bmCount" type="number" min="1" max="52" value="4" oninput="renderBatchPreview()"></div>
@@ -1740,7 +1740,7 @@ function renderBatchPreview(){
   const label=document.getElementById('bmLabel').value.trim()||'（未命名）';
   const dates=computeBatchDates();
   const el=document.getElementById('bmPreview');if(!el)return;
-  el.innerHTML=dates.length?dates.map((d,i)=>`${esc(label.replace(/\{n\}/g,i+1))}：${d}`).join('<br>'):'請填入起始日期與筆數';
+  el.innerHTML=dates.length?dates.map((d,i)=>`${esc(label.replace(/[{｛]\s*n\s*[}｝]/g,i+1))}：${d}`).join('<br>'):'請填入起始日期與筆數';
 }
 function saveBatchMs(){
   const caseId=document.getElementById('bmCaseId').value;
@@ -1749,7 +1749,7 @@ function saveBatchMs(){
   const dates=computeBatchDates();
   if(!dates.length){showToast('⚠ 請確認起始日期與筆數','warn');return;}
   const c=db.cases.find(c=>c.id===caseId);if(!c)return;
-  dates.forEach((d,i)=>{c.milestones.push({id:uid(),label:labelTpl.replace(/\{n\}/g,i+1),date:d,endDate:d,note:'',time:''});});
+  dates.forEach((d,i)=>{c.milestones.push({id:uid(),label:labelTpl.replace(/[{｛]\s*n\s*[}｝]/g,i+1),date:d,endDate:d,note:'',time:''});});
   saveData();closeMo('batchMsModal');refreshCurrentView();
   showToast(`✓ 已新增 ${dates.length} 筆期程`);
 }
