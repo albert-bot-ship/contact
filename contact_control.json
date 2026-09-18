@@ -440,6 +440,7 @@
       "endDate": "2026-11-22"
     }
   ],
+  "categoryColors": {},
   "cases": [
     {
       "id": "mp6k616g5813",
@@ -642,14 +643,6 @@
           "done": true
         },
         {
-          "id": "mu6qe70tqto0",
-          "label": "提送施工Q6監測報告",
-          "date": "2026-09-18",
-          "endDate": "2026-09-18",
-          "note": "",
-          "time": ""
-        },
-        {
           "id": "mszny910zfcr",
           "label": "營建噪音振動監測",
           "date": "2026-09-21",
@@ -661,26 +654,34 @@
           "date": "2026-09-30"
         },
         {
-          "id": "mu6qe70tesyd",
-          "label": "提送施工Q7監測報告",
-          "date": "2026-12-17",
-          "endDate": "2026-12-17",
+          "id": "mu6qvxvgd19d",
+          "label": "提送施工Q6",
+          "date": "2027-03-31",
+          "endDate": "2027-03-31",
           "note": "",
           "time": ""
         },
         {
-          "id": "mu6qe70tofis",
-          "label": "提送施工Q8監測報告",
-          "date": "2027-03-17",
-          "endDate": "2027-03-17",
+          "id": "mu6qvxvgside",
+          "label": "提送施工Q7",
+          "date": "2027-06-29",
+          "endDate": "2027-06-29",
           "note": "",
           "time": ""
         },
         {
-          "id": "mu6qe70tccwp",
-          "label": "提送施工Q9監測報告",
-          "date": "2027-06-15",
-          "endDate": "2027-06-15",
+          "id": "mu6qvxvgdmk7",
+          "label": "提送施工Q8",
+          "date": "2027-09-27",
+          "endDate": "2027-09-27",
+          "note": "",
+          "time": ""
+        },
+        {
+          "id": "mu6qvxvgwif3",
+          "label": "提送施工Q9",
+          "date": "2027-12-26",
+          "endDate": "2027-12-26",
           "note": "",
           "time": ""
         }
