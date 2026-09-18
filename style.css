@@ -294,8 +294,8 @@ tr.ci:hover .ctd-acts{opacity:1}
 .sec-title{font-size:12px;font-weight:700;color:var(--txf);text-transform:uppercase;letter-spacing:.09em;display:flex;align-items:center;gap:6px}
 
 /* Milestones */
-.ms-grid{display:flex;flex-wrap:wrap;gap:8px}
-.ms-card{display:inline-flex;align-items:center;gap:8px;padding:8px 13px;border-radius:var(--r);border:1px solid var(--bd);background:var(--sf2);cursor:pointer;font-family:var(--font);font-size:14px;color:var(--txm);transition:all .18s;position:relative;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.ms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.ms-card{display:flex;align-items:center;gap:8px;padding:8px 13px;border-radius:var(--r);border:1px solid var(--bd);background:var(--sf2);cursor:pointer;font-family:var(--font);font-size:14px;color:var(--txm);transition:all .18s;position:relative;box-shadow:0 1px 3px rgba(0,0,0,.2);width:100%;text-align:left}
 .ms-card:hover{border-color:var(--bd2);box-shadow:var(--shadow-sm);transform:translateY(-1px)}
 .ms-card:active{transform:translateY(0) scale(.98);transition-duration:.08s}
 .ms-card.overdue{border-color:var(--err);background:var(--errd);color:var(--err)}
@@ -303,15 +303,15 @@ tr.ci:hover .ctd-acts{opacity:1}
 .ms-check{width:16px;height:16px;border-radius:5px;border:2px solid var(--bd2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;background:var(--sf);cursor:pointer}
 .ms-check:hover{border-color:var(--ac)}
 .ms-check.done{background:var(--ok);border-color:var(--ok);color:var(--on-accent)}
-.ms-lbl{font-weight:700}
+.ms-lbl{font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ms-note-ic{margin-left:5px;font-size:12px;cursor:pointer;opacity:.85}
 .ms-note-ic:hover{opacity:1}
 .ms-card.ms-done{opacity:.55}
 .ms-card.ms-done .ms-lbl{text-decoration:line-through}
 .dash-due-item.done{border-left-color:var(--ok);opacity:.6}
 .dash-due-item.done .dash-due-label{text-decoration:line-through}
-.ms-dt{font-size:13px;opacity:.85;font-family:var(--font-m)}
-.ms-del-btn{background:none;border:none;cursor:pointer;color:inherit;opacity:.3;padding:1px 0 1px 4px;font-size:19px;line-height:1;display:flex;align-items:center}
+.ms-dt{font-size:13px;opacity:.85;font-family:var(--font-m);flex-shrink:0}
+.ms-del-btn{background:none;border:none;cursor:pointer;color:inherit;opacity:.3;padding:1px 0 1px 4px;font-size:19px;line-height:1;display:flex;align-items:center;flex-shrink:0}
 .ms-del-btn:hover{opacity:1}
 
 /* Contact Cards + Drag */
