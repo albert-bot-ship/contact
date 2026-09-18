@@ -737,3 +737,20 @@ mark{background:rgba(var(--ac-rgb),.25);color:var(--ac);border-radius:2px;paddin
   .cal-tip{transition:opacity .1s ease}
   .cal-tip.show{transform:none}
 }
+
+/* ══ Reduced Transparency：關閉毛玻璃模糊，背景改實色 ══ */
+@media (prefers-reduced-transparency: reduce){
+  header{background:var(--sf);backdrop-filter:none;-webkit-backdrop-filter:none}
+  .lp{background:var(--sf);backdrop-filter:none;-webkit-backdrop-filter:none}
+  .mo{backdrop-filter:none}
+}
+
+/* ══ High Contrast：關鍵區塊背景趨近不透明、邊框加粗變明顯 ══ */
+@media (prefers-contrast: more){
+  header{background:var(--sf);backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:0 1px 0 var(--bd2) inset}
+  .lp{background:var(--sf);backdrop-filter:none;-webkit-backdrop-filter:none}
+  .lp::after{opacity:.8}
+  .btn,.hbtn,.chip,.sbtn,.ms-card,.ct-card,.dir-card,.sched-item,.fi,.fs,.fta{border-width:2px}
+  tr.ci{border-bottom-width:2px}
+  .cat-badge,.status-badge,.phase-badge{border:1px solid currentColor}
+}ㄋ
