@@ -244,9 +244,10 @@
       <input type="hidden" id="bmCaseId">
       <div class="fg"><label class="fl">名稱樣板 <span class="fr">*</span></label><input class="fi" id="bmLabel" placeholder="第{n}次監測、第{n}季報告…" oninput="renderBatchPreview()"></div>
       <div class="settings-hint" style="margin-top:2px">用 <code>{n}</code> 代表第幾筆（從 1 開始），半形/全形大括號都可以，不需要編號可以不寫</div>
-      <div class="frow" style="margin-top:10px">
+      <div class="frow" style="grid-template-columns:1fr 1fr auto;margin-top:10px">
         <div class="fg"><label class="fl">起始日期 <span class="fr">*</span></label><input class="fi" id="bmStart" type="date" onchange="renderBatchPreview()"></div>
         <div class="fg"><label class="fl">產生筆數 <span class="fr">*</span></label><input class="fi" id="bmCount" type="number" min="1" max="52" value="4" oninput="renderBatchPreview()"></div>
+        <div class="fg" style="max-width:100px"><label class="fl">起始編號</label><input class="fi" id="bmStartNum" type="number" value="1" oninput="renderBatchPreview()"></div>
       </div>
       <div class="fg" style="margin-top:10px"><label class="fl">頻率</label>
         <select class="fs" id="bmFreq" onchange="document.getElementById('bmCustomField').style.display=this.value==='custom'?'':'none';renderBatchPreview()">
@@ -1729,6 +1730,7 @@ function openBatchMsModal(caseId){
   document.getElementById('bmLabel').value='';
   document.getElementById('bmStart').value=today();
   document.getElementById('bmCount').value=4;
+  document.getElementById('bmStartNum').value=1;
   document.getElementById('bmFreq').value='90';
   document.getElementById('bmCustomField').style.display='none';
   document.getElementById('bmCustomDays').value=30;
@@ -1738,9 +1740,10 @@ function openBatchMsModal(caseId){
 }
 function renderBatchPreview(){
   const label=document.getElementById('bmLabel').value.trim()||'（未命名）';
+  const startNum=parseInt(document.getElementById('bmStartNum').value)||1;
   const dates=computeBatchDates();
   const el=document.getElementById('bmPreview');if(!el)return;
-  el.innerHTML=dates.length?dates.map((d,i)=>`${esc(label.replace(/[{｛]\s*n\s*[}｝]/g,i+1))}：${d}`).join('<br>'):'請填入起始日期與筆數';
+  el.innerHTML=dates.length?dates.map((d,i)=>`${esc(label.replace(/[{｛]\s*n\s*[}｝]/g,startNum+i))}：${d}`).join('<br>'):'請填入起始日期與筆數';
 }
 function saveBatchMs(){
   const caseId=document.getElementById('bmCaseId').value;
@@ -1749,7 +1752,8 @@ function saveBatchMs(){
   const dates=computeBatchDates();
   if(!dates.length){showToast('⚠ 請確認起始日期與筆數','warn');return;}
   const c=db.cases.find(c=>c.id===caseId);if(!c)return;
-  dates.forEach((d,i)=>{c.milestones.push({id:uid(),label:labelTpl.replace(/[{｛]\s*n\s*[}｝]/g,i+1),date:d,endDate:d,note:'',time:''});});
+  const startNum=parseInt(document.getElementById('bmStartNum').value)||1;
+  dates.forEach((d,i)=>{c.milestones.push({id:uid(),label:labelTpl.replace(/[{｛]\s*n\s*[}｝]/g,startNum+i),date:d,endDate:d,note:'',time:''});});
   saveData();closeMo('batchMsModal');refreshCurrentView();
   showToast(`✓ 已新增 ${dates.length} 筆期程`);
 }
