@@ -25,6 +25,9 @@
     <button class="nav-tab" id="tabSettings" onclick="setView('settings')">設定</button>
   </div>
   <div class="hsp"></div>
+  <button class="hbtn hbtn-icon" onclick="openGlobalSearch()" title="快速搜尋 (Ctrl/Cmd+K)">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+  </button>
   <button class="hbtn hbtn-icon" id="btnExportJSON" onclick="exportJSON()" title="匯出 JSON 備份">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
   </button>
@@ -227,6 +230,48 @@
 </div>
 
 <!-- Milestone Modal -->
+<div class="mo" id="importDiffModal">
+  <div class="md" style="max-width:600px">
+    <div class="mh"><span class="mt">匯入差異比對</span><button class="mcl" onclick="closeMo('importDiffModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mb" id="idfBody" style="max-height:60vh;overflow-y:auto"></div>
+    <div class="mf"><button class="btn" onclick="closeMo('importDiffModal')">取消</button><button class="btn btn-p" onclick="applyImportDiff()">套用勾選項目</button></div>
+  </div>
+</div>
+<div class="mo" id="batchMsModal">
+  <div class="md">
+    <div class="mh"><span class="mt">批次新增期程</span><button class="mcl" onclick="closeMo('batchMsModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mb">
+      <input type="hidden" id="bmCaseId">
+      <div class="fg"><label class="fl">名稱樣板 <span class="fr">*</span></label><input class="fi" id="bmLabel" placeholder="第{n}次監測、第{n}季報告…" oninput="renderBatchPreview()"></div>
+      <div class="settings-hint" style="margin-top:2px">用 <code>{n}</code> 代表第幾筆（從 1 開始），不需要編號可以不寫</div>
+      <div class="frow" style="margin-top:10px">
+        <div class="fg"><label class="fl">起始日期 <span class="fr">*</span></label><input class="fi" id="bmStart" type="date" onchange="renderBatchPreview()"></div>
+        <div class="fg"><label class="fl">產生筆數 <span class="fr">*</span></label><input class="fi" id="bmCount" type="number" min="1" max="52" value="4" oninput="renderBatchPreview()"></div>
+      </div>
+      <div class="fg" style="margin-top:10px"><label class="fl">頻率</label>
+        <select class="fs" id="bmFreq" onchange="document.getElementById('bmCustomField').style.display=this.value==='custom'?'':'none';renderBatchPreview()">
+          <option value="30">每月（間隔 30 天）</option>
+          <option value="90" selected>每季（間隔 90 天）</option>
+          <option value="182">每半年（間隔 182 天）</option>
+          <option value="365">每年（間隔 365 天）</option>
+          <option value="custom">自訂間隔天數</option>
+        </select>
+      </div>
+      <div class="fg" id="bmCustomField" style="display:none"><label class="fl">自訂間隔天數</label><input class="fi" id="bmCustomDays" type="number" min="1" value="30" oninput="renderBatchPreview()"></div>
+      <div class="fg" style="margin-top:10px"><label class="fl">預覽</label><div id="bmPreview" class="settings-hint" style="margin-top:0"></div></div>
+    </div>
+    <div class="mf"><button class="btn" onclick="closeMo('batchMsModal')">取消</button><button class="btn btn-p" onclick="saveBatchMs()">確定新增</button></div>
+  </div>
+</div>
+<div class="mo" id="searchModal">
+  <div class="md" style="max-width:560px">
+    <div class="mh"><span class="mt">快速搜尋</span><button class="mcl" onclick="closeMo('searchModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mb">
+      <input class="fi" id="gsInput" placeholder="搜尋案件、聯絡人、期程、聯絡記錄…" oninput="doGlobalSearch(this.value)" style="margin-bottom:4px">
+      <div id="gsResults"></div>
+    </div>
+  </div>
+</div>
 <div class="mo" id="msModal">
   <div class="md">
     <div class="mh"><span class="mt" id="msMT">新增期程</span><button class="mcl" onclick="closeMo('msModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
@@ -715,7 +760,8 @@ function renderCasesRP(){
     </div>
     <div class="cd-sec">
       <div class="cd-sec-hd"><span class="sec-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>期程</span>
-      <button class="btn btn-xs" onclick="openMsModal('${c.id}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增期程</button></div>
+      <button class="btn btn-xs" onclick="openMsModal('${c.id}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增期程</button>
+      <button class="btn btn-xs" onclick="openBatchMsModal('${c.id}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="7" height="7" rx="1"/><rect x="14" y="4" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>批次新增</button></div>
       <div class="ms-grid">${msHtml||`<span style="font-size:14px;color:var(--txf)">尚無期程</span>`}</div>
     </div>
     <div class="cd-sec">
@@ -934,6 +980,7 @@ function renderDashboard(){
         <div class="dash-card-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${urgentDays} 天內到期期程（含逾期）</div>
         <div class="dash-list">
           ${upcoming.length?upcoming.map(m=>{const urg=urgency(msEnd(m));const goto=m.isCompany?`setView('schedule')`:`setView('cases');selCase('${m.caseId}')`;const cls=m.done?'done':(urg==='overdue'?'overdue':urg==='urgent'?'urgent':'');return`<div class="dash-due-item ${cls}" onclick="${goto}">
+            <span class="ms-check" style="flex-shrink:0" onclick="event.stopPropagation();toggleMsDone('${m.isCompany?COMPANY_ID:m.caseId}','${m.id}')" title="標記完成"></span>
             <div class="dash-due-info"><div class="dash-due-label">${m.done?'✓ ':''}${esc(m.label)}</div><div class="dash-due-case">${m.isCompany?'🏢 公司期程':esc(m.caseName)}</div></div>
             <span class="dash-due-date" style="color:${m.done?'var(--txf)':urg==='overdue'?'var(--err)':urg==='urgent'?'var(--warn)':'var(--txm)'}">${msDateStr(m)}</span>
           </div>`;}).join(''):`<div class="dash-empty">近期沒有到期期程</div>`}
@@ -1661,6 +1708,51 @@ function refreshCurrentView(){
   else if(view==='dashboard')renderDashboard();
   else if(view==='schedule')renderSchedule();
 }
+function getBatchDays(){
+  const freq=document.getElementById('bmFreq').value;
+  return freq==='custom'?(parseInt(document.getElementById('bmCustomDays').value)||30):parseInt(freq);
+}
+function computeBatchDates(){
+  const start=document.getElementById('bmStart').value;
+  const count=parseInt(document.getElementById('bmCount').value)||0;
+  if(!start||count<1)return[];
+  const days=getBatchDays();
+  const dates=[];
+  for(let i=0;i<count;i++){
+    const x=new Date(start+'T00:00:00');x.setDate(x.getDate()+days*i);
+    dates.push(`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`);
+  }
+  return dates;
+}
+function openBatchMsModal(caseId){
+  document.getElementById('bmCaseId').value=caseId;
+  document.getElementById('bmLabel').value='';
+  document.getElementById('bmStart').value=today();
+  document.getElementById('bmCount').value=4;
+  document.getElementById('bmFreq').value='90';
+  document.getElementById('bmCustomField').style.display='none';
+  document.getElementById('bmCustomDays').value=30;
+  openMo('batchMsModal');
+  renderBatchPreview();
+  setTimeout(()=>document.getElementById('bmLabel').focus(),80);
+}
+function renderBatchPreview(){
+  const label=document.getElementById('bmLabel').value.trim()||'（未命名）';
+  const dates=computeBatchDates();
+  const el=document.getElementById('bmPreview');if(!el)return;
+  el.innerHTML=dates.length?dates.map((d,i)=>`${esc(label.replace(/\{n\}/g,i+1))}：${d}`).join('<br>'):'請填入起始日期與筆數';
+}
+function saveBatchMs(){
+  const caseId=document.getElementById('bmCaseId').value;
+  const labelTpl=document.getElementById('bmLabel').value.trim();
+  if(!labelTpl){showToast('⚠ 請填入名稱樣板','warn');return;}
+  const dates=computeBatchDates();
+  if(!dates.length){showToast('⚠ 請確認起始日期與筆數','warn');return;}
+  const c=db.cases.find(c=>c.id===caseId);if(!c)return;
+  dates.forEach((d,i)=>{c.milestones.push({id:uid(),label:labelTpl.replace(/\{n\}/g,i+1),date:d,endDate:d,note:'',time:''});});
+  saveData();closeMo('batchMsModal');refreshCurrentView();
+  showToast(`✓ 已新增 ${dates.length} 筆期程`);
+}
 function openMsModal(caseId,msId){
   document.getElementById('msMT').textContent=msId?'編輯期程':'新增期程';
   document.getElementById('msCaseId').value=caseId;document.getElementById('msId').value=msId||'';
@@ -1711,6 +1803,30 @@ function saveMilestone(){
     else c.milestones.push({id:uid(),label,date,endDate,note,time});
   }
   saveData();refreshCurrentView();closeMo('msModal');showToast(msId?'✓ 期程已更新':'✓ 期程已新增');
+}
+function openGlobalSearch(){
+  const inp=document.getElementById('gsInput');inp.value='';
+  document.getElementById('gsResults').innerHTML='<div class="dash-empty">輸入關鍵字開始搜尋（案件、聯絡人、期程、聯絡記錄）</div>';
+  openMo('searchModal');setTimeout(()=>inp.focus(),80);
+}
+function doGlobalSearch(qRaw){
+  const q=qRaw.trim().toLowerCase();
+  const el=document.getElementById('gsResults');
+  if(!q){el.innerHTML='<div class="dash-empty">輸入關鍵字開始搜尋（案件、聯絡人、期程、聯絡記錄）</div>';return;}
+  const caseHits=db.cases.filter(c=>c.name.toLowerCase().includes(q)||(c.category||'').toLowerCase().includes(q)).slice(0,6);
+  const contactHits=db.contacts.filter(ct=>(ct.name||'').toLowerCase().includes(q)||(ct.phone||'').includes(q)||(ct.email||'').toLowerCase().includes(q)||(ct.role||'').toLowerCase().includes(q)).slice(0,6);
+  const msHits=[];
+  db.cases.forEach(c=>(c.milestones||[]).forEach(m=>{if(m.label.toLowerCase().includes(q)||(m.note||'').toLowerCase().includes(q))msHits.push({...m,caseId:c.id,caseName:c.name});}));
+  companyMsItems().forEach(m=>{if(m.label.toLowerCase().includes(q)||(m.note||'').toLowerCase().includes(q))msHits.push(m);});
+  const logHits=[];
+  db.cases.forEach(c=>(c.contactRefs||[]).forEach(ref=>(ref.logs||[]).forEach(l=>{if((l.content||'').toLowerCase().includes(q))logHits.push({caseId:c.id,caseName:c.name,content:l.content,date:l.date});})));
+  const groups=[
+    {title:'案件',items:caseHits.slice(0,6).map(c=>({main:c.name,sub:c.category||'未分類',go:`setView('cases');selCase('${c.id}')`}))},
+    {title:'聯絡人',items:contactHits.slice(0,6).map(ct=>({main:ct.name,sub:[ct.role,ct.phone,ct.email].filter(Boolean).join(' · ')||'—',go:`setView('directory');selDir('${ct.id}')`}))},
+    {title:'期程',items:msHits.slice(0,8).map(m=>({main:m.label,sub:`${m.caseName} · ${msDateStr(m)}`,go:`openMsModal('${m.caseId}','${m.id}')`}))},
+    {title:'聯絡記錄',items:logHits.slice(0,6).map(l=>({main:l.content.length>50?l.content.slice(0,50)+'…':l.content,sub:`${l.caseName} · ${l.date}`,go:`setView('cases');selCase('${l.caseId}')`}))}
+  ].filter(g=>g.items.length);
+  el.innerHTML=groups.length?groups.map(g=>`<div class="gs-group-title">${g.title}</div>${g.items.map(it=>`<div class="gs-item" onclick="closeMo('searchModal');${it.go}"><div class="gs-item-main">${esc(it.main)}</div><div class="gs-item-sub">${esc(it.sub)}</div></div>`).join('')}`).join(''):`<div class="dash-empty">沒有符合「${esc(qRaw)}」的結果</div>`;
 }
 function toggleMsDone(caseId,msId){
   let m=null;
@@ -1890,16 +2006,84 @@ function exportJSON(){
   recordBackup();
   showToast('✓ JSON 匯出完成，可上傳 GitHub 備份');
 }
+let _importDiff=null;
+function computeDiffGroup(localArr,impArr){
+  const localMap=new Map(localArr.map(x=>[x.id,x]));
+  const impMap=new Map(impArr.map(x=>[x.id,x]));
+  const added=[],removed=[],modified=[];
+  impMap.forEach((v,id)=>{if(!localMap.has(id))added.push(v);});
+  localMap.forEach((v,id)=>{if(!impMap.has(id))removed.push(v);});
+  localMap.forEach((v,id)=>{if(impMap.has(id)){const iv=impMap.get(id);if(JSON.stringify(v)!==JSON.stringify(iv))modified.push({local:v,imp:iv});}});
+  return{added,removed,modified};
+}
+function renderDiffSection(title,typeKey,diff,nameFn){
+  if(!diff.added.length&&!diff.removed.length&&!diff.modified.length)return'';
+  let html=`<div class="gs-group-title">${esc(title)}</div>`;
+  diff.added.forEach(it=>{
+    html+=`<div class="idf-row"><input type="checkbox" id="idf_add_${typeKey}_${it.id}" checked><label for="idf_add_${typeKey}_${it.id}">➕ 匯入檔新增「${esc(nameFn(it))}」</label></div>`;
+  });
+  diff.removed.forEach(it=>{
+    html+=`<div class="idf-row"><input type="checkbox" id="idf_del_${typeKey}_${it.id}"><label for="idf_del_${typeKey}_${it.id}">🗑 本機獨有「${esc(nameFn(it))}」（匯入檔沒有）——勾選＝刪除本機這筆，不勾＝保留</label></div>`;
+  });
+  diff.modified.forEach(({local})=>{
+    html+=`<div class="idf-row idf-mod"><div>✏️ 「${esc(nameFn(local))}」內容不同：</div><div>
+      <label><input type="radio" name="idf_mod_${typeKey}_${local.id}" value="import" checked> 使用匯入版</label>
+      <label><input type="radio" name="idf_mod_${typeKey}_${local.id}" value="local"> 保留本機版</label></div></div>`;
+  });
+  return html;
+}
+function openImportDiffModal(imp){
+  const caseDiff=computeDiffGroup(db.cases,imp.cases||[]);
+  const contactDiff=computeDiffGroup(db.contacts||[],imp.contacts||[]);
+  const msDiff=computeDiffGroup(db.companyMilestones||[],imp.companyMilestones||[]);
+  const empty=g=>!g.added.length&&!g.removed.length&&!g.modified.length;
+  if(empty(caseDiff)&&empty(contactDiff)&&empty(msDiff)){
+    showToast('匯入檔與本機資料沒有差異，未做任何變更','warn');return;
+  }
+  _importDiff={imp,caseDiff,contactDiff,msDiff};
+  const body=[
+    renderDiffSection('案件','case',caseDiff,c=>c.name),
+    renderDiffSection('聯絡人','contact',contactDiff,c=>c.name),
+    renderDiffSection('公司期程','ms',msDiff,m=>m.label)
+  ].join('');
+  document.getElementById('idfBody').innerHTML=body||'<div class="dash-empty">沒有差異</div>';
+  openMo('importDiffModal');
+}
+function applyImportDiff(){
+  if(!_importDiff)return;
+  const{imp,caseDiff,contactDiff,msDiff}=_importDiff;
+  function mergeArray(localArr,diff,typeKey){
+    let arr=localArr.filter(it=>{
+      const del=diff.removed.find(r=>r.id===it.id);
+      if(del){const chk=document.getElementById(`idf_del_${typeKey}_${it.id}`);return!(chk&&chk.checked);}
+      return true;
+    });
+    arr=arr.map(it=>{
+      const mod=diff.modified.find(m=>m.local.id===it.id);
+      if(mod){const radio=document.querySelector(`input[name="idf_mod_${typeKey}_${it.id}"]:checked`);return(radio&&radio.value==='local')?it:mod.imp;}
+      return it;
+    });
+    diff.added.forEach(it=>{const chk=document.getElementById(`idf_add_${typeKey}_${it.id}`);if(!chk||chk.checked)arr.push(it);});
+    return arr;
+  }
+  db.cases=mergeArray(db.cases,caseDiff,'case');
+  db.contacts=mergeArray(db.contacts||[],contactDiff,'contact');
+  db.companyMilestones=mergeArray(db.companyMilestones||[],msDiff,'ms');
+  (imp.categories||[]).forEach(cat=>{if(!db.categories.includes(cat))db.categories.push(cat);});
+  db.categoryStageTemplates={...(db.categoryStageTemplates||{}),...(imp.categoryStageTemplates||{})};
+  selId=null;selDirId=null;saveData();renderToolbar();renderLP();renderRP();
+  closeMo('importDiffModal');_importDiff=null;
+  showToast('✓ 已套用選擇的匯入內容');
+}
 function importJSON(e){
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=ev=>{
     try{
       const imp=JSON.parse(ev.target.result);if(!Array.isArray(imp.cases))throw 0;
-      if(!confirm(`確定匯入？現有 ${db.cases.length} 筆案件、${db.contacts.length} 位聯絡人將被覆蓋。`))return;
-      db=imp;if(!db.categories)db.categories=[...DEF_CATS];if(!db.contacts)db.contacts=[];if(!db.categoryStageTemplates||typeof db.categoryStageTemplates!=='object')db.categoryStageTemplates={};
-      db.cases.forEach(c=>{if(!c.status)c.status='進行中';if(!c.milestones)c.milestones=[];if(!c.stages)c.stages=[];if(!c.contactRefs)c.contactRefs=[];if(c.memo==null)c.memo='';if(!c.createdAt)c.createdAt=Date.now();c.contactRefs.forEach(ref=>{if(!ref.logs)ref.logs=[];});});
-      selId=null;selDirId=null;saveData();renderToolbar();renderLP();renderRP();showToast(`✓ 已匯入 ${db.cases.length} 筆案件、${db.contacts.length} 位聯絡人`);
+      if(!imp.categories)imp.categories=[...DEF_CATS];if(!imp.contacts)imp.contacts=[];if(!imp.companyMilestones)imp.companyMilestones=[];if(!imp.categoryStageTemplates||typeof imp.categoryStageTemplates!=='object')imp.categoryStageTemplates={};
+      imp.cases.forEach(c=>{if(!c.status)c.status='進行中';if(!c.milestones)c.milestones=[];if(!c.stages)c.stages=[];if(!c.contactRefs)c.contactRefs=[];if(c.memo==null)c.memo='';if(!c.createdAt)c.createdAt=Date.now();c.contactRefs.forEach(ref=>{if(!ref.logs)ref.logs=[];});});
+      openImportDiffModal(imp);
     }catch{showToast('⚠ 匯入失敗：請確認為有效 JSON 備份','warn');}e.target.value='';
   };reader.readAsText(file);
 }
@@ -2426,6 +2610,7 @@ function moveSelection(dir){
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape')document.querySelectorAll('.mo.open').forEach(m=>closeMo(m.id));
   if(document.querySelector('.mo.open'))return;
+  if((e.ctrlKey||e.metaKey)&&(e.key==='k'||e.key==='K')){e.preventDefault();openGlobalSearch();return;}
   const tag=(e.target.tagName||'').toLowerCase();
   const typing=tag==='input'||tag==='textarea'||tag==='select'||e.target.isContentEditable;
   if(typing)return;
