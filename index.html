@@ -230,6 +230,22 @@
 </div>
 
 <!-- Milestone Modal -->
+<div class="mo" id="batchEditModal">
+  <div class="md" style="max-width:520px">
+    <div class="mh"><span class="mt">批次調整期程</span><button class="mcl" onclick="closeMo('batchEditModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mb">
+      <input type="hidden" id="beCaseId">
+      <div class="settings-hint">勾選要調整的期程，可以整批往前/往後挪日期，或整批刪除。</div>
+      <div id="beList" style="max-height:320px;overflow-y:auto;margin-top:6px"></div>
+      <div class="frow" style="margin-top:12px">
+        <div class="fg"><label class="fl">位移天數</label><input class="fi" id="beShiftDays" type="number" value="0" placeholder="正數往後、負數往前"></div>
+        <div class="fg" style="justify-content:flex-end;display:flex;align-items:flex-end"><button class="btn btn-sm" style="width:100%" onclick="applyBatchShift()">套用位移到勾選項目</button></div>
+      </div>
+      <button class="btn btn-sm" style="margin-top:10px;color:var(--err);border-color:rgba(240,69,69,.3)" onclick="applyBatchDelete()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>刪除勾選項目</button>
+    </div>
+    <div class="mf"><button class="btn" onclick="closeMo('batchEditModal')">關閉</button></div>
+  </div>
+</div>
 <div class="mo" id="importDiffModal">
   <div class="md" style="max-width:600px">
     <div class="mh"><span class="mt">匯入差異比對</span><button class="mcl" onclick="closeMo('importDiffModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
@@ -372,10 +388,17 @@ const BASE_COL={'環評':[99,140,255],'環差':[167,110,210],'監測':[34,197,15
 const STATUS_CLS={進行中:'s-active',待辦:'s-pending',暫停:'s-paused',結案:'s-closed'};
 const COMPANY_ID='__company__';
 function companyMsItems(){return(db.companyMilestones||[]).map(m=>({...m,caseId:COMPANY_ID,caseName:'公司期程',caseCategory:null,isCompany:true}));}
-function catCol(cat){if(!cat)return['var(--acd)','var(--ac)'];if(BASE_COL[cat]){const[r,g,b]=BASE_COL[cat];return[`rgba(${r},${g},${b},.22)`,`rgb(${r},${g},${b})`];}let h=0;for(let i=0;i<cat.length;i++)h=(h*37+cat.charCodeAt(i))%360;return[`hsla(${h},60%,64%,.22)`,`hsl(${h},60%,64%)`];}
+function catCol(cat){
+  if(!cat)return['var(--acd)','var(--ac)'];
+  const custom=db.categoryColors&&db.categoryColors[cat];
+  if(custom){const rgb=hexToRgb(custom);return[`rgba(${rgb},.22)`,custom];}
+  if(BASE_COL[cat]){const[r,g,b]=BASE_COL[cat];return[`rgba(${r},${g},${b},.22)`,`rgb(${r},${g},${b})`];}
+  let h=0;for(let i=0;i<cat.length;i++)h=(h*37+cat.charCodeAt(i))%360;return[`hsla(${h},60%,64%,.22)`,`hsl(${h},60%,64%)`];
+}
+function hexToRgb(hex){const m=hex.replace('#','');const r=parseInt(m.substring(0,2),16),g=parseInt(m.substring(2,4),16),b=parseInt(m.substring(4,6),16);return`${r},${g},${b}`;}
 
 /* ── State ── */
-let db={categories:[...DEF_CATS],contacts:[],cases:[],categoryStageTemplates:{},companyMilestones:[]};
+let db={categories:[...DEF_CATS],contacts:[],cases:[],categoryStageTemplates:{},companyMilestones:[],categoryColors:{}};
 let view='cases',selId=null,selDirId=null;
 let addrSelDir=new Set();
 let sortKey=localStorage.getItem('caseSortKey')||'newest',filterCat='',filterStatus='',searchCaseQ='',searchCtQ='',showClosedInAll=false,ctCardSearch='';
@@ -388,6 +411,7 @@ let themeMode=localStorage.getItem('themeMode')||'auto';
 let urgentDays=parseInt(localStorage.getItem('urgentDays'))||7;
 let soonDays=parseInt(localStorage.getItem('soonDays'))||30;
 let backupReminderDays=parseInt(localStorage.getItem('backupReminderDays'))||7;
+let listDensity=localStorage.getItem('listDensity')||'comfortable';
 const ACCENT_THEMES=[
   {id:'blue',name:'M藍',c1:'#0057B8',c3:'#6F2CA7'},
   {id:'green',name:'翠綠',c1:'#00897B',c3:'#00695C'},
@@ -419,6 +443,7 @@ function loadData(){
     if(!db.contacts)db.contacts=[];
     if(!db.categoryStageTemplates)db.categoryStageTemplates={};
     if(!db.companyMilestones)db.companyMilestones=[];
+    if(!db.categoryColors)db.categoryColors={};
     db.cases.forEach(c=>{
       if(!c.status)c.status='進行中';
       if(!c.milestones)c.milestones=[];
@@ -436,10 +461,10 @@ function loadData(){
       }
       if(!c.contactRefs)c.contactRefs=[];
     });
-  }catch{db={categories:[...DEF_CATS],contacts:[],cases:[],categoryStageTemplates:{},companyMilestones:[]};}
+  }catch{db={categories:[...DEF_CATS],contacts:[],cases:[],categoryStageTemplates:{},companyMilestones:[],categoryColors:{}};}
 }
 function cleanDb(){
-  return{categories:db.categories,contacts:db.contacts,categoryStageTemplates:db.categoryStageTemplates||{},companyMilestones:db.companyMilestones||[],cases:db.cases.map(c=>{
+  return{categories:db.categories,contacts:db.contacts,categoryStageTemplates:db.categoryStageTemplates||{},companyMilestones:db.companyMilestones||[],categoryColors:db.categoryColors||{},cases:db.cases.map(c=>{
     const{_x,...r}=c;
     return{...r,contactRefs:(r.contactRefs||[]).map(ref=>{const{_logsOpen,_ctExpanded,...rr}=ref;return rr;})};
   })};
@@ -501,6 +526,7 @@ function renderToolbar(){
       <div class="sw swa"><span class="si"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span><input class="sinput" id="searchCase" placeholder="搜尋案件/備忘/記錄… (Enter)" type="search" autocomplete="off"></div>
       <div class="sw swb"><span class="si"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><input class="sinput" id="searchContact" placeholder="搜尋聯絡人… (Enter)" type="search" autocomplete="off"></div>
       <div class="tsep"></div>
+      <button class="btn btn-sm" onclick="toggleListDensity()" title="切換清單顯示密度">${listDensity==='compact'?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="8" x2="21" y2="8"/><line x1="3" y1="16" x2="21" y2="16"/></svg>舒適':'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>精簡'}</button>
       <button class="btn btn-sm" onclick="exportCSV()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>CSV</button>
       <button class="btn btn-sm" onclick="printAllCases()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>彙整列印(PDF)</button>
       <button class="btn btn-sm" onclick="printView()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>列印</button>
@@ -668,7 +694,7 @@ function renderCasesList(){
       </td>
     </tr>`;
   }).join('');
-  el.innerHTML=`<div class="case-table-wrap"><table class="case-table">
+  el.innerHTML=`<div class="case-table-wrap"><table class="case-table ${listDensity==='compact'?'compact':''}">
     <thead><tr>
       ${isClosedView?'':'<th style="width:20px"></th>'}
       <th>案件名稱</th>
@@ -770,7 +796,8 @@ function renderCasesRP(){
     <div class="cd-sec">
       <div class="cd-sec-hd"><span class="sec-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>期程</span>
       <button class="btn btn-xs" onclick="openMsModal('${c.id}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增期程</button>
-      <button class="btn btn-xs" onclick="openBatchMsModal('${c.id}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="7" height="7" rx="1"/><rect x="14" y="4" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>批次新增</button></div>
+      <button class="btn btn-xs" onclick="openBatchMsModal('${c.id}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="7" height="7" rx="1"/><rect x="14" y="4" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>批次新增</button>
+      <button class="btn btn-xs" onclick="openBatchEditModal('${c.id}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6h11M9 12h11M9 18h11"/><path d="m3 6 1.5 1.5L7 5"/><path d="m3 12 1.5 1.5L7 11"/><path d="m3 18 1.5 1.5L7 17"/></svg>批次調整</button></div>
       <div class="ms-grid">${msHtml||(farMs.length?'':`<span style="font-size:14px;color:var(--txf)">尚無期程</span>`)}</div>
       ${farHtml}
     </div>
@@ -1280,6 +1307,11 @@ function renderSettingsTabBody(){
     updatePwdStatus();
   }
 }
+function toggleListDensity(){
+  listDensity=listDensity==='compact'?'comfortable':'compact';
+  localStorage.setItem('listDensity',listDensity);
+  renderToolbar();renderCasesList();
+}
 function updateUrgentDays(val){
   const n=parseInt(val);
   if(!n||n<1){showToast('⚠ 請輸入大於 0 的天數','warn');renderSettingsTabBody();return;}
@@ -1718,6 +1750,51 @@ function refreshCurrentView(){
   else if(view==='dashboard')renderDashboard();
   else if(view==='schedule')renderSchedule();
 }
+function shiftDateStr(dateStr,days){
+  const d=new Date(dateStr+'T00:00:00');d.setDate(d.getDate()+days);
+  return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function openBatchEditModal(caseId){
+  document.getElementById('beCaseId').value=caseId;
+  document.getElementById('beShiftDays').value=0;
+  renderBatchEditList();
+  openMo('batchEditModal');
+}
+function renderBatchEditList(){
+  const caseId=document.getElementById('beCaseId').value;
+  const c=db.cases.find(c=>c.id===caseId);if(!c)return;
+  const mss=(c.milestones||[]).slice().sort((a,b)=>a.date.localeCompare(b.date));
+  const el=document.getElementById('beList');
+  el.innerHTML=mss.length?mss.map(m=>`<label class="idf-row" style="cursor:pointer"><input type="checkbox" class="be-chk" value="${m.id}"><span>${esc(m.label)}　<span style="color:var(--txf)">${msDateStr(m)}${m.done?'（已完成）':''}</span></span></label>`).join(''):'<div class="dash-empty">此案件尚無期程</div>';
+}
+function getBeSelected(){return Array.from(document.querySelectorAll('.be-chk:checked')).map(el=>el.value);}
+function applyBatchShift(){
+  const caseId=document.getElementById('beCaseId').value;
+  const days=parseInt(document.getElementById('beShiftDays').value)||0;
+  const ids=getBeSelected();
+  if(!ids.length){showToast('⚠ 請至少勾選一筆','warn');return;}
+  if(!days){showToast('⚠ 請輸入不為 0 的位移天數','warn');return;}
+  const c=db.cases.find(c=>c.id===caseId);if(!c)return;
+  c.milestones.forEach(m=>{
+    if(ids.includes(m.id)){
+      m.date=shiftDateStr(m.date,days);
+      if(m.endDate)m.endDate=shiftDateStr(m.endDate,days);
+      else m.endDate=m.date;
+    }
+  });
+  saveData();renderBatchEditList();refreshCurrentView();
+  showToast(`✓ 已將 ${ids.length} 筆期程位移 ${days > 0 ? '+' : ''}${days} 天`);
+}
+function applyBatchDelete(){
+  const caseId=document.getElementById('beCaseId').value;
+  const ids=getBeSelected();
+  if(!ids.length){showToast('⚠ 請至少勾選一筆','warn');return;}
+  if(!confirm(`確定刪除勾選的 ${ids.length} 筆期程？此動作無法復原。`))return;
+  const c=db.cases.find(c=>c.id===caseId);if(!c)return;
+  c.milestones=c.milestones.filter(m=>!ids.includes(m.id));
+  saveData();renderBatchEditList();refreshCurrentView();
+  showToast(`✓ 已刪除 ${ids.length} 筆期程`);
+}
 function getBatchDays(){
   const freq=document.getElementById('bmFreq').value;
   return freq==='custom'?(parseInt(document.getElementById('bmCustomDays').value)||30):parseInt(freq);
@@ -1889,10 +1966,27 @@ function renderCatList(){
   document.getElementById('catList').innerHTML=db.categories.map(cat=>{
     const[,fg]=catCol(cat);
     return`<div class="scat-item" data-cat="${esc(cat)}">
-      <div class="scat-nm"><span class="scat-drag" onpointerdown="ptrDragBegin(event,'.scat-item','${esc(cat)}',commitCatReorder)" title="拖曳排序"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></span><div class="scat-dot" style="background:${fg}"></div>${esc(cat)}</div>
-      <button class="ibtn del" onclick="deleteCat('${esc(cat)}')" title="刪除"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <div class="scat-nm"><span class="scat-drag" onpointerdown="ptrDragBegin(event,'.scat-item','${esc(cat)}',commitCatReorder)" title="拖曳排序"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></span><input type="color" class="scat-color" value="${catColorHex(cat)}" onchange="setCatColor('${esc(cat)}',this.value)" title="自訂此類別的顏色">${esc(cat)}</div>
+      <div style="display:flex;align-items:center;gap:4px">
+        ${db.categoryColors&&db.categoryColors[cat]?`<button class="ibtn" onclick="resetCatColor('${esc(cat)}')" title="還原成自動配色"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>`:''}
+        <button class="ibtn del" onclick="deleteCat('${esc(cat)}')" title="刪除"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
     </div>`;
   }).join('');
+}
+function catColorHex(cat){
+  if(db.categoryColors&&db.categoryColors[cat])return db.categoryColors[cat];
+  if(BASE_COL[cat]){const[r,g,b]=BASE_COL[cat];return'#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');}
+  return'#888888';
+}
+function setCatColor(cat,hex){
+  if(!db.categoryColors)db.categoryColors={};
+  db.categoryColors[cat]=hex;
+  saveData();renderCatList();renderCatChips();refreshCurrentView();
+}
+function resetCatColor(cat){
+  if(db.categoryColors)delete db.categoryColors[cat];
+  saveData();renderCatList();renderCatChips();refreshCurrentView();
 }
 function addCategory(){
   const val=document.getElementById('newCatInput').value.trim();if(!val)return;
@@ -1906,6 +2000,7 @@ function deleteCat(cat){
   if(used)db.cases.forEach(c=>{if(c.category===cat)c.category='';});
   db.categories=db.categories.filter(c=>c!==cat);
   if(db.categoryStageTemplates)delete db.categoryStageTemplates[cat];
+  if(db.categoryColors)delete db.categoryColors[cat];
   saveData();renderCatChips();renderCatList();renderCasesList();renderStageTemplateList();showToast('類別已刪除','warn');
 }
 
@@ -2084,6 +2179,7 @@ function applyImportDiff(){
   db.companyMilestones=mergeArray(db.companyMilestones||[],msDiff,'ms');
   (imp.categories||[]).forEach(cat=>{if(!db.categories.includes(cat))db.categories.push(cat);});
   db.categoryStageTemplates={...(db.categoryStageTemplates||{}),...(imp.categoryStageTemplates||{})};
+  db.categoryColors={...(db.categoryColors||{}),...(imp.categoryColors||{})};
   selId=null;selDirId=null;saveData();renderToolbar();renderLP();renderRP();
   closeMo('importDiffModal');_importDiff=null;
   showToast('✓ 已套用選擇的匯入內容');
@@ -2094,7 +2190,7 @@ function importJSON(e){
   reader.onload=ev=>{
     try{
       const imp=JSON.parse(ev.target.result);if(!Array.isArray(imp.cases))throw 0;
-      if(!imp.categories)imp.categories=[...DEF_CATS];if(!imp.contacts)imp.contacts=[];if(!imp.companyMilestones)imp.companyMilestones=[];if(!imp.categoryStageTemplates||typeof imp.categoryStageTemplates!=='object')imp.categoryStageTemplates={};
+      if(!imp.categories)imp.categories=[...DEF_CATS];if(!imp.contacts)imp.contacts=[];if(!imp.companyMilestones)imp.companyMilestones=[];if(!imp.categoryStageTemplates||typeof imp.categoryStageTemplates!=='object')imp.categoryStageTemplates={};if(!imp.categoryColors||typeof imp.categoryColors!=='object')imp.categoryColors={};
       imp.cases.forEach(c=>{if(!c.status)c.status='進行中';if(!c.milestones)c.milestones=[];if(!c.stages)c.stages=[];if(!c.contactRefs)c.contactRefs=[];if(c.memo==null)c.memo='';if(!c.createdAt)c.createdAt=Date.now();c.contactRefs.forEach(ref=>{if(!ref.logs)ref.logs=[];});});
       openImportDiffModal(imp);
     }catch{showToast('⚠ 匯入失敗：請確認為有效 JSON 備份','warn');}e.target.value='';
@@ -2375,6 +2471,7 @@ async function tryFetchJSON(){
     if(!Array.isArray(raw.contacts))raw.contacts=[];
     if(!Array.isArray(raw.categories))raw.categories=[...DEF_CATS];
     if(!raw.categoryStageTemplates||typeof raw.categoryStageTemplates!=='object')raw.categoryStageTemplates={};
+    if(!raw.categoryColors||typeof raw.categoryColors!=='object')raw.categoryColors={};
     if(!Array.isArray(raw.companyMilestones))raw.companyMilestones=[];
     // Migrate old contacts[] → contactRefs[] + global contacts directory
     raw.cases.forEach(c=>{
