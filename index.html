@@ -693,18 +693,26 @@ function deselectCase(){
   document.getElementById('rp').classList.remove('mobile-show');
 }
 
+let msFarShowFor=null;
+function renderMsCardHtml(m,caseId){
+  const noteIcon=m.note?`<span class="ms-note-ic" title="${esc(m.note)}" onclick="event.stopPropagation();openMsModal('${caseId}','${m.id}')">📝</span>`:'';
+  if(m.done)return`<button class="ms-card ms-done" onclick="openMsModal('${caseId}','${m.id}')"><span class="ms-check done" onclick="event.stopPropagation();toggleMsDone('${caseId}','${m.id}')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span><span class="ms-lbl">${esc(m.label)}${noteIcon}</span><span class="ms-dt">${msDateStr(m)}</span><span class="ms-del-btn" onclick="event.stopPropagation();deleteMilestone('${caseId}','${m.id}')">×</span></button>`;
+  const urg=urgency(msEnd(m));const an=urg==='overdue'?' bl-fast':urg==='urgent'?' bl-slow':'';
+  return`<button class="ms-card ${urg}${an}" onclick="openMsModal('${caseId}','${m.id}')"><span class="ms-check" onclick="event.stopPropagation();toggleMsDone('${caseId}','${m.id}')"></span><span class="ms-lbl">${esc(m.label)}${noteIcon}</span><span class="ms-dt">${msDateStr(m)}</span><span class="ms-del-btn" onclick="event.stopPropagation();deleteMilestone('${caseId}','${m.id}')">×</span></button>`;
+}
 function renderCasesRP(){
   const rp=document.getElementById('rp');const c=db.cases.find(c=>c.id===selId);
   if(!c){rp.innerHTML=`<div class="rp-empty"><div class="rp-empty-icon">📋</div><p class="rp-empty-txt">點選左側案件查看詳情</p></div>`;return;}
   const sy=rp.scrollTop;const col=catCol(c.category);const acCol=c.category?col[1]:'var(--ac)';
   const sCls=STATUS_CLS[c.status]||'s-active';
-  const mss=(c.milestones||[]).sort((a,b)=>a.date.localeCompare(b.date));
-  const msHtml=mss.map(m=>{
-    const noteIcon=m.note?`<span class="ms-note-ic" title="${esc(m.note)}" onclick="event.stopPropagation();openMsModal('${c.id}','${m.id}')">📝</span>`:'';
-    if(m.done)return`<button class="ms-card ms-done" onclick="openMsModal('${c.id}','${m.id}')"><span class="ms-check done" onclick="event.stopPropagation();toggleMsDone('${c.id}','${m.id}')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span><span class="ms-lbl">${esc(m.label)}${noteIcon}</span><span class="ms-dt">${msDateStr(m)}</span><span class="ms-del-btn" onclick="event.stopPropagation();deleteMilestone('${c.id}','${m.id}')">×</span></button>`;
-    const urg=urgency(msEnd(m));const an=urg==='overdue'?' bl-fast':urg==='urgent'?' bl-slow':'';
-    return`<button class="ms-card ${urg}${an}" onclick="openMsModal('${c.id}','${m.id}')"><span class="ms-check" onclick="event.stopPropagation();toggleMsDone('${c.id}','${m.id}')"></span><span class="ms-lbl">${esc(m.label)}${noteIcon}</span><span class="ms-dt">${msDateStr(m)}</span><span class="ms-del-btn" onclick="event.stopPropagation();deleteMilestone('${c.id}','${m.id}')">×</span></button>`;
-  }).join('');
+  const mssAll=(c.milestones||[]).sort((a,b)=>a.date.localeCompare(b.date));
+  const _t=new Date();_t.setHours(0,0,0,0);
+  const isFar=m=>((new Date(msEnd(m))-_t)/86400000)>soonDays;
+  const mss=mssAll.filter(m=>!isFar(m));
+  const farMs=mssAll.filter(isFar);
+  const msHtml=mss.map(m=>renderMsCardHtml(m,c.id)).join('');
+  const farOpen=msFarShowFor===c.id;
+  const farHtml=farMs.length?`<button class="btn btn-xs" style="margin-top:8px" onclick="msFarShowFor=msFarShowFor==='${c.id}'?null:'${c.id}';renderCasesRP()">${farOpen?'隱藏':'顯示'} ${soonDays} 天以後的期程 (${farMs.length})</button>${farOpen?`<div class="ms-grid" style="margin-top:8px">${farMs.map(m=>renderMsCardHtml(m,c.id)).join('')}</div>`:''}`:'';
   const remainingTmplSteps=templateStepsRemaining(c);
   rp.innerHTML=`<div>
     ${window.innerWidth<=768?`<div class="mobile-back" onclick="mobileBack()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg> 返回列表</div>`:''}
@@ -763,7 +771,8 @@ function renderCasesRP(){
       <div class="cd-sec-hd"><span class="sec-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>期程</span>
       <button class="btn btn-xs" onclick="openMsModal('${c.id}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增期程</button>
       <button class="btn btn-xs" onclick="openBatchMsModal('${c.id}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="7" height="7" rx="1"/><rect x="14" y="4" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>批次新增</button></div>
-      <div class="ms-grid">${msHtml||`<span style="font-size:14px;color:var(--txf)">尚無期程</span>`}</div>
+      <div class="ms-grid">${msHtml||(farMs.length?'':`<span style="font-size:14px;color:var(--txf)">尚無期程</span>`)}</div>
+      ${farHtml}
     </div>
     <div class="cd-sec">
       <div class="cd-sec-hd"><span class="sec-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>聯絡人</span>
