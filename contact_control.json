@@ -646,7 +646,8 @@
           "id": "mszny910zfcr",
           "label": "營建噪音振動監測",
           "date": "2026-09-21",
-          "endDate": "2026-09-21"
+          "endDate": "2026-09-21",
+          "done": true
         },
         {
           "id": "mp6m678qjv57",
@@ -753,7 +754,8 @@
           "label": "請雍御公文用印",
           "date": "2026-09-21",
           "endDate": "2026-09-21",
-          "note": "監測報告寄送"
+          "note": "監測報告寄送",
+          "done": true
         },
         {
           "id": "mu6hx46wloe8",
@@ -761,7 +763,8 @@
           "date": "2026-09-21",
           "endDate": "2026-09-21",
           "note": "",
-          "time": ""
+          "time": "",
+          "done": true
         },
         {
           "id": "mp6m5yibsuzl",
