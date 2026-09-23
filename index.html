@@ -1459,6 +1459,30 @@ function ptrDragFinish(){
   }
 }
 
+/* ── 排序放開後的「動能承接」動畫（FLIP 技巧）──
+   拖曳放開、順序確定後，不要整份重繪直接跳掉，改成：記住每一列舊位置 → 重繪 → 量新位置 →
+   用彈簧從舊位置滑到新位置，帶一點回彈（damping .86），因為這個動作是使用者手勢直接觸發的，符合
+   「只有手勢本身帶有動能時才加回彈」的原則。使用者開啟「減少動態效果」時直接跳過，不做動畫。 */
+function flipAnimate(containerSel,rowSel,renderFn){
+  const container=document.querySelector(containerSel);
+  const before=new Map();
+  if(container)container.querySelectorAll(rowSel).forEach(el=>{if(el.id)before.set(el.id,el.getBoundingClientRect().top);});
+  renderFn();
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  requestAnimationFrame(()=>{
+    const container2=document.querySelector(containerSel);if(!container2)return;
+    container2.querySelectorAll(rowSel).forEach(el=>{
+      if(!el.id)return;
+      const oldTop=before.get(el.id);if(oldTop==null)return;
+      const delta=oldTop-el.getBoundingClientRect().top;
+      if(Math.abs(delta)<1)return;
+      el.style.transform=`translateY(${delta}px)`;
+      spring(el,'flip',0,{from:delta,damping:.86,response:.36,
+        onUpdate:v=>{el.style.transform=`translateY(${v}px)`;},
+        onDone:()=>{el.style.transform='';}});
+    });
+  });
+}
 /* ── 排序提交：審查階段範本 ── */
 function commitTmplReorder(payload,overRow){
   const{cat,idx:fromIdx}=payload;
@@ -1470,7 +1494,7 @@ function commitTmplReorder(payload,overRow){
   const[item]=arr.splice(fromIdx,1);
   const insertAt=isTop?(fromIdx<targetIdx?targetIdx-1:targetIdx):(fromIdx>targetIdx?targetIdx+1:targetIdx);
   arr.splice(insertAt,0,item);
-  saveData();renderStageTemplateList();
+  saveData();flipAnimate('#tmplList','.tmpl-step-row',renderStageTemplateList);
 }
 
 /* ── 排序提交：案件 ── */
@@ -1487,7 +1511,7 @@ function commitCaseReorder(dragId,overRow){
   sortKey='custom';
   localStorage.setItem('caseSortKey','custom');
   document.querySelectorAll('.sbtn').forEach(b=>b.classList.toggle('active',b.getAttribute('data-key')==='custom'));
-  saveData();renderCasesList();
+  saveData();flipAnimate('#lpList','tr.ci',renderCasesList);
 }
 
 /* ── 排序提交：案件內聯絡人 ── */
@@ -1503,7 +1527,7 @@ function commitRefReorder(payload,overRow){
   if(fromIdx<0||toIdx<0)return;
   const[item]=refs.splice(fromIdx,1);
   refs.splice(isTop?(fromIdx<toIdx?toIdx-1:toIdx):(fromIdx>toIdx?toIdx+1:toIdx),0,item);
-  saveData();renderCasesRP();
+  saveData();flipAnimate(`#ctList-${caseId}`,'.ct-card',()=>renderCtList(caseId));
 }
 
 /* ── 排序提交：名冊 ── */
@@ -1516,7 +1540,7 @@ function commitDirReorder(dragId,overRow){
   if(fromIdx<0||toIdx<0)return;
   const[item]=db.contacts.splice(fromIdx,1);
   db.contacts.splice(isTop?(fromIdx<toIdx?toIdx-1:toIdx):(fromIdx>toIdx?toIdx+1:toIdx),0,item);
-  saveData();renderDirLP();
+  saveData();flipAnimate('#lpList','.dir-card',renderDirLP);
 }
 
 /* ── 排序提交：類別 ── */
@@ -1530,7 +1554,7 @@ function commitCatReorder(dragCat,overRow){
   if(fromIdx<0||toIdx<0)return;
   cats.splice(fromIdx,1);
   cats.splice(isTop?(fromIdx<toIdx?toIdx-1:toIdx):(fromIdx>toIdx?toIdx+1:toIdx),0,dragCat);
-  saveData();renderCatList();
+  saveData();flipAnimate('#catList','.scat-item',renderCatList);
 }
 
 
@@ -1965,7 +1989,7 @@ function saveMemo(caseId,val){const c=db.cases.find(c=>c.id===caseId);if(!c)retu
 function renderCatList(){
   document.getElementById('catList').innerHTML=db.categories.map(cat=>{
     const[,fg]=catCol(cat);
-    return`<div class="scat-item" data-cat="${esc(cat)}">
+    return`<div class="scat-item" id="scat-${esc(cat)}" data-cat="${esc(cat)}">
       <div class="scat-nm"><span class="scat-drag" onpointerdown="ptrDragBegin(event,'.scat-item','${esc(cat)}',commitCatReorder)" title="拖曳排序"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></span><input type="color" class="scat-color" value="${catColorHex(cat)}" onchange="setCatColor('${esc(cat)}',this.value)" title="自訂此類別的顏色">${esc(cat)}</div>
       <div style="display:flex;align-items:center;gap:4px">
         ${db.categoryColors&&db.categoryColors[cat]?`<button class="ibtn" onclick="resetCatColor('${esc(cat)}')" title="還原成自動配色"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>`:''}
@@ -2734,6 +2758,11 @@ document.addEventListener('keydown',e=>{
     e.preventDefault();moveSelection(e.key==='ArrowDown'?1:-1);
   }
 });
+
+document.getElementById('rp').addEventListener('scroll',()=>{
+  const rpEl=document.getElementById('rp');
+  rpEl.classList.toggle('rp-scrolled',rpEl.scrollTop>48);
+},{passive:true});
 
 init();
 </script>
