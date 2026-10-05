@@ -540,7 +540,7 @@ tr.ci:hover .ctd-acts{opacity:1}
 .dash-due-item.urgent{border-left-color:var(--warn)}
 .dash-due-item:hover{background:var(--acd)}
 .dash-due-item:active{background:var(--acg);transition-duration:.05s}
-.dash-due-info{min-width:0}
+.dash-due-info{min-width:0;flex:1}
 .dash-due-label{font-size:0.875rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dash-due-case{font-size:0.75rem;color:var(--txm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dash-due-date{font-family:var(--font-m);font-size:0.8125rem;font-weight:700;flex-shrink:0}
