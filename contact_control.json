@@ -426,6 +426,22 @@
       "addrTitle": "",
       "address": "",
       "note": ""
+    },
+    {
+      "id": "muukzgv6iqpc",
+      "createdAt": 1791164312610,
+      "name": "呂小姐",
+      "role": "南投縣觀光處",
+      "contactType": "目的事業主管機關",
+      "description": "",
+      "phone": "049-22232380",
+      "email": "",
+      "lineId": "",
+      "postalCode": "",
+      "addrCompany": "",
+      "addrTitle": "",
+      "address": "",
+      "note": ""
     }
   ],
   "categoryStageTemplates": {
@@ -529,6 +545,13 @@
           "id": "mswrxt924cyu",
           "logs": [],
           "contactId": "mswrxt92390m",
+          "primary": false,
+          "caseNote": ""
+        },
+        {
+          "id": "muukzgv6plva",
+          "logs": [],
+          "contactId": "muukzgv6iqpc",
           "primary": false,
           "caseNote": ""
         }
