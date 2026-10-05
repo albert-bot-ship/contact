@@ -462,7 +462,31 @@
       "id": "mswwb6x5oh4r",
       "label": "公司旅遊",
       "date": "2026-11-18",
-      "endDate": "2026-11-22"
+      "endDate": "2026-11-22",
+      "note": "",
+      "time": "",
+      "typeId": "muuyt848e9nr"
+    },
+    {
+      "id": "muuyvb9bovvd",
+      "label": "環評法令宣導視訊會議",
+      "date": "2026-10-14",
+      "endDate": "2026-10-14",
+      "note": "",
+      "time": "14:00",
+      "typeId": "muuysvwfz085"
+    }
+  ],
+  "msTypes": [
+    {
+      "id": "muuysvwfz085",
+      "name": "EPB",
+      "color": "#4f8cff"
+    },
+    {
+      "id": "muuyt848e9nr",
+      "name": "澔宇",
+      "color": "#f59e0b"
     }
   ],
   "categoryColors": {},
@@ -1005,14 +1029,6 @@
           "endDate": "2026-10-08",
           "note": "",
           "time": ""
-        },
-        {
-          "id": "muumajd2ytuf",
-          "label": "環評法令宣導視訊會議",
-          "date": "2026-10-14",
-          "endDate": "2026-10-14",
-          "note": "",
-          "time": "14:00"
         },
         {
           "id": "muuneusud2zm",
