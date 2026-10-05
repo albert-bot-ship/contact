@@ -987,7 +987,8 @@
           "date": "2026-10-05",
           "endDate": "2026-10-05",
           "note": "",
-          "time": ""
+          "time": "",
+          "done": true
         },
         {
           "id": "muq99mp3zipg",
