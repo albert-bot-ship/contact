@@ -760,7 +760,8 @@
           "date": "2026-10-01",
           "endDate": "2026-10-01",
           "note": "",
-          "time": ""
+          "time": "",
+          "done": true
         },
         {
           "id": "muwdib17inx6",
