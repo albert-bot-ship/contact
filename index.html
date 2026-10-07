@@ -2891,10 +2891,27 @@ document.addEventListener('keydown',e=>{
   }
 });
 
-document.getElementById('rp').addEventListener('scroll',()=>{
+/* 案件詳情 header 捲動收合（含防抖動：滯後門檻＋可捲動範圍檢查） */
+function syncRpMini(){
+  const rpEl=document.getElementById('rp');if(!rpEl)return;
+  const head=rpEl.querySelector('.cd-head');
+  const mini=rpEl.classList.contains('rp-scrolled');
+  if(!head){if(mini)rpEl.classList.remove('rp-scrolled');return;}
+  const st=rpEl.scrollTop;
+  if(mini){
+    if(st<8)rpEl.classList.remove('rp-scrolled');           // 回到頂部才展開
+  }else if(st>48){
+    // 收合後內容會縮短；若剩餘可捲動距離不足，會被迫回到頂部而反覆跳動，故此時不收合
+    const shrink=Math.max(0,head.offsetHeight-44);
+    const maxAfter=rpEl.scrollHeight-rpEl.clientHeight-shrink;
+    if(maxAfter>=40)rpEl.classList.add('rp-scrolled');
+  }
+}
+(function(){
   const rpEl=document.getElementById('rp');
-  rpEl.classList.toggle('rp-scrolled',rpEl.scrollTop>48);
-},{passive:true});
+  rpEl.addEventListener('scroll',syncRpMini,{passive:true});
+  new MutationObserver(syncRpMini).observe(rpEl,{childList:true});   // 重新渲染後（換案件等）校正狀態
+})();
 
 init();
 </script>
