@@ -1030,7 +1030,8 @@
           "date": "2026-10-07",
           "endDate": "2026-10-07",
           "note": "",
-          "time": "09:30"
+          "time": "09:30",
+          "done": true
         },
         {
           "id": "muuneusud2zm",
