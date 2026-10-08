@@ -634,6 +634,9 @@ tr.ci:hover .ctd-acts{opacity:1}
 .cal-cell.today::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--mpw-b),var(--mpw-p),var(--mpw-r))}
 .cal-cell.today .cal-daynum{color:var(--mpw-b);font-weight:800}
 .cal-daynum{font-family:var(--font-m);font-size:0.75rem;color:var(--txm);font-weight:600;flex-shrink:0}
+.cal-top{display:flex;align-items:baseline;gap:0.25rem;min-width:0;flex-shrink:0}
+.cal-hol{font-size:0.625rem;line-height:1.3;color:var(--err);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.cal-cell.holiday .cal-daynum{color:var(--err);font-weight:800}
 .cal-events{display:flex;flex-direction:column;gap:0.125rem;overflow:hidden}
 .cal-event{font-size:0.6562rem;line-height:1.5;padding:0 0.25rem;border-radius:0.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;flex-shrink:0}
 .cal-more{font-size:0.625rem;color:var(--txf);font-family:var(--font-m);padding-left:2px}
@@ -702,6 +705,7 @@ tr.ci:hover .ctd-acts{opacity:1}
   .cal-grid{gap:3px}
   .cal-cell{padding:0.1875rem 0.1875rem 0.125rem;min-height:52px}
   .cal-daynum{font-size:11px}
+  .cal-hol{font-size:9px}
   .cal-event{font-size:9.5px}
   .cal-title{font-size:0.875rem;min-width:auto}
 }
