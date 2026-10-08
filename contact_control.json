@@ -56,7 +56,12 @@
       "phone": "",
       "email": "",
       "note": "用Line聯繫",
-      "createdAt": 1779075523237
+      "createdAt": 1779075523237,
+      "lineId": "",
+      "postalCode": "",
+      "addrCompany": "",
+      "addrTitle": "",
+      "address": ""
     },
     {
       "id": "mp6lzm71oftn",
@@ -616,7 +621,78 @@
           "label": "大會",
           "done": false
         }
-      ]
+      ],
+      "monitorPhase": "",
+      "clientName": "",
+      "clientPostal": "",
+      "clientAddress": "",
+      "color": "#00b356"
+    },
+    {
+      "id": "muz5dtgu6dlv",
+      "name": "桃園龍潭產業園區",
+      "category": "環評",
+      "status": "進行中",
+      "note": "",
+      "monitorPhase": "",
+      "clientName": "",
+      "clientPostal": "",
+      "clientAddress": "",
+      "memo": "",
+      "milestones": [],
+      "stages": [
+        {
+          "id": "muz5dtgvplqv",
+          "label": "開發行為公告",
+          "done": false
+        },
+        {
+          "id": "muz5dtgv85md",
+          "label": "主要章節公告",
+          "done": false
+        },
+        {
+          "id": "muz5dtgvipmx",
+          "label": "公開會議",
+          "done": false
+        },
+        {
+          "id": "muz5dtgv3gzp",
+          "label": "程序審查",
+          "done": false
+        },
+        {
+          "id": "muz5dtgvlpx8",
+          "label": "第一次初審會",
+          "done": false
+        },
+        {
+          "id": "muz5dtgvh4yu",
+          "label": "第二次初審會",
+          "done": false
+        },
+        {
+          "id": "muz5dtgvpl79",
+          "label": "第三次初審會",
+          "done": false
+        },
+        {
+          "id": "muz5dtgvrmaa",
+          "label": "大會",
+          "done": false
+        }
+      ],
+      "contactRefs": [
+        {
+          "id": "muz5hgxw7o7n",
+          "logs": [],
+          "contactId": "mp6lyrozvr03",
+          "primary": false,
+          "caseNote": ""
+        }
+      ],
+      "createdAt": 1791440439150,
+      "color": "#9e69ec"
     },
     {
       "id": "mp6k5wlj87td",
@@ -723,6 +799,39 @@
           "date": "2026-09-30"
         },
         {
+          "id": "munwndv8ppor",
+          "label": "施工進度",
+          "date": "2026-10-01",
+          "endDate": "2026-10-01",
+          "note": "",
+          "time": "",
+          "done": true
+        },
+        {
+          "id": "muwdib17inx6",
+          "label": "環保局稽查",
+          "date": "2026-10-15",
+          "endDate": "2026-10-15",
+          "note": "",
+          "time": ""
+        },
+        {
+          "id": "muxr06zct36v",
+          "label": "詢問佳美下個月檢測期程",
+          "date": "2026-10-23",
+          "endDate": "2026-10-23",
+          "note": "",
+          "time": ""
+        },
+        {
+          "id": "muxqz0h7s7g2",
+          "label": "營建噪音振動檢測",
+          "date": "2026-10-29",
+          "endDate": "2026-10-29",
+          "note": "",
+          "time": ""
+        },
+        {
           "id": "mu6qvxvgd19d",
           "label": "提送施工Q6",
           "date": "2027-03-31",
@@ -751,39 +860,6 @@
           "label": "提送施工Q9",
           "date": "2027-12-26",
           "endDate": "2027-12-26",
-          "note": "",
-          "time": ""
-        },
-        {
-          "id": "munwndv8ppor",
-          "label": "施工進度",
-          "date": "2026-10-01",
-          "endDate": "2026-10-01",
-          "note": "",
-          "time": "",
-          "done": true
-        },
-        {
-          "id": "muwdib17inx6",
-          "label": "環保局稽查",
-          "date": "2026-10-15",
-          "endDate": "2026-10-15",
-          "note": "",
-          "time": ""
-        },
-        {
-          "id": "muxqz0h7s7g2",
-          "label": "營建噪音振動檢測",
-          "date": "2026-10-29",
-          "endDate": "2026-10-29",
-          "note": "",
-          "time": ""
-        },
-        {
-          "id": "muxr06zct36v",
-          "label": "詢問佳美下個月檢測期程",
-          "date": "2026-10-23",
-          "endDate": "2026-10-23",
           "note": "",
           "time": ""
         }
@@ -834,7 +910,11 @@
           "done": false
         }
       ],
-      "monitorPhase": "施工期間"
+      "monitorPhase": "施工期間",
+      "clientName": "",
+      "clientPostal": "",
+      "clientAddress": "",
+      "color": "#2e7eff"
     },
     {
       "id": "mp6k58jpa1ve",
@@ -959,7 +1039,11 @@
           "done": false
         }
       ],
-      "monitorPhase": "施工暨營運期間"
+      "monitorPhase": "施工暨營運期間",
+      "clientName": "",
+      "clientPostal": "",
+      "clientAddress": "",
+      "color": "#ffe433"
     },
     {
       "id": "mp6k5k8x9u9a",
@@ -1007,7 +1091,11 @@
           "done": false
         }
       ],
-      "monitorPhase": "施工期間"
+      "monitorPhase": "施工期間",
+      "clientName": "",
+      "clientPostal": "",
+      "clientAddress": "",
+      "color": "#d08aff"
     },
     {
       "id": "mp6ltfmnx90v",
@@ -1151,20 +1239,11 @@
         }
       ],
       "stages": [],
-      "monitorPhase": "施工期間"
-    },
-    {
-      "id": "mu10llt8ydos",
-      "name": "東和環差",
-      "category": "環差",
-      "status": "待辦",
-      "note": "",
-      "monitorPhase": "",
-      "memo": "",
-      "milestones": [],
-      "stages": [],
-      "contactRefs": [],
-      "createdAt": 1789376554412
+      "monitorPhase": "施工期間",
+      "clientName": "",
+      "clientPostal": "",
+      "clientAddress": "",
+      "color": "#000fdb"
     }
   ]
 }
