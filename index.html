@@ -1085,12 +1085,65 @@ function hideCalTip(){
   if(!tip)return;
   calTipHideT=setTimeout(()=>{tip.classList.remove('show');},60);
 }
+/* ══ 中華民國假日（線上取得，快取於 localStorage，不寫入案件資料／JSON 備份） ══ */
+const HOL_PREFIX='twHol_',HOL_TTL=7*24*3600*1000;
+const holidays={},holPrimed={},holFetching={},holTried={};
+function holUrls(y){return[
+  `https://raw.githubusercontent.com/ruyut/TaiwanCalendar/master/data/${y}.json`,
+  `https://cdn.jsdelivr.net/gh/ruyut/TaiwanCalendar@master/data/${y}.json`];}
+function holPrime(y){            // 同步讀快取（即使過期也先用），回傳快取時間戳或 0
+  if(holPrimed[y]!==undefined)return holPrimed[y];
+  let t=0;
+  try{
+    const c=JSON.parse(localStorage.getItem(HOL_PREFIX+y)||'null');
+    if(c&&c.d&&typeof c.d==='object'){Object.assign(holidays,c.d);t=c.t||1;}
+  }catch(e){}
+  holPrimed[y]=t;return t;
+}
+function holParse(arr){           // 只取「有名稱且放假」的日期；補班日不顯示
+  const map={};
+  arr.forEach(x=>{
+    if(!x||typeof x.date!=='string'||!/^\d{8}$/.test(x.date))return;
+    if(x.isHoliday&&x.description){map[`${x.date.slice(0,4)}-${x.date.slice(4,6)}-${x.date.slice(6,8)}`]=String(x.description);}
+  });
+  return map;
+}
+async function holFetchYear(y){
+  for(const url of holUrls(y)){
+    try{
+      const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),8000);
+      const r=await fetch(url,{signal:ctl.signal,cache:'no-cache'});clearTimeout(to);
+      if(!r.ok)continue;
+      const arr=await r.json();
+      if(!Array.isArray(arr)||arr.length<360)continue;    // 資料不完整就不採用
+      return holParse(arr);
+    }catch(e){}
+  }
+  return null;
+}
+async function holEnsure(y){      // 快取不存在或過期時，背景更新；有新資料就重畫月曆
+  const t=holPrime(y);
+  if((t&&Date.now()-t<HOL_TTL)||holFetching[y]||holTried[y])return;
+  holFetching[y]=true;
+  const map=await holFetchYear(y);
+  holFetching[y]=false;holTried[y]=true;
+  if(map){
+    Object.keys(holidays).forEach(k=>{if(k.startsWith(y+'-'))delete holidays[k];});
+    Object.assign(holidays,map);
+    try{localStorage.setItem(HOL_PREFIX+y,JSON.stringify({t:Date.now(),d:map}));}catch(e){}
+    holPrimed[y]=Date.now();
+    if(view==='schedule'&&calMonth.y===y){const rp=document.getElementById('rp');const sy=rp?rp.scrollTop:0;renderSchedule();if(rp)rp.scrollTop=sy;}
+  }else if(!t){
+    showToast(`⚠ 無法取得 ${y} 年假日資料（可能尚未公布或網路異常）`,'warn');
+  }
+}
 function renderSchedule(){
   const rp=document.getElementById('rp');
   const allMsRaw=[];db.cases.forEach(c=>{(c.milestones||[]).forEach(m=>{allMsRaw.push({...m,caseId:c.id,caseName:c.name,caseCategory:c.category});});});allMsRaw.push(...companyMsItems());
   if(!['all','case','untyped'].includes(schedFilter)&&!msTypeById(schedFilter))schedFilter='all';
   const allMs=allMsRaw.filter(msPassFilter);
   const{y,m}=calMonth;
+  holPrime(y);
   const first=new Date(y,m,1);const startDow=first.getDay();const daysInMonth=new Date(y,m+1,0).getDate();
   const byDate={};allMs.forEach(ms=>{dateRangeArr(ms.date,msEnd(ms)).forEach(ds=>{if(!byDate[ds])byDate[ds]=[];byDate[ds].push(ms);});});
   const todayStr=today();
@@ -1107,13 +1160,15 @@ function renderSchedule(){
     }).join('');
     const more=items.length>2?`<span class="cal-more">+${items.length-2} 筆</span>`:'';
     const cls=['cal-cell'];
+    const holName=holidays[dateStr]||'';
+    if(holName)cls.push('holiday');
     if(dow===0||dow===6)cls.push('weekend');
     if(dateStr===todayStr)cls.push('today');
     if(dateStr===calSelDay)cls.push('sel');
     const dayClick=items.length?`showCalDay('${dateStr}',event)`:`openMsModalForDate('${dateStr}')`;
     const tipText=items.map(it=>`${esc(it.caseName)} · ${esc(it.label)} · ${msDateStr(it)}`).join('\n');
     const tipAttr=items.length?` data-tip="${tipText}" onmouseenter="showCalTip(this)" onmouseleave="hideCalTip()"`:'';
-    cells+=`<div class="${cls.join(' ')}"${tipAttr} onclick="${dayClick}"><span class="cal-daynum">${d}</span><div class="cal-events">${shown}${more}</div></div>`;
+    cells+=`<div class="${cls.join(' ')}"${tipAttr} onclick="${dayClick}"><div class="cal-top"><span class="cal-daynum">${d}</span>${holName?`<span class="cal-hol" title="${esc(holName)}">${esc(holName)}</span>`:''}</div><div class="cal-events">${shown}${more}</div></div>`;
   }
   const dows=['日','一','二','三','四','五','六'];
   const years=[];for(let yy=new Date().getFullYear()-20;yy<=new Date().getFullYear()+20;yy++)years.push(yy);
@@ -1146,6 +1201,7 @@ function renderSchedule(){
     <div id="schedFullList"></div>
   </div>`;
   fitCalGrid(startDow+daysInMonth);
+  holEnsure(y);
   if(calSelDay)showCalDay(calSelDay);
   if(!allMs.length){document.getElementById('schedFullList').innerHTML=allMsRaw.length?`<div class="dash-empty">此篩選條件下沒有期程</div>`:`<div class="dash-empty">尚無期程，點上方「新增期程」即可新增</div>`;return;}
   renderSchedFullList(allMs);
