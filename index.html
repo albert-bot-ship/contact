@@ -101,6 +101,13 @@
         <div class="fg" style="max-width:130px"><label class="fl">郵遞區號</label><input class="fi" id="caseClientPostal" placeholder="選填" maxlength="10"></div>
         <div class="fg"><label class="fl">委託單位地址</label><textarea class="fta" id="caseClientAddress" placeholder="用於列印信封/標籤，選填" style="min-height:40px"></textarea></div>
       </div>
+      <div class="fg"><label class="fl">月曆顏色（選填）</label>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <input type="color" id="caseColor" value="#4f8cff" oninput="caseColorPicked()" style="width:34px;height:26px;padding:0;border:1px solid var(--bd2);border-radius:6px;background:none;cursor:pointer">
+          <span id="caseColorTxt" style="font-size:12px;color:var(--txm)">未自訂，使用類別顏色</span>
+          <button type="button" class="btn btn-xs" id="caseColorClear" onclick="clearCaseColor()" style="display:none">清除</button>
+        </div>
+      </div>
       <div class="fg"><label class="fl">備註</label><input class="fi" id="caseNote" placeholder="選填"></div>
     </div>
     <div class="mf"><button class="btn" onclick="closeMo('caseModal')">取消</button><button class="btn btn-p" onclick="saveCase()">儲存</button></div>
@@ -1137,6 +1144,24 @@ async function holEnsure(y){      // 快取不存在或過期時，背景更新�
     showToast(`⚠ 無法取得 ${y} 年假日資料（可能尚未公布或網路異常）`,'warn');
   }
 }
+/* ══ 月曆期程顏色模式：urgency=依緊急程度（預設） / case=依案件 ══ */
+let calColorMode='urgency';
+try{if(localStorage.getItem('calColorMode')==='case')calColorMode='case';}catch(e){}
+function setCalColorMode(m){
+  calColorMode=m==='case'?'case':'urgency';
+  try{localStorage.setItem('calColorMode',calColorMode);}catch(e){}
+  const rp=document.getElementById('rp');const sy=rp?rp.scrollTop:0;
+  renderSchedule();if(rp)rp.scrollTop=sy;
+}
+function caseColorPair(caseId){   // [背景, 文字]：案件自訂色 → 否則類別色
+  const c=db.cases.find(x=>x.id===caseId);
+  if(c&&c.color)return[`rgba(${hexToRgb(c.color)},.22)`,c.color];
+  return catCol(c?c.category:'');
+}
+function calCaseModeStyle(it){
+  const pair=it.isCompany?(it.msType?msTypeCol(it.msType):['var(--sf3)','var(--txm)']):caseColorPair(it.caseId);
+  return`background:${pair[0]};color:${pair[1]}`;
+}
 function renderSchedule(){
   const rp=document.getElementById('rp');
   const allMsRaw=[];db.cases.forEach(c=>{(c.milestones||[]).forEach(m=>{allMsRaw.push({...m,caseId:c.id,caseName:c.name,caseCategory:c.category});});});allMsRaw.push(...companyMsItems());
@@ -1154,7 +1179,7 @@ function renderSchedule(){
     const dow=(startDow+d-1)%7;
     const items=(byDate[dateStr]||[]).sort((a,b)=>(a.done?1:0)-(b.done?1:0)||urgencyRank(msEnd(a))-urgencyRank(msEnd(b)));
     const shown=items.slice(0,2).map(it=>{
-      const style=it.done?`background:var(--sf3);color:var(--txf);text-decoration:line-through;opacity:.75`:(()=>{const col=mUrgCol(msEnd(it));return`background:${col}22;color:${col}`;})();
+      const style=it.done?`background:var(--sf3);color:var(--txf);text-decoration:line-through;opacity:.75`:(calColorMode==='case'?calCaseModeStyle(it):(()=>{const col=mUrgCol(msEnd(it));return`background:${col}22;color:${col}`;})());
       const directEdit=items.length===1?` onclick="event.stopPropagation();openMsModal('${it.caseId}','${it.id}')"`:'';
       return`<div class="cal-event" style="${style}"${directEdit}><span style="font-weight:800">${esc(it.caseName)}</span>：${esc(it.label)}</div>`;
     }).join('');
@@ -1186,12 +1211,17 @@ function renderSchedule(){
     </div>
     <div class="cal-mstripe"></div>
     <div class="cal-legend" style="justify-content:space-between">
-      <div style="display:flex;gap:14px;flex-wrap:wrap">
-        <span class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--mpw-r)"></span>已逾期</span>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+        ${calColorMode==='case'?`<span class="cal-legend-item">顏色＝案件顏色（未自訂則用類別顏色）</span>`:`<span class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--mpw-r)"></span>已逾期</span>
         <span class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--mpw-p)"></span>${soonDays}天內</span>
-        <span class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--mpw-b)"></span>尚早</span>
+        <span class="cal-legend-item"><span class="cal-legend-dot" style="background:var(--mpw-b)"></span>尚早</span>`}
       </div>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+      <span style="font-size:11px;color:var(--txf)">顏色</span>
+      <button class="chip ${calColorMode==='urgency'?'active':''}" onclick="setCalColorMode('urgency')">依緊急程度</button>
+      <button class="chip ${calColorMode==='case'?'active':''}" onclick="setCalColorMode('case')">依案件</button>
       <button class="btn btn-xs" onclick="openMsModalForDate('')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新增期程</button>
+      </div>
     </div>
     ${schedFilterBarHtml()}
     <div class="cal-grid">${dows.map((d,i)=>`<div class="cal-dow ${i===0||i===6?'weekend':''}">${d}</div>`).join('')}${cells}</div>
@@ -1681,8 +1711,18 @@ function openCaseModal(id){
   document.getElementById('caseClientAddress').value=c?(c.clientAddress||''):'';
   buildSel(document.getElementById('caseCat'),c?c.category:'');
   toggleMonitorPhaseField();
+  setCaseColorUi(c&&c.color?c.color:'');
   openMo('caseModal');setTimeout(()=>document.getElementById('caseName').focus(),80);
 }
+function setCaseColorUi(hex){
+  const inp=document.getElementById('caseColor');
+  inp.dataset.set=hex?'1':'';
+  if(hex)inp.value=hex;
+  document.getElementById('caseColorTxt').textContent=hex?'已自訂此案件的顏色':'未自訂，使用類別顏色';
+  document.getElementById('caseColorClear').style.display=hex?'inline-flex':'none';
+}
+function caseColorPicked(){setCaseColorUi(document.getElementById('caseColor').value);}
+function clearCaseColor(){setCaseColorUi('');}
 function saveCase(){
   const name=document.getElementById('caseName').value.trim();
   if(!name){showToast('⚠ 請輸入案件名稱','warn');return;}
@@ -1694,15 +1734,17 @@ function saveCase(){
   const clientName=document.getElementById('caseClientName').value.trim();
   const clientPostal=document.getElementById('caseClientPostal').value.trim();
   const clientAddress=document.getElementById('caseClientAddress').value.trim();
+  const _ci=document.getElementById('caseColor');const color=_ci.dataset.set==='1'?_ci.value:'';
   if(id){
     const c=db.cases.find(c=>c.id===id);
     if(c){
       const catChanged=c.category!==category;
       c.name=name;c.category=category;c.status=status;c.note=note;c.monitorPhase=monitorPhase;c.clientName=clientName;c.clientPostal=clientPostal;c.clientAddress=clientAddress;
+      if(color)c.color=color;else delete c.color;
       if(catChanged&&(!c.stages||!c.stages.length))applyStageTemplate(c);
     }
   }
-  else{const nc={id:uid(),name,category,status,note,monitorPhase,clientName,clientPostal,clientAddress,memo:'',milestones:[],stages:[],contactRefs:[],createdAt:Date.now()};applyStageTemplate(nc);db.cases.unshift(nc);selId=nc.id;}
+  else{const nc={id:uid(),name,category,status,note,monitorPhase,clientName,clientPostal,clientAddress,memo:'',milestones:[],stages:[],contactRefs:[],createdAt:Date.now()};if(color)nc.color=color;applyStageTemplate(nc);db.cases.unshift(nc);selId=nc.id;}
   saveData();syncLayoutMode();renderCatChips();renderCasesList();if(selId)renderCasesRP();closeMo('caseModal');showToast(id?'✓ 案件已更新':'✓ 案件已新增');
 }
 function deleteCase(id){
