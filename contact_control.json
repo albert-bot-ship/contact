@@ -479,7 +479,8 @@
       "endDate": "2026-10-14",
       "note": "",
       "time": "14:00",
-      "typeId": "muuysvwfz085"
+      "typeId": "muuysvwfz085",
+      "done": true
     }
   ],
   "msTypes": [
