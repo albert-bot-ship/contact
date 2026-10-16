@@ -815,7 +815,8 @@
           "date": "2026-10-15",
           "endDate": "2026-10-15",
           "note": "",
-          "time": ""
+          "time": "",
+          "done": true
         },
         {
           "id": "muxr06zct36v",
