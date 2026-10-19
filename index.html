@@ -315,7 +315,7 @@
       </div>
       <div class="frow" style="grid-template-columns:1fr auto 1fr">
         <div class="fg"><label class="fl">開始日 <span class="fr">*</span></label><input class="fi" id="msDate" type="date" onchange="if(document.getElementById('msEndDate').value<this.value)document.getElementById('msEndDate').value=this.value"></div>
-        <div class="fg" style="max-width:120px"><label class="fl">時間（選填）</label><input class="fi" id="msTime" type="time"></div>
+        <div class="fg" style="max-width:120px"><label class="fl">時間（選填）</label><input class="fi" id="msTime" type="text" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="例 0930" onblur="msTimeNormalize()" onkeydown="if(event.key==='Enter')msTimeNormalize()"></div>
         <div class="fg"><label class="fl">結束日 <span class="fr">*</span></label><input class="fi" id="msEndDate" type="date"></div>
       </div>
       <div class="fg"><label class="fl">細項說明</label><textarea class="fta" id="msNote" placeholder="補充說明、注意事項…" style="min-height:80px"></textarea></div>
@@ -2023,7 +2023,7 @@ function openMsModal(caseId,msId){
   }else{
     const c=db.cases.find(c=>c.id===caseId);m=msId&&c?c.milestones.find(m=>m.id===msId):null;
   }
-  document.getElementById('msLabel').value=m?m.label:'';document.getElementById('msDate').value=m?m.date:today();document.getElementById('msEndDate').value=m?msEnd(m):today();document.getElementById('msNote').value=m?(m.note||''):'';document.getElementById('msTime').value=m?(m.time||''):'';
+  document.getElementById('msLabel').value=m?m.label:'';document.getElementById('msDate').value=m?m.date:today();document.getElementById('msEndDate').value=m?msEnd(m):today();document.getElementById('msNote').value=m?(m.note||''):'';document.getElementById('msTime').value=m?(m.time||''):'';document.getElementById('msTime').style.borderColor='';
   const field=document.getElementById('msCaseField');
   if(msId){fillMsCasePick(caseId);field.style.display='block';}else field.style.display='none';
   const tf=document.getElementById('msTypeField');
@@ -2045,7 +2045,7 @@ function openMsModalForDate(dateStr){
   document.getElementById('msId').value='';
   document.getElementById('msLabel').value='';
   document.getElementById('msNote').value='';
-  document.getElementById('msTime').value='';
+  document.getElementById('msTime').value='';document.getElementById('msTime').style.borderColor='';
   document.getElementById('msDate').value=dateStr||today();document.getElementById('msEndDate').value=dateStr||today();
   const pick=fillMsCasePick('');
   document.getElementById('msCaseField').style.display='block';
@@ -2065,8 +2065,27 @@ function msCasePickChanged(){
   if(isC){if(tf.style.display==='none')fillMsTypePick('');tf.style.display='block';}
   else tf.style.display='none';
 }
+/* 時間欄位：可直接打數字，接受 0930、930、9:30、09:30、9.30、全形數字；回傳 'HH:MM'、''（空白）或 null（格式錯誤） */
+function parseTimeStr(v){
+  v=String(v||'').trim().replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/[：.。]/g,':');
+  if(!v)return'';
+  let h,m,mt;
+  if(mt=v.match(/^(\d{1,2}):(\d{1,2})$/)){h=+mt[1];m=+mt[2];}
+  else if(mt=v.match(/^(\d{3,4})$/)){const n=mt[1].padStart(4,'0');h=+n.slice(0,2);m=+n.slice(2);}
+  else if(mt=v.match(/^(\d{1,2})$/)){h=+mt[1];m=0;}
+  else return null;
+  if(h>23||m>59)return null;
+  return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+}
+function msTimeNormalize(){
+  const el=document.getElementById('msTime');if(!el)return true;
+  const r=parseTimeStr(el.value);
+  if(r===null){el.style.borderColor='var(--err)';showToast('⚠ 時間格式不正確，請輸入如 0930 或 9:30（24 小時制）','warn');return false;}
+  el.style.borderColor='';el.value=r;return true;
+}
 function saveMilestone(){
-  const label=document.getElementById('msLabel').value.trim();const date=document.getElementById('msDate').value;let endDate=document.getElementById('msEndDate').value;const note=document.getElementById('msNote').value.trim();const time=document.getElementById('msTime').value;
+  const label=document.getElementById('msLabel').value.trim();const date=document.getElementById('msDate').value;let endDate=document.getElementById('msEndDate').value;const note=document.getElementById('msNote').value.trim();const time=parseTimeStr(document.getElementById('msTime').value);
+  if(time===null){msTimeNormalize();return;}
   if(!label||!date||!endDate){showToast('⚠ 請填入名稱與日期','warn');return;}
   if(endDate<date){showToast('⚠ 結束日不能早於開始日','warn');return;}
   const field=document.getElementById('msCaseField');
