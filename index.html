@@ -5,6 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>contact control</title>
 <link rel="stylesheet" href="style.css">
+<link rel="icon" id="favIcon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232dd4ff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3Cline x1='16' y1='13' x2='8' y2='13'/%3E%3Cline x1='16' y1='17' x2='8' y2='17'/%3E%3C/svg%3E">
+<script>
+/* 分頁圖示：自動讀取根目錄 favicon.任意格式；找不到則保留上方預設圖示 */
+(function(){
+  var exts=['svg','png','ico','webp','jpg','jpeg','gif','bmp','avif'];
+  var v=Date.now(),i=0;
+  function next(){
+    if(i>=exts.length)return;
+    var url='favicon.'+exts[i++]+'?v='+v,img=new Image();
+    img.onload=function(){var l=document.getElementById('favIcon');if(l){l.removeAttribute('type');l.href=url;}};
+    img.onerror=next;
+    img.src=url;
+  }
+  next();
+})();
+</script>
 </head>
 <body>
 <script>try{var _at=localStorage.getItem('accentTheme');if(_at&&_at!=='default')document.body.classList.add('accent-'+_at);}catch(e){}</script>
