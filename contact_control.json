@@ -824,7 +824,8 @@
           "date": "2026-10-23",
           "endDate": "2026-10-23",
           "note": "",
-          "time": ""
+          "time": "",
+          "done": true
         },
         {
           "id": "muxqz0h7s7g2",
