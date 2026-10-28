@@ -504,7 +504,7 @@ function loadData(){
   }catch{db={categories:[...DEF_CATS],contacts:[],cases:[],categoryStageTemplates:{},companyMilestones:[],msTypes:[],categoryColors:{}};}
 }
 function cleanDb(){
-  return{categories:db.categories,contacts:db.contacts,categoryStageTemplates:db.categoryStageTemplates||{},companyMilestones:db.companyMilestones||[],msTypes:db.msTypes||[],categoryColors:db.categoryColors||{},cases:db.cases.map(c=>{
+  return{categories:db.categories,contacts:db.contacts,categoryStageTemplates:db.categoryStageTemplates||{},companyMilestones:db.companyMilestones||[],msTypes:db.msTypes||[],categoryColors:db.categoryColors||{},githubUploadUrl:db.githubUploadUrl||'',cases:db.cases.map(c=>{
     const{_x,...r}=c;
     return{...r,contactRefs:(r.contactRefs||[]).map(ref=>{const{_logsOpen,_ctExpanded,...rr}=ref;return rr;})};
   })};
@@ -1373,6 +1373,9 @@ function renderSettingsPage(){
       <button class="settings-tab ${settingsTab==='keys'?'active':''}" onclick="setSettingsTab('keys')">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h12"/></svg>快捷鍵
       </button>
+      <button class="settings-tab ${settingsTab==='data'?'active':''}" onclick="setSettingsTab('data')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>資料管理
+      </button>
     </div>
     <div id="settingsTabBody"></div>
   </div>`;
@@ -1444,6 +1447,15 @@ function renderSettingsTabBody(){
       </table>
       <div class="settings-hint" style="margin-top:10px">N、/、↑↓ 只在「案件」或「名冊」頁生效，儀表板、期程總覽、設定頁按了不會有反應；正在輸入框裡打字時，這些快捷鍵也不會生效。</div>
     </div>`;
+  }else if(settingsTab==='data'){
+    el.innerHTML=`<div class="settings-sec">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-sm" onclick="exportJSON()">📤 匯出備份</button>
+        <button class="btn btn-sm" onclick="document.getElementById('importInput').click()">📥 匯入備份</button>
+        <button class="btn btn-sm" onclick="openGithubUpload()">🚀 上傳 GitHub</button>
+      </div>
+      <div class="fg" style="margin-top:14px"><label class="fl">GitHub 上傳頁網址</label><input class="fi" id="setGithubUrl" type="url" placeholder="https://github.com/帳號/repo名稱/upload/main" value="${esc(db.githubUploadUrl||'')}" onblur="saveGithubUrl(this.value)" autocomplete="off"></div>
+    </div>`;
   }else{
     el.innerHTML=`<div class="settings-sec">
       <div class="pwd-status" id="pwdStatus"></div>
@@ -1457,6 +1469,23 @@ function renderSettingsTabBody(){
     </div>`;
     updatePwdStatus();
   }
+}
+function saveGithubUrl(val){
+  const v=(val||'').trim();
+  if((db.githubUploadUrl||'')===v)return;
+  if(v&&!v.startsWith('https://')){showToast('⚠ 網址必須以 https:// 開頭，未儲存','warn');return;}
+  db.githubUploadUrl=v;saveData();
+  showToast(v?'✓ GitHub 上傳頁網址已儲存':'✓ GitHub 上傳頁網址已清除');
+}
+function openGithubUpload(){
+  const url=db.githubUploadUrl||'';
+  if(!url){
+    showToast('請先填寫 GitHub 上傳頁網址','warn');
+    const f=document.getElementById('setGithubUrl');
+    if(f){f.scrollIntoView({block:'center'});f.focus();}
+    return;
+  }
+  window.open(url,'_blank','noopener');
 }
 function toggleListDensity(){
   listDensity=listDensity==='compact'?'comfortable':'compact';
