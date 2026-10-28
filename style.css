@@ -530,9 +530,9 @@ tr.ci:hover .ctd-acts{opacity:1}
 #toast.show{opacity:1;transform:translateX(0)}
 
 /* ══ Dashboard ══ */
-.dash-wrap{padding:1.375rem 1.625rem 2rem;max-width:1000px;margin:0 auto}
+.dash-wrap{padding:1.375rem 1.625rem 2rem;max-width:none;margin:0 auto}
 .dash-hd{font-family:var(--font-d);font-size:1.25rem;font-weight:700;margin-bottom:1.125rem;letter-spacing:-.02em}
-.dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}
+.dash-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 .dash-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:1.125rem 1.25rem;box-shadow:var(--shadow-sm)}
 .dash-card-title{font-size:0.75rem;font-weight:700;color:var(--txf);text-transform:uppercase;letter-spacing:.08em;margin-bottom:0.875rem;display:flex;align-items:center;gap:6px}
 .dash-list{display:flex;flex-direction:column;gap:0.5rem;max-height:280px;overflow-y:auto}
@@ -586,7 +586,7 @@ tr.ci:hover .ctd-acts{opacity:1}
 .stage-empty{font-size:0.875rem;color:var(--txf)}
 
 /* ══ Settings Page (tab, not modal) ══ */
-.settings-wrap{padding:1.375rem 1.625rem 2rem;max-width:880px;margin:0 auto}
+.settings-wrap{padding:1.375rem 1.625rem 2rem;max-width:none;margin:0 auto}
 .settings-tabs{display:flex;gap:0.25rem;margin-bottom:1.25rem;border-bottom:1px solid var(--bd)}
 .settings-tab{background:none;border:none;padding:0.5625rem 1rem;font-size:0.8438rem;font-weight:600;color:var(--txm);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-0.0625rem;transition:all .15s;font-family:var(--font);display:flex;align-items:center;gap:6px}
 .settings-tab:hover{color:var(--tx)}
@@ -621,7 +621,7 @@ tr.ci:hover .ctd-acts{opacity:1}
 .tmpl-add-row{display:flex;gap:0.375rem;margin-top:6px}
 
 /* ══ Schedule / Calendar (期程總覽 · BMW M Power 配色) ══ */
-.sched-wrap{padding:1.375rem 1.625rem 2rem;max-width:760px;margin:0 auto}
+.sched-wrap{padding:1.375rem 1.625rem 2rem;max-width:none;margin:0 auto}
 .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:10px}
 .cal-title-group{display:flex;align-items:center;gap:8px}
 .cal-title{font-family:var(--font-d);font-size:1rem;font-weight:700;min-width:92px}
