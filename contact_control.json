@@ -866,6 +866,22 @@
           "endDate": "2027-12-26",
           "note": "",
           "time": ""
+        },
+        {
+          "id": "mvrnrwyts2ci",
+          "label": "工區放流水+營建噪音振動監測",
+          "date": "2026-11-09",
+          "endDate": "2026-11-09",
+          "note": "",
+          "time": ""
+        },
+        {
+          "id": "mvrns83fy5oo",
+          "label": "營建噪音振動監測",
+          "date": "2026-11-25",
+          "endDate": "2026-11-25",
+          "note": "",
+          "time": ""
         }
       ],
       "createdAt": 1778827464732,
