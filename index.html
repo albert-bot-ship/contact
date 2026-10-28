@@ -542,8 +542,9 @@ function getGContact(ref){return db.contacts.find(c=>c.id===ref.contactId)||{nam
 const VIEW_TAB_IDS={dashboard:'tabDashboard',cases:'tabCases',closed:'tabClosed',directory:'tabDir',schedule:'tabSchedule',settings:'tabSettings'};
 function syncLayoutMode(){
   const ml=document.getElementById('mainLayout');if(!ml)return;
-  ml.classList.toggle('cases-mode',view==='cases');
-  ml.classList.toggle('has-sel',view==='cases'&&!!selId);
+  const listView=view==='cases'||view==='closed';
+  ml.classList.toggle('cases-mode',listView);
+  ml.classList.toggle('has-sel',listView&&!!selId);
 }
 function setView(v){
   view=v;selId=null;selDirId=null;addrSelDir.clear();
@@ -1049,6 +1050,10 @@ function renderDashboard(){
   const catCounts={};db.cases.forEach(c=>{const cat=c.category||'未分類';catCounts[cat]=(catCounts[cat]||0)+1;});
   const maxStatus=Math.max(1,...Object.values(statusCounts));
   const maxCat=Math.max(1,...Object.values(catCounts),1);
+  const activeNext=db.cases.filter(c=>(c.status||'進行中')==='進行中').map(c=>{
+    const next=(c.milestones||[]).filter(m=>!m.done).sort((a,b)=>a.date.localeCompare(b.date))[0];
+    return next?{c,m:next}:null;
+  }).filter(Boolean).sort((a,b)=>a.m.date.localeCompare(b.m.date)).slice(0,5);
   const statusColMap={進行中:'var(--ok)',待辦:'var(--warn)',暫停:'var(--err)',結案:'var(--txf)'};
   rp.innerHTML=`<div class="dash-wrap">
     <div class="dash-hd">案件現況總覽</div>
@@ -1070,6 +1075,15 @@ function renderDashboard(){
       <div class="dash-card">
         <div class="dash-card-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>案件類別分布</div>
         ${Object.keys(catCounts).length?Object.entries(catCounts).sort((a,b)=>b[1]-a[1]).map(([cat,n])=>{const col=cat==='未分類'?['var(--sf3)','var(--txf)']:catCol(cat);return`<div class="dash-bar-row"><span class="dash-bar-label">${esc(cat)}</span><div class="dash-bar-track"><div class="dash-bar-fill" style="width:${(n/maxCat)*100}%;background:${col[1]}"></div></div><span class="dash-bar-count">${n}</span></div>`;}).join(''):`<div class="dash-empty">尚無案件</div>`}
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>進行中案件近期期程</div>
+        <div class="dash-list">
+          ${activeNext.length?activeNext.map(({c,m})=>{const urg=urgency(msEnd(m));const cls=urg==='overdue'?'overdue':urg==='urgent'?'urgent':'';return`<div class="dash-due-item ${cls}" onclick="setView('cases');selCase('${c.id}')" title="開啟案件">
+            <div class="dash-due-info"><div class="dash-due-label">${esc(c.name)}</div><div class="dash-due-case">${c.category?esc(c.category)+' · ':''}下個期程：${esc(m.label)}</div></div>
+            <span class="dash-due-date" style="color:${urg==='overdue'?'var(--err)':urg==='urgent'?'var(--warn)':'var(--txm)'}">${msDateStr(m)}</span>
+          </div>`;}).join(''):`<div class="dash-empty">目前沒有進行中案件的待辦期程</div>`}
+        </div>
       </div>
     </div>
   </div>`;
