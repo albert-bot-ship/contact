@@ -1160,14 +1160,6 @@
           "done": true
         },
         {
-          "id": "muuneusud2zm",
-          "label": "C01、附錄一",
-          "date": "2026-11-04",
-          "endDate": "2026-11-04",
-          "note": "提供C01、附錄一給中環說明監測報告需要協助的內容",
-          "time": ""
-        },
-        {
           "id": "mvevxaw8ndi3",
           "label": "微型感測器現勘",
           "date": "2026-10-22",
@@ -1175,6 +1167,23 @@
           "note": "",
           "time": "10:30",
           "done": true
+        },
+        {
+          "id": "muuneusud2zm",
+          "label": "C01、附錄一",
+          "date": "2026-11-04",
+          "endDate": "2026-11-04",
+          "note": "提供C01、附錄一給中環說明監測報告需要協助的內容",
+          "time": "",
+          "done": true
+        },
+        {
+          "id": "mvt4uqh6je6k",
+          "label": "跟中環確認C01、附錄一資料提供",
+          "date": "2026-11-23",
+          "endDate": "2026-11-23",
+          "note": "",
+          "time": ""
         }
       ],
       "createdAt": 1778830610783,
