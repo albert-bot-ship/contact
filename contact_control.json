@@ -834,7 +834,8 @@
           "date": "2026-10-29",
           "endDate": "2026-10-29",
           "note": "",
-          "time": ""
+          "time": "",
+          "done": true
         },
         {
           "id": "mu6qvxvgd19d",
