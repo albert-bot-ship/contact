@@ -319,7 +319,11 @@
       <input type="hidden" id="msId"><input type="hidden" id="msCaseId">
       <div class="fg" id="msCaseField" style="display:none">
         <label class="fl">歸屬 <span class="fr">*</span></label>
-        <select class="fs" id="msCasePick" onchange="msCasePickChanged()"></select>
+        <div class="ms-owner-wrap">
+          <input class="fi" id="msOwnerInput" autocomplete="off" placeholder="輸入案件名稱或關鍵字；留空＝公司期程" oninput="msOwnerTyped()" onfocus="msOwnerRender(true)" onblur="setTimeout(()=>msOwnerSugHide(),150)">
+          <div class="ms-owner-sug" id="msOwnerSug" hidden></div>
+        </div>
+        <div class="settings-hint" id="msOwnerStatus" style="margin:6px 0 0"></div>
       </div>
       <div class="fg" id="msTypeField" style="display:none">
         <label class="fl">類型（選填）</label>
@@ -415,7 +419,7 @@ const STATUS_CLS={進行中:'s-active',待辦:'s-pending',暫停:'s-paused',結�
 const COMPANY_ID='__company__';
 function msTypeById(id){return id?((db.msTypes||[]).find(t=>t.id===id)||null):null;}
 function msTypeCol(t){const hex=(t&&t.color)||'#888888';return[`rgba(${hexToRgb(hex)},.22)`,hex];}
-function companyMsItems(){return(db.companyMilestones||[]).map(m=>{const t=msTypeById(m.typeId);return{...m,caseId:COMPANY_ID,caseName:t?t.name:'公司期程',caseCategory:null,isCompany:true,msType:t};});}
+function companyMsItems(){return(db.companyMilestones||[]).map(m=>{const t=msTypeById(m.typeId);return{...m,caseId:COMPANY_ID,caseName:m.owner||(t?t.name:'公司期程'),caseCategory:null,isCompany:true,msType:t};});}
 /* 期程總覽篩選：all=全部 / case=僅案件期程 / untyped=未分類 / 其他=非案件類型 id */
 let schedFilter='all';
 function msPassFilter(m){
@@ -2088,7 +2092,7 @@ function openMsModal(caseId,msId){
   }
   document.getElementById('msLabel').value=m?m.label:'';document.getElementById('msDate').value=m?m.date:today();document.getElementById('msEndDate').value=m?msEnd(m):today();document.getElementById('msNote').value=m?(m.note||''):'';document.getElementById('msTime').value=m?(m.time||''):'';document.getElementById('msTime').style.borderColor='';
   const field=document.getElementById('msCaseField');
-  if(msId){fillMsCasePick(caseId);field.style.display='block';}else field.style.display='none';
+  if(msId){msOwnerSet(caseId===COMPANY_ID?(m&&m.owner||''):((db.cases.find(c=>c.id===caseId)||{}).name||''),caseId===COMPANY_ID?'':caseId);field.style.display='block';}else field.style.display='none';
   const tf=document.getElementById('msTypeField');
   if(caseId===COMPANY_ID){fillMsTypePick(m?(m.typeId||''):'');tf.style.display='block';}else tf.style.display='none';
   openMo('msModal');setTimeout(()=>document.getElementById('msLabel').focus(),80);
@@ -2110,10 +2114,9 @@ function openMsModalForDate(dateStr){
   document.getElementById('msNote').value='';
   document.getElementById('msTime').value='';document.getElementById('msTime').style.borderColor='';
   document.getElementById('msDate').value=dateStr||today();document.getElementById('msEndDate').value=dateStr||today();
-  const pick=fillMsCasePick('');
+  msOwnerSet('','');
   document.getElementById('msCaseField').style.display='block';
-  document.getElementById('msTypeField').style.display='none';
-  openMo('msModal');setTimeout(()=>pick.focus(),80);
+  openMo('msModal');setTimeout(()=>document.getElementById('msOwnerInput').focus(),80);
 }
 function fillMsTypePick(selId){
   const sel=document.getElementById('msTypePick');if(!sel)return;
@@ -2121,6 +2124,51 @@ function fillMsTypePick(selId){
   sel.innerHTML='<option value="">未分類</option>'+types.map(t=>`<option value="${esc(t.id)}">${esc(t.name)}</option>`).join('');
   sel.value=types.some(t=>t.id===selId)?selId:'';
   const hint=document.getElementById('msTypeHint');if(hint)hint.style.display=types.length?'none':'block';
+}
+/* 歸屬：自行輸入文字；唯一符合自己的案件才自動連結，多件需點選，對不到則存為公司期程並保留文字 */
+let msOwnerPicked='';
+function msOwnerMatches(text){
+  const q=(text||'').trim().toLowerCase();if(!q)return[];
+  return db.cases.filter(c=>{const n=(c.name||'').toLowerCase();return n&&(n.includes(q)||q.includes(n));})
+    .sort((a,b)=>a.name.localeCompare(b.name,'zh-TW'));
+}
+function msOwnerResolve(){
+  const text=(document.getElementById('msOwnerInput').value||'').trim();
+  if(!text)return{kind:'company',text};
+  if(msOwnerPicked&&db.cases.some(c=>c.id===msOwnerPicked))return{kind:'case',caseId:msOwnerPicked,text};
+  const ms=msOwnerMatches(text);
+  if(ms.length===1)return{kind:'case',caseId:ms[0].id,text};
+  if(ms.length>1)return{kind:'multi',count:ms.length,text};
+  return{kind:'other',text};
+}
+function msOwnerSet(text,caseId){
+  document.getElementById('msOwnerInput').value=text||'';
+  msOwnerPicked=caseId||'';
+  const m=document.getElementById('msId').value&&document.getElementById('msCaseId').value===COMPANY_ID?(db.companyMilestones||[]).find(x=>x.id===document.getElementById('msId').value):null;
+  fillMsTypePick(m?(m.typeId||''):'');
+  msOwnerRender(false);
+}
+function msOwnerTyped(){msOwnerPicked='';msOwnerRender(true);}
+function msOwnerPick(id){
+  const c=db.cases.find(c=>c.id===id);if(!c)return;
+  document.getElementById('msOwnerInput').value=c.name;msOwnerPicked=id;
+  msOwnerSugHide();msOwnerRender(false);
+}
+function msOwnerSugHide(){const b=document.getElementById('msOwnerSug');if(b)b.hidden=true;}
+function msOwnerRender(showSug){
+  const r=msOwnerResolve();
+  const st=document.getElementById('msOwnerStatus');
+  const c=r.kind==='case'?db.cases.find(x=>x.id===r.caseId):null;
+  st.style.color=r.kind==='case'?'var(--ok)':r.kind==='multi'?'var(--warn)':'';
+  st.textContent=r.kind==='case'?`✓ 已連結：${c.name}${c.category?`（${c.category}）`:''}`
+    :r.kind==='multi'?`⚠ 符合 ${r.count} 件案件，請從清單點選`
+    :r.kind==='other'?`○ 未對應到您的案件，將以「${r.text}」存為公司期程`
+    :'○ 留空＝公司期程';
+  document.getElementById('msTypeField').style.display=(r.kind==='company'||r.kind==='other')?'block':'none';
+  const box=document.getElementById('msOwnerSug');
+  const list=showSug&&!msOwnerPicked?msOwnerMatches(r.text).slice(0,8):[];
+  box.innerHTML=list.map(x=>`<div class="ms-owner-opt" onmousedown="event.preventDefault();msOwnerPick('${x.id}')">${esc(x.name)}${x.category?`<span>${esc(x.category)}</span>`:''}${x.status==='結案'?'<span>結案</span>':''}</div>`).join('');
+  box.hidden=!list.length;
 }
 function msCasePickChanged(){
   const isC=document.getElementById('msCasePick').value===COMPANY_ID;
@@ -2154,9 +2202,12 @@ function saveMilestone(){
   const field=document.getElementById('msCaseField');
   const origCaseId=document.getElementById('msCaseId').value;
   let caseId=origCaseId;
+  let ownerText=null;/* null＝欄位未顯示，不變更 owner */
   if(field&&field.style.display!=='none'){
-    caseId=document.getElementById('msCasePick').value;
-    if(!caseId){showToast('⚠ 請選擇所屬案件，或選「公司期程」','warn');return;}
+    const r=msOwnerResolve();
+    if(r.kind==='multi'){showToast('⚠ 歸屬符合多件案件，請從清單點選','warn');msOwnerRender(true);return;}
+    caseId=r.kind==='case'?r.caseId:COMPANY_ID;
+    ownerText=r.kind==='other'?r.text:'';
   }
   const msId=document.getElementById('msId').value;
   const typeId=(caseId===COMPANY_ID?(document.getElementById('msTypePick')||{}).value:'')||'';
@@ -2169,15 +2220,15 @@ function saveMilestone(){
     if(idx<0){showToast('⚠ 找不到原期程，未做變更','warn');return;}
     const obj=srcArr.splice(idx,1)[0];
     Object.assign(obj,{label,date,endDate,note,time});
-    if(caseId===COMPANY_ID){if(typeId)obj.typeId=typeId;else delete obj.typeId;if(!db.companyMilestones)db.companyMilestones=[];db.companyMilestones.push(obj);}
-    else{delete obj.typeId;dest.milestones.push(obj);}
+    if(caseId===COMPANY_ID){if(typeId)obj.typeId=typeId;else delete obj.typeId;if(ownerText)obj.owner=ownerText;else delete obj.owner;if(!db.companyMilestones)db.companyMilestones=[];db.companyMilestones.push(obj);}
+    else{delete obj.typeId;delete obj.owner;dest.milestones.push(obj);}
     saveData();refreshCurrentView();closeMo('msModal');showToast('✓ 期程已更新並變更歸屬');
     return;
   }
   if(caseId===COMPANY_ID){
     if(!db.companyMilestones)db.companyMilestones=[];
-    if(msId){const m=db.companyMilestones.find(m=>m.id===msId);if(m){m.label=label;m.date=date;m.endDate=endDate;m.note=note;m.time=time;if(typeId)m.typeId=typeId;else delete m.typeId;}}
-    else{const nm={id:uid(),label,date,endDate,note,time};if(typeId)nm.typeId=typeId;db.companyMilestones.push(nm);}
+    if(msId){const m=db.companyMilestones.find(m=>m.id===msId);if(m){m.label=label;m.date=date;m.endDate=endDate;m.note=note;m.time=time;if(typeId)m.typeId=typeId;else delete m.typeId;if(ownerText!==null){if(ownerText)m.owner=ownerText;else delete m.owner;}}}
+    else{const nm={id:uid(),label,date,endDate,note,time};if(typeId)nm.typeId=typeId;if(ownerText)nm.owner=ownerText;db.companyMilestones.push(nm);}
   }else{
     const c=db.cases.find(c=>c.id===caseId);if(!c)return;
     if(msId){const m=c.milestones.find(m=>m.id===msId);if(m){m.label=label;m.date=date;m.endDate=endDate;m.note=note;m.time=time;}}
