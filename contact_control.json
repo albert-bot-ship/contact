@@ -481,6 +481,16 @@
       "time": "14:00",
       "typeId": "muuysvwfz085",
       "done": true
+    },
+    {
+      "id": "mvue2adfdlf0",
+      "label": "點位現勘",
+      "date": "2026-11-10",
+      "endDate": "2026-11-10",
+      "note": "",
+      "time": "",
+      "owner": "大興段",
+      "typeId": "mvue2qlvzo6z"
     }
   ],
   "msTypes": [
@@ -493,6 +503,11 @@
       "id": "muuyt848e9nr",
       "name": "澔宇",
       "color": "#f59e0b"
+    },
+    {
+      "id": "mvue2qlvzo6z",
+      "name": "協助案件",
+      "color": "#6257ff"
     }
   ],
   "categoryColors": {},
