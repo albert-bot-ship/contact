@@ -1288,8 +1288,12 @@ function fitCalGrid(totalCells){
   const top=grid.getBoundingClientRect().top;
   const h=Math.max(240,window.innerHeight-top-16);
   grid.classList.add('fit');
-  grid.style.height=h+'px';
-  grid.style.gridTemplateRows=`auto repeat(${weeks},1fr)`;
+  /* 至少填滿螢幕；某週內容較多時該週自動長高 */
+  grid.style.height='';
+  const headH=grid.firstElementChild?grid.firstElementChild.offsetHeight:0;
+  const gap=parseFloat(getComputedStyle(grid).rowGap)||0;
+  const rowMin=Math.max(52,Math.floor((h-headH-gap*weeks)/weeks));
+  grid.style.gridTemplateRows=`auto repeat(${weeks},minmax(${rowMin}px,auto))`;
 }
 let calFitResizeT=null;
 window.addEventListener('resize',()=>{
