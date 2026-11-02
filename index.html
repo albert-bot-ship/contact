@@ -1225,7 +1225,7 @@ function renderSchedule(){
     const dayClick=items.length?`showCalDay('${dateStr}',event)`:`openMsModalForDate('${dateStr}')`;
     const tipText=items.map(it=>`${esc(it.caseName)} · ${esc(it.label)} · ${msDateStr(it)}`).join('\n');
     const tipAttr=items.length?` data-tip="${tipText}" onmouseenter="showCalTip(this)" onmouseleave="hideCalTip()"`:'';
-    cells+=`<div class="${cls.join(' ')}"${tipAttr} onclick="${dayClick}"><div class="cal-top"><span class="cal-daynum">${d}</span>${holName?`<span class="cal-hol" title="${esc(holName)}">${esc(holName)}</span>`:''}</div><div class="cal-events">${shown}${more}</div></div>`;
+    cells+=`<div class="${cls.join(' ')}"${tipAttr} onclick="${dayClick}"><div class="cal-top"><span class="cal-daynum">${d}</span>${holName?`<span class="cal-hol" title="${esc(holName)}">${esc(holName)}</span>`:''}<button class="cal-add" type="button" title="新增期程" aria-label="新增 ${dateStr} 期程" onclick="event.stopPropagation();hideCalTip();openMsModalForDate('${dateStr}')">＋</button></div><div class="cal-events">${shown}${more}</div></div>`;
   }
   const dows=['日','一','二','三','四','五','六'];
   const years=[];for(let yy=new Date().getFullYear()-20;yy<=new Date().getFullYear()+20;yy++)years.push(yy);
