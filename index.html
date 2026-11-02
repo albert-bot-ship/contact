@@ -1212,10 +1212,10 @@ function renderSchedule(){
     const items=(byDate[dateStr]||[]).sort((a,b)=>(a.done?1:0)-(b.done?1:0)||urgencyRank(msEnd(a))-urgencyRank(msEnd(b)));
     const shown=items.slice(0,2).map(it=>{
       const style=it.done?`background:var(--sf3);color:var(--txf);text-decoration:line-through;opacity:.75`:(calColorMode==='case'?calCaseModeStyle(it):(()=>{const col=mUrgCol(msEnd(it));return`background:${col}22;color:${col}`;})());
-      const directEdit=items.length===1?` onclick="event.stopPropagation();openMsModal('${it.caseId}','${it.id}')"`:'';
+      const directEdit=` onclick="event.stopPropagation();hideCalTip();openMsModal('${it.caseId}','${it.id}')" title="點擊編輯此事項"`;
       return`<div class="cal-event" style="${style}"${directEdit}><span style="font-weight:800">${esc(it.caseName)}</span>：${esc(it.label)}</div>`;
     }).join('');
-    const more=items.length>2?`<span class="cal-more">+${items.length-2} 筆</span>`:'';
+    const more=items.length>2?`<span class="cal-more" style="cursor:pointer" title="查看當天全部事項" onclick="event.stopPropagation();showCalDay('${dateStr}',event);document.getElementById('calDayDetail')?.scrollIntoView({behavior:'smooth',block:'start'})">+${items.length-2} 筆</span>`:'';
     const cls=['cal-cell'];
     const holName=holidays[dateStr]||'';
     if(holName)cls.push('holiday');
