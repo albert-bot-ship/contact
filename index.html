@@ -1065,7 +1065,7 @@ function renderDashboard(){
         <div class="dash-list">
           ${upcoming.length?upcoming.map(m=>{const urg=urgency(msEnd(m));const goto=m.isCompany?`setView('schedule')`:`setView('cases');selCase('${m.caseId}')`;const cls=m.done?'done':(urg==='overdue'?'overdue':urg==='urgent'?'urgent':'');return`<div class="dash-due-item ${cls}" onclick="${goto}">
             <span class="ms-check" style="flex-shrink:0" onclick="event.stopPropagation();toggleMsDone('${m.isCompany?COMPANY_ID:m.caseId}','${m.id}')" title="標記完成"></span>
-            <div class="dash-due-info"><div class="dash-due-label">${m.done?'✓ ':''}${esc(m.label)}</div><div class="dash-due-case">${m.isCompany?(m.msType?esc(m.msType.name):'🏢 公司期程'):esc(m.caseName)}</div></div>
+            <div class="dash-due-info"><div class="dash-due-label">${m.done?'✓ ':''}${esc(m.label)}</div><div class="dash-due-case">${m.isCompany?(m.owner?esc(m.owner)+(m.msType?' · '+esc(m.msType.name):''):(m.msType?esc(m.msType.name):'🏢 公司期程')):esc(m.caseName)}</div></div>
             <span class="dash-due-date" style="color:${m.done?'var(--txf)':urg==='overdue'?'var(--err)':urg==='urgent'?'var(--warn)':'var(--txm)'}">${msDateStr(m)}</span>
           </div>`;}).join(''):`<div class="dash-empty">近期沒有到期期程</div>`}
         </div>
@@ -1315,7 +1315,8 @@ function calJumpMonth(val){calMonth={...calMonth,m:parseInt(val)};calSelDay=null
 function schedItemHtml(m){
   const dotCol=m.done?'var(--ok)':mUrgCol(msEnd(m));
   const headerHtml=m.isCompany
-    ?(m.msType?`<span class="cat-badge" style="background:${msTypeCol(m.msType)[0]};color:${msTypeCol(m.msType)[1]}">${esc(m.msType.name)}</span>`:`<span class="sched-item-case company-tag">🏢 未分類</span>`)
+    ?(m.owner?`<span class="sched-item-case company-tag">${esc(m.owner)}</span>${m.msType?`<span class="cat-badge" style="background:${msTypeCol(m.msType)[0]};color:${msTypeCol(m.msType)[1]}">${esc(m.msType.name)}</span>`:''}`
+      :m.msType?`<span class="cat-badge" style="background:${msTypeCol(m.msType)[0]};color:${msTypeCol(m.msType)[1]}">${esc(m.msType.name)}</span>`:`<span class="sched-item-case company-tag">🏢 未分類</span>`)
     :`<span class="sched-item-case" onclick="event.stopPropagation();setView('cases');selCase('${m.caseId}')">${esc(m.caseName)}</span>${m.caseCategory?`<span class="cat-badge" style="background:${catCol(m.caseCategory)[0]};color:${catCol(m.caseCategory)[1]}">${esc(m.caseCategory)}</span>`:''}`;
   return`<div class="sched-item ${m.done?'done':''}" onclick="openMsModal('${m.caseId}','${m.id}')" title="點擊編輯此期程">
     <div class="sched-item-dot" style="background:${dotCol};box-shadow:0 0 7px ${dotCol}"></div>
