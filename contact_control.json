@@ -1327,7 +1327,13 @@
         },
         {
           "id": "mu29t6l4scmz",
-          "logs": [],
+          "logs": [
+            {
+              "id": "mw09p4crm84x",
+              "date": "2026-11-03",
+              "content": "回簽後跑流程設立專案+網路卡申請相關內容需兩周"
+            }
+          ],
           "contactId": "mu29t6l4t4ta",
           "primary": false,
           "caseNote": ""
