@@ -890,7 +890,8 @@
           "date": "2026-11-09",
           "endDate": "2026-11-09",
           "note": "",
-          "time": ""
+          "time": "",
+          "done": true
         },
         {
           "id": "mvrns83fy5oo",
@@ -1273,7 +1274,8 @@
           "date": "2026-11-09",
           "endDate": "2026-11-09",
           "note": "",
-          "time": ""
+          "time": "",
+          "done": true
         }
       ],
       "createdAt": 1778830610783,
