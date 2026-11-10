@@ -318,6 +318,14 @@ tr.ci:hover .ctd-acts{opacity:1}
 .ms-lbl{font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ms-note-ic{margin-left:0.3125rem;font-size:0.75rem;cursor:pointer;opacity:.85}
 .ms-note-ic:hover{opacity:1}
+.ms-main{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;text-align:left}
+.ms-main .ms-lbl{flex:none;max-width:100%}
+.ms-note-text{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-line;word-break:break-all;font-size:0.75rem;line-height:1.5;font-weight:400;color:inherit;opacity:.8;margin-top:0.125rem;text-align:left;max-width:100%}
+.sched-item-body .ms-note-text{color:var(--txm);opacity:1}
+.ms-note-text.open{display:block;-webkit-line-clamp:unset}
+.ms-note-more{display:inline-block;font-size:0.75rem;font-weight:600;color:var(--ac);cursor:pointer;margin-top:0.125rem}
+.ms-note-more[hidden]{display:none}
+.ms-note-more:hover{text-decoration:underline}
 .ms-card.ms-done{opacity:.55}
 .ms-card.ms-done .ms-lbl{text-decoration:line-through}
 .dash-due-item.done{border-left-color:var(--ok);opacity:.6}
