@@ -492,6 +492,15 @@
       "owner": "大興段",
       "typeId": "mvue2qlvzo6z",
       "done": true
+    },
+    {
+      "id": "mwa8x8w95yb3",
+      "label": "公司旅遊說明會",
+      "date": "2026-11-12",
+      "endDate": "2026-11-12",
+      "note": "https://calendar.app.google/utH1L8P7tZ3wz8o96",
+      "time": "",
+      "typeId": "muuyt848e9nr"
     }
   ],
   "msTypes": [
