@@ -762,12 +762,33 @@ function deselectCase(){
   document.getElementById('rp').classList.remove('mobile-show');
 }
 
+/* 細項說明：顯示在事項下方，超過 2 行摺疊並出現「展開全文」 */
+function msNoteHtml(note){
+  if(!note)return'';
+  return`<span class="ms-note-text">${esc(note)}</span><span class="ms-note-more" role="button" tabindex="0" hidden onclick="event.stopPropagation();msNoteToggle(this)" onkeydown="if(event.key==='Enter'){event.stopPropagation();event.preventDefault();msNoteToggle(this)}">展開全文</span>`;
+}
+function msNoteToggle(btn){
+  const el=btn.previousElementSibling;if(!el)return;
+  const open=el.classList.toggle('open');btn.textContent=open?'收合':'展開全文';
+}
+function msNoteFitAll(){
+  document.querySelectorAll('.ms-note-text').forEach(el=>{
+    const more=el.nextElementSibling;if(!more||!more.classList.contains('ms-note-more'))return;
+    if(el.classList.contains('open')){more.hidden=false;return;}
+    more.hidden=!(el.scrollHeight>el.clientHeight+1);
+  });
+}
+(function(){
+  let t=0;const run=()=>{cancelAnimationFrame(t);t=requestAnimationFrame(msNoteFitAll);};
+  const start=()=>{new MutationObserver(run).observe(document.body,{childList:true,subtree:true});window.addEventListener('resize',run);run();};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+})();
 let msFarShowFor=null;
 function renderMsCardHtml(m,caseId){
   const noteIcon=m.note?`<span class="ms-note-ic" title="${esc(m.note)}" onclick="event.stopPropagation();openMsModal('${caseId}','${m.id}')">📝</span>`:'';
-  if(m.done)return`<button class="ms-card ms-done" onclick="openMsModal('${caseId}','${m.id}')"><span class="ms-check done" onclick="event.stopPropagation();toggleMsDone('${caseId}','${m.id}')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span><span class="ms-lbl">${esc(m.label)}${noteIcon}</span><span class="ms-dt">${msDateStr(m)}</span><span class="ms-del-btn" onclick="event.stopPropagation();deleteMilestone('${caseId}','${m.id}')">×</span></button>`;
+  if(m.done)return`<button class="ms-card ms-done" onclick="openMsModal('${caseId}','${m.id}')"><span class="ms-check done" onclick="event.stopPropagation();toggleMsDone('${caseId}','${m.id}')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>${m.note?`<span class="ms-main"><span class="ms-lbl">${esc(m.label)}${noteIcon}</span>${msNoteHtml(m.note)}</span>`:`<span class="ms-lbl">${esc(m.label)}${noteIcon}</span>`}<span class="ms-dt">${msDateStr(m)}</span><span class="ms-del-btn" onclick="event.stopPropagation();deleteMilestone('${caseId}','${m.id}')">×</span></button>`;
   const urg=urgency(msEnd(m));const an=urg==='overdue'?' bl-fast':urg==='urgent'?' bl-slow':'';
-  return`<button class="ms-card ${urg}${an}" onclick="openMsModal('${caseId}','${m.id}')"><span class="ms-check" onclick="event.stopPropagation();toggleMsDone('${caseId}','${m.id}')"></span><span class="ms-lbl">${esc(m.label)}${noteIcon}</span><span class="ms-dt">${msDateStr(m)}</span><span class="ms-del-btn" onclick="event.stopPropagation();deleteMilestone('${caseId}','${m.id}')">×</span></button>`;
+  return`<button class="ms-card ${urg}${an}" onclick="openMsModal('${caseId}','${m.id}')"><span class="ms-check" onclick="event.stopPropagation();toggleMsDone('${caseId}','${m.id}')"></span>${m.note?`<span class="ms-main"><span class="ms-lbl">${esc(m.label)}${noteIcon}</span>${msNoteHtml(m.note)}</span>`:`<span class="ms-lbl">${esc(m.label)}${noteIcon}</span>`}<span class="ms-dt">${msDateStr(m)}</span><span class="ms-del-btn" onclick="event.stopPropagation();deleteMilestone('${caseId}','${m.id}')">×</span></button>`;
 }
 function renderCasesRP(){
   const rp=document.getElementById('rp');const c=db.cases.find(c=>c.id===selId);
@@ -1324,6 +1345,7 @@ function schedItemHtml(m){
     <div class="sched-item-body">
       <div class="sched-item-header">${headerHtml}</div>
       <div class="sched-item-label">${m.done?'✓ ':''}${esc(m.label)}${m.note?`<span class="ms-note-ic" title="${esc(m.note)}" onclick="event.stopPropagation();openMsModal('${m.caseId}','${m.id}')">📝</span>`:''}</div>
+      ${msNoteHtml(m.note)}
     </div>
     <div class="sched-item-acts">
       <button class="ibtn" onclick="event.stopPropagation();openMsModal('${m.caseId}','${m.id}')" title="編輯"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
