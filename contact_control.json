@@ -510,7 +510,8 @@
       "endDate": "2026-11-13",
       "note": "",
       "time": "09:30",
-      "typeId": "mvue2qlvzo6z"
+      "typeId": "mvue2qlvzo6z",
+      "done": true
     }
   ],
   "msTypes": [
