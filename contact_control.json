@@ -470,7 +470,8 @@
       "endDate": "2026-11-22",
       "note": "",
       "time": "",
-      "typeId": "muuyt848e9nr"
+      "typeId": "muuyt848e9nr",
+      "done": true
     },
     {
       "id": "muuyvb9bovvd",
@@ -1173,7 +1174,8 @@
           "date": "2026-11-16",
           "endDate": "2026-11-16",
           "note": "",
-          "time": ""
+          "time": "",
+          "done": true
         }
       ],
       "createdAt": 1778827817409,
