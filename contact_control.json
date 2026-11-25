@@ -921,7 +921,8 @@
           "date": "2026-11-25",
           "endDate": "2026-11-25",
           "note": "",
-          "time": ""
+          "time": "",
+          "done": true
         },
         {
           "id": "mvykmi7rt9dp",
@@ -1280,7 +1281,8 @@
           "date": "2026-11-23",
           "endDate": "2026-11-23",
           "note": "",
-          "time": ""
+          "time": "",
+          "done": true
         },
         {
           "id": "mw0hud986n91",
